@@ -1,0 +1,10 @@
+IPFML
+sklearn
+scikit-image
+tensorflow
+keras
+image_slicer
+Pillow
+pydot
+matplotlib
+path.py
