@@ -1,6 +1,7 @@
 # project data
 data
 data_svm
+saved_models
 
 .python-version
 __pycache__
