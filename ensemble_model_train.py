@@ -17,8 +17,8 @@ import sys, os, getopt
 output_model_folder = './saved_models/'
 
 def get_best_model(X_train, y_train):
-    parameters = {'kernel':['rbf'], 'C': np.arange(1, 20)}
-    svc = svm.SVC(gamma="scale")
+    parameters = {'kernel':['rbf'], 'C': np.arange(1, 2)}
+    svc = svm.SVC(gamma="scale", probability=True)
     clf = GridSearchCV(svc, parameters, cv=5, scoring='accuracy', verbose=10)
 
     clf.fit(X_train, y_train)
@@ -60,17 +60,16 @@ def main():
     y_dataset = dataset.ix[:,0]
     x_dataset = dataset.ix[:,1:]
 
-    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0.4, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0.3333, random_state=42)
 
     svm_model = get_best_model(X_train, y_train)
 
     lr_model = LogisticRegression(solver='lbfgs', multi_class='multinomial', random_state=1)
-    rf_model = RandomForestClassifier(n_estimators=50, random_state=1)
+    rf_model = RandomForestClassifier(n_estimators=100, random_state=1)
 
     ensemble_model = VotingClassifier(estimators=[
        ('svm', svm_model), ('lr', lr_model), ('rf', rf_model)],
-       voting='soft', weights=[2,1,1],
-       flatten_transform=True)
+       voting='soft', weights=[1,1,1])
 
     ensemble_model.fit(X_train, y_train)
 

@@ -177,7 +177,10 @@ def main():
         elif o in ("-s", "--scenes"):
             p_scenes = a.split(',')
         elif o in ("-z", "--zones"):
-            p_zones = list(map(int, a.split(',')))
+            if ',' in a:
+                p_zones = list(map(int, a.split(',')))
+            else:
+                p_zones = [a.strip()]
         elif o in ("-p", "--percent"):
             p_percent = float(a)
         elif o in ("-s", "--sep"):

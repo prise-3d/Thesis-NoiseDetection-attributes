@@ -46,7 +46,15 @@ def main():
 
     y_pred = model.predict(x_dataset)
 
-    print("Accuracy found %s " % str(accuracy_score(y_dataset, y_pred)))
+    accuracy = accuracy_score(y_dataset, y_pred)
+
+    print("Accuracy found %s " % str(accuracy))
+
+    with open(p_output, 'w') as f:
+        f.write("Accuracy found %s " % str(accuracy))
+        for prediction in y_pred:
+            f.write(str(prediction) + '\n')
+
 
 if __name__== "__main__":
     main()
