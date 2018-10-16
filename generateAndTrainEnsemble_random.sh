@@ -40,9 +40,8 @@ for size in {"4","8","16","26","32","40"}; do
 
             echo $FILENAME
             python generate_data_svm_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
-            python svm_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME} &
-
-            # add computation of scenes score and LaTeX display of its
+            python ensemble_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
+            bash testModelByScene.sh "${begin}" "${end}" "${MODEL_NAME}.joblib" "${mode}" >> ${FILENAME}.tex
 
         done
     done

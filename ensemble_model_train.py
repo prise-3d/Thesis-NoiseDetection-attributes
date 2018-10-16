@@ -4,10 +4,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 
 import sklearn.svm as svm
+from sklearn.utils import shuffle
 from sklearn.externals import joblib
 
 import numpy as np
-
 
 import pandas as pd
 from sklearn.metrics import accuracy_score
@@ -57,8 +57,23 @@ def main():
     # get and split data
     dataset = pd.read_csv(p_data_file, header=None, sep=";")
 
-    y_dataset = dataset.ix[:,0]
-    x_dataset = dataset.ix[:,1:]
+     # default first shuffle of data
+    dataset = shuffle(dataset)
+    
+    # get dataset with equal number of classes occurences
+    noisy_df = dataset[dataset.ix[:, 0] == 1]
+    not_noisy_df = dataset[dataset.ix[:, 0] == 0]
+    nb_not_noisy = len(not_noisy_df.index)
+
+    final_df = pd.concat([not_noisy_df, noisy_df[0:nb_not_noisy]])
+  
+    # shuffle data another time
+    final_df = shuffle(final_df)
+    
+    print(len(final_df.index))
+
+    y_dataset = final_df.ix[:,0]
+    x_dataset = final_df.ix[:,1:]
 
     X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0.3333, random_state=42)
 

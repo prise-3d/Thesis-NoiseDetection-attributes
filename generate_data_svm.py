@@ -201,7 +201,7 @@ def main():
         scenes_selected.append(scenes[index])
 
     for scene in scenes_selected:
-        print(scene)
+        print(scene + " : ")
 
     # create database using img folder (generate first time only)
     generate_data_svm(p_filename, p_interval, p_kind, scenes_selected, p_zones, p_percent, p_sep, p_rowindex)

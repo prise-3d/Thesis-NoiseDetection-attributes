@@ -31,18 +31,16 @@ fi
 INPUT_BEGIN=$1
 INPUT_END=$2
 INPUT_MODEL=$3
-INPUT_MODE$4
+INPUT_MODE=$4
 
 zones="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15"
 
 for scene in {"A","B","C","D","E","F","G","H","I"}; do
 
-  for mode in {"svd","svdn","svdne"}; do
+  FILENAME="data_svm/data_${mode}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
 
-      FILENAME="data_svm/data_${mode}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
+  python generate_data_svm.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
 
-      python generate_data_svm.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${mode} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
+  python prediction.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}.prediction"
 
-      python prediction.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${mode}.prediction"
-  done
 done

@@ -8,8 +8,6 @@ if [ -z "$1" ]
 fi
 
 VECTOR_SIZE=$1
-# selection of six scenes
-scenes="Appart1opt02, Bureau1, Cendrier, PNDVuePlongeante, SdbDroite, Selles"
 
 for size in {"4","8","16","26","32","40"}; do
 

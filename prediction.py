@@ -48,7 +48,7 @@ def main():
 
     accuracy = accuracy_score(y_dataset, y_pred)
 
-    print("Accuracy found %s " % str(accuracy))
+    print(str(accuracy))
 
     with open(p_output, 'w') as f:
         f.write("Accuracy found %s " % str(accuracy))
