@@ -1,5 +1,8 @@
 # project data
 data
+svm_data
+
+fichiersSVD
 .python-version
 __pycache__
 

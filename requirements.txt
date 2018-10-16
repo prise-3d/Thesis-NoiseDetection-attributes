@@ -8,3 +8,4 @@ Pillow
 pydot
 matplotlib
 path.py
+pandas
