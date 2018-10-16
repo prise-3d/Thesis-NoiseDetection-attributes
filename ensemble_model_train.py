@@ -17,7 +17,7 @@ import sys, os, getopt
 output_model_folder = './saved_models/'
 
 def get_best_model(X_train, y_train):
-    parameters = {'kernel':['rbf'], 'C': np.arange(1, 2)}
+    parameters = {'kernel':['rbf'], 'C': np.arange(1, 20)}
     svc = svm.SVC(gamma="scale", probability=True)
     clf = GridSearchCV(svc, parameters, cv=5, scoring='accuracy', verbose=10)
 
@@ -75,7 +75,7 @@ def main():
 
     y_pred = ensemble_model.predict(X_test)
 
-    print("Accuracy found %s " % str(accuracy_score(y_test, y_pred)))
+    print(str(accuracy_score(y_test, y_pred)) + '\n')
 
     joblib.dump(ensemble_model, output_model_folder + p_output + '.joblib') 
 

@@ -30,17 +30,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python smv_model_train.py --data xxxx --output xxxx')
+        print('python svm_model_train.py --data xxxx --output xxxx')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hd:o", ["help=", "data=", "output="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python smv_model_train.py --data xxxx --output xxxx')
+        print('python svm_model_train.py --data xxxx --output xxxx')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python smv_model_train.py --data xxxx --output xxxx')
+            print('python svm_model_train.py --data xxxx --output xxxx')
             sys.exit()
         elif o in ("-d", "--data"):
             p_data_file = a
@@ -63,7 +63,7 @@ def main():
 
     y_pred = svm_model.predict(X_test)
 
-    print("Accuracy found %s " % str(accuracy_score(y_test, y_pred)))
+    print(str(accuracy_score(y_test, y_pred)) + '\n')
 
     joblib.dump(svm_model, output_model_folder + p_output + '.joblib') 
 

@@ -7,9 +7,18 @@ if [ -z "$1" ]
     exit 1
 fi
 
+if [ -z "$2" ]
+  then
+    echo "No argument supplied"
+    echo "Need of model output name"
+    exit 1
+fi
+
 VECTOR_SIZE=$1
+INPUT_MODEL_NAME=$2
+
 # selection of six scenes
-scenes="A, B, C, D, E, G"
+scenes="A, B, C, D, E, F, G, H, I"
 
 for size in {"4","8","16","26","32","40"}; do
 
@@ -22,19 +31,28 @@ for size in {"4","8","16","26","32","40"}; do
         end=$(($VECTOR_SIZE))
     fi
 
-    for nb_zones in {3,4,5,6,7,8,9,10}; do
+    for nb_zones in {2,3,4,5,6,7,8,9,10}; do
 
         for mode in {"svd","svdn","svdne"}; do
 
-            FILENAME="data_svm/data_${mode}_N${size}_B${start}_E${end}_nb_zones_${$nb_zones}_random"
+            FILENAME="data_svm/data_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_random"
+            MODEL_NAME="saved_models/${INPUT_MODEL_NAME}_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}"
 
             echo $FILENAME
-            python generate_data_svm.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --zones "${zones}" --percent 1 --sep : --rowindex 1
-            ./apprentissage.sh -log2c -20,20,1 -log2g -20,20,1 ${FILENAME}.train &
+            python generate_data_svm_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
+            python svm_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME} &
 
         done
     done
+if [ -z "$2" ]
+  then
+    echo "No argument supplied"
+    echo "Need of model output name"
+    exit 1
+fi
 
+VECTOR_SIZE=$1
+INPUT_MODEL_NAME=$2
     start=$(($start+50))
   done
 
