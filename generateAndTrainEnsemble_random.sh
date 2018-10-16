@@ -36,12 +36,12 @@ for size in {"4","8","16","26","32","40"}; do
         for mode in {"svd","svdn","svdne"}; do
 
             FILENAME="data_svm/data_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_random"
-            MODEL_NAME="saved_models/${INPUT_MODEL_NAME}_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}"
+            MODEL_NAME="${INPUT_MODEL_NAME}_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}"
 
             echo $FILENAME
             python generate_data_svm_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
             python ensemble_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
-            bash testModelByScene.sh "${begin}" "${end}" "${MODEL_NAME}.joblib" "${mode}" >> ${FILENAME}.tex
+            bash testModelByScene.sh "${start}" "${end}" "./saved_models/${MODEL_NAME}.joblib" "${mode}" >> "./saved_models/${MODEL_NAME}.tex"
 
         done
     done
