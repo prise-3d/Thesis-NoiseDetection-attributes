@@ -64,9 +64,8 @@ def main():
     noisy_df = dataset[dataset.ix[:, 0] == 1]
     not_noisy_df = dataset[dataset.ix[:, 0] == 0]
     nb_noisy = len(noisy_df.index)
-    nb_noisy_end = int(nb_noisy)
     
-    final_df = pd.concat([not_noisy_df, noisy_df[0:nb_noisy_end]])
+    final_df = pd.concat([not_noisy_df[0:nb_noisy], noisy_df[:]])
     #final_df = pd.concat([not_noisy_df, noisy_df])
     
     # shuffle data another time
@@ -81,7 +80,7 @@ def main():
 
     svm_model = get_best_model(X_train, y_train)
 
-    lr_model = LogisticRegression(solver='lbfgs', multi_class='multinomial', random_state=1)
+    lr_model = LogisticRegression(solver='liblinear', multi_class='ovr', random_state=1)
     rf_model = RandomForestClassifier(n_estimators=100, random_state=1)
 
     ensemble_model = VotingClassifier(estimators=[

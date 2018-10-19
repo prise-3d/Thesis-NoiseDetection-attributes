@@ -7,7 +7,7 @@ from PIL import Image
 
 import sys, os, getopt
 
-min_max_file_path = './../fichiersSVD_light/min_max_values'
+min_max_file_path = './fichiersSVD_light/min_max_values'
 
 def main():
 
