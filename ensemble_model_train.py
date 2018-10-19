@@ -63,10 +63,12 @@ def main():
     # get dataset with equal number of classes occurences
     noisy_df = dataset[dataset.ix[:, 0] == 1]
     not_noisy_df = dataset[dataset.ix[:, 0] == 0]
-    nb_not_noisy = len(not_noisy_df.index)
-
-    final_df = pd.concat([not_noisy_df, noisy_df[0:nb_not_noisy]])
-  
+    nb_noisy = len(noisy_df.index)
+    nb_noisy_end = int(nb_noisy)
+    
+    final_df = pd.concat([not_noisy_df, noisy_df[0:nb_noisy_end]])
+    #final_df = pd.concat([not_noisy_df, noisy_df])
+    
     # shuffle data another time
     final_df = shuffle(final_df)
     
@@ -75,7 +77,7 @@ def main():
     y_dataset = final_df.ix[:,0]
     x_dataset = final_df.ix[:,1:]
 
-    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0.3333, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0.4, random_state=42)
 
     svm_model = get_best_model(X_train, y_train)
 
@@ -88,9 +90,11 @@ def main():
 
     ensemble_model.fit(X_train, y_train)
 
-    y_pred = ensemble_model.predict(X_test)
+    y_train_model = ensemble_model.predict(X_train)
+    print("**Train :** " + str(accuracy_score(y_train, y_train_model)))
 
-    print(str(accuracy_score(y_test, y_pred)) + '\n')
+    y_pred = ensemble_model.predict(X_test)
+    print("**Test :** " + str(accuracy_score(y_test, y_pred)))
 
     joblib.dump(ensemble_model, output_model_folder + p_output + '.joblib') 
 

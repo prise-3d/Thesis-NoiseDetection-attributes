@@ -61,9 +61,11 @@ def main():
     # get dataset with equal number of classes occurences
     noisy_df = dataset[dataset.ix[:, 0] == 1]
     not_noisy_df = dataset[dataset.ix[:, 0] == 0]
-    nb_not_noisy = len(not_noisy_df.index)
+    nb_noisy = len(noisy_df.index)
+    nb_noisy_end = int(nb_noisy)
 
-    final_df = pd.concat([not_noisy_df, noisy_df[0:nb_not_noisy]])
+    final_df = pd.concat([not_noisy_df, noisy_df[0:nb_noisy_end]])
+    #final_df = pd.concat([not_noisy_df, noisy_df])
   
     # shuffle data another time
     final_df = shuffle(final_df)
@@ -75,9 +77,11 @@ def main():
 
     svm_model = get_best_model(X_train, y_train)
 
-    y_pred = svm_model.predict(X_test)
+    y_train_model = svm_model.predict(X_train)
+    print("**Train :** " + str(accuracy_score(y_train, y_train_model)))
 
-    print(str(accuracy_score(y_test, y_pred)) + '\n')
+    y_pred = svm_model.predict(X_test)
+    print("**Test :** " + str(accuracy_score(y_test, y_pred)))
 
     joblib.dump(svm_model, output_model_folder + p_output + '.joblib') 
 

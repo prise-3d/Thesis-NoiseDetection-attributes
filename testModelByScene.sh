@@ -35,12 +35,19 @@ INPUT_MODE=$4
 
 zones="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15"
 
+echo "**Model :** ${INPUT_MODEL}"
+echo "**Mode :** ${INPUT_MODE}"
+echo "**Vector range :** [${INPUT_BEGIN}, ${INPUT_END}]"
+echo ""
+echo " # | GLOBAL | NOISY | NOT NOISY"
+echo "---|--------|-------|----------"
+
 for scene in {"A","B","C","D","E","F","G","H","I"}; do
 
   FILENAME="data_svm/data_${mode}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
 
   python generate_data_svm.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
 
-  python prediction.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}.prediction"
+  python prediction.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}.prediction" --scene ${scene}
 
 done

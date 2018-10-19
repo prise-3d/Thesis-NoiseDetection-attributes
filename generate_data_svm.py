@@ -24,7 +24,7 @@ output_file_svdne = "SVDNE_LAB_test_im6.csv"
 scenes = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
 scenes_indexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 choices = ['svd', 'svdn', 'svdne']
-path = './fichiersSVD'
+path = './fichiersSVD_light'
 zones = np.arange(16)
 file_choice = [output_file_svd, output_file_svdn, output_file_svdne]
 seuil_expe_filename = 'seuilExpe'
@@ -74,9 +74,9 @@ def construct_new_line(path_seuil, interval, line, sep, index):
         seuil_learned = int(seuil_file.readline().strip())
 
     if seuil_learned > int(seuil):
-        line = '0'
-    else:
         line = '1'
+    else:
+        line = '0'
 
     for idx, val in enumerate(metrics):
         if index:
@@ -105,6 +105,9 @@ def generate_data_svm(_filename, _interval, _choice, _scenes = scenes, _zones = 
     test_file = open(output_test_filename, 'w')
 
     scenes = os.listdir(path)
+
+    if min_max_filename in scenes:
+        scenes.remove(min_max_filename)
 
     for id_scene, folder_scene in enumerate(scenes):
         scene_path = path + "/" + folder_scene
@@ -199,9 +202,6 @@ def main():
     for scene_id in p_scenes:
         index = scenes_indexes.index(scene_id.strip())
         scenes_selected.append(scenes[index])
-
-    for scene in scenes_selected:
-        print(scene + " : ")
 
     # create database using img folder (generate first time only)
     generate_data_svm(p_filename, p_interval, p_kind, scenes_selected, p_zones, p_percent, p_sep, p_rowindex)
