@@ -34,7 +34,7 @@ def main():
         elif o in ("-o", "--mode"):
             p_mode = a
 
-            if p_mode != 'svdn' and p_mode != 'svdne':
+            if p_mode != 'svdn' and p_mode != 'svdne' and p_mode != 'svd':
                 assert False, "Mode not recognized"
         else:
             assert False, "unhandled option"
@@ -55,15 +55,17 @@ def main():
             min = float(f.readline().replace('\n', ''))
             max = float(f.readline().replace('\n', ''))
 
-        l_values_normalized = image_processing.normalize_arr_with_range(LAB_L, min, max)
+        l_values = image_processing.normalize_arr_with_range(LAB_L, min, max)
 
+    elif p_mode == 'svdn':
+        l_values = image_processing.normalize_arr(LAB_L)
     else:
-        l_values_normalized = image_processing.normalize_arr(LAB_L)
+        l_values = LAB_L
 
     
     # get interval values
     begin, end = p_interval
-    test_data = l_values_normalized[begin:end]
+    test_data = l_values[begin:end]
 
     # get prediction of model
     prediction = model.predict([test_data])[0]

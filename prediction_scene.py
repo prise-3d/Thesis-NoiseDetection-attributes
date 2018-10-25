@@ -13,17 +13,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python smv_model_train.py --data xxxx.csv --model xxxx.joblib --output xxxx --scene xxxx')
+        print('python prediction_scene.py --data xxxx.csv --model xxxx.joblib --output xxxx --scene xxxx')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hd:o:s", ["help=", "data=", "model=", "output=", "scene="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python smv_model_train.py --data xxxx.csv --model xxxx.joblib --output xxxx --scene xxxx')
+        print('python prediction_scene.py --data xxxx.csv --model xxxx.joblib --output xxxx --scene xxxx')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python smv_model_train.py --data xxxx.csv --model xxxx.joblib --output xxxx --scene xxxx')
+            print('python prediction_scene.py --data xxxx.csv --model xxxx.joblib --output xxxx --scene xxxx')
             sys.exit()
         elif o in ("-d", "--data"):
             p_data_file = a

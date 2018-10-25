@@ -48,6 +48,6 @@ for scene in {"A","B","C","D","E","F","G","H","I"}; do
 
   python generate_data_svm.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
 
-  python prediction.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}.prediction" --scene ${scene}
+  python prediction_scene.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}.prediction" --scene ${scene}
 
 done

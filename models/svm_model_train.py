@@ -13,9 +13,11 @@ from sklearn.metrics import accuracy_score
 
 import sys, os, getopt
 
-output_model_folder = './saved_models/'
+current_dirpath = os.getcwd()
+output_model_folder = os.path.join(current_dirpath, 'saved_models')
 
 def get_best_model(X_train, y_train):
+    
     parameters = {'kernel':['rbf'], 'C': np.arange(1, 20)}
     svc = svm.SVC(gamma="scale")
     clf = GridSearchCV(svc, parameters, cv=5, scoring='accuracy', verbose=10)
@@ -82,7 +84,7 @@ def main():
     y_pred = svm_model.predict(X_test)
     print("**Test :** " + str(accuracy_score(y_test, y_pred)))
 
-    joblib.dump(svm_model, output_model_folder + p_output + '.joblib') 
+    joblib.dump(svm_model, output_model_folder + '/' + p_output + '.joblib') 
 
 if __name__== "__main__":
     main()
