@@ -36,7 +36,7 @@ python generate_data_svm.py --output xxxx --interval 0,20  --kind svdne --scenes
 Parameters explained : 
 - **output** : filename of data (which will be split into two parts, *.train* and *.test* relative to your choices).
 - **interval** : the interval of data you want to use from SVD vector.
-- **kind** : kind of data ['svd', 'sdvn', 'sdvne']; not normalize, normalize vector only and normalize together.
+- **kind** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 - **scenes** : scenes choice for training dataset.
 - **zones** : zones to take for training dataset.
 - **percent** : percent of data amount of zone to take (choose randomly) of zone
@@ -100,7 +100,7 @@ python predict_noisy_image.py --interval "x,x" --model 'saved_models/xxxx.joblib
 Parameters list :
 - **model** : mode file saved to use
 - **interval** : the interval of data you want to use from SVD vector.
-- **mode** : kind of data ['svd', 'sdvn', 'sdvne']; not normalize, normalize vector only and normalize together.
+- **mode** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 - **limit_detection** : number of not noisy images found to stop and return threshold (integer).
 
 ### Display model performance information
@@ -120,7 +120,7 @@ python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.j
 Parameters list :
 - **model** : mode file saved to use
 - **interval** : the interval of data you want to use from SVD vector.
-- **mode** : kind of data ['svd', 'sdvn', 'sdvne']; not normalize, normalize vector only and normalize together.
+- **mode** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 
 
 Markdown file is saved using model name into **models_info** folder.

@@ -22,17 +22,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python save_model_result_in_md.py --interval "0,20" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python save_model_result_in_md.py --interval "0,20" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"]')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l", ["help=", "interval=", "model=", "mode="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"]')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+            print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"]')
             sys.exit()
         elif o in ("-t", "--interval"):
             p_interval = list(map(int, a.split(',')))

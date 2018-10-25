@@ -119,7 +119,7 @@ def main():
                     tmp_file_path = tmp_filename.replace('__model__', '_' + p_model_file.split('/')[1])
                     block.save(tmp_file_path)
 
-                    python_cmd = "python predict_noisy_image_sdv_lab.py --image " + tmp_file_path + \
+                    python_cmd = "python predict_noisy_image_svd_lab.py --image " + tmp_file_path + \
                                     " --interval '" + p_interval + \
                                     "' --model " + p_model_file  + \
                                     " --mode " + p_mode
