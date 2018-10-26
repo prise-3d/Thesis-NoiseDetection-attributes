@@ -116,7 +116,7 @@ def main():
                 
                 # check only if necessary for this scene (not already detected)
                 if not threshold_expes_detected[id_block]:
-                    tmp_file_path = tmp_filename.replace('__model__', '_' + p_model_file.split('/')[1])
+                    tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                     block.save(tmp_file_path)
 
                     python_cmd = "python predict_noisy_image_svd_lab.py --image " + tmp_file_path + \
