@@ -43,7 +43,6 @@ def main():
     model = joblib.load(p_model_file) 
 
     # load image
-
     img = Image.open(p_img_file)
     LAB_L = image_processing.get_LAB_L_SVD_s(img)
 

@@ -65,7 +65,8 @@ def main():
     if not os.path.exists(markdowns_folder):
         os.makedirs(markdowns_folder)
         
-    md_model_path = markdowns_folder + '/' + p_model_file.split('/')[1].replace('.joblib', '.md')
+    # get model name to construct model
+    md_model_path = markdowns_folder + '/' + p_model_file.split('/')[-1].replace('.joblib', '.md')
 
     with open(md_model_path, 'w') as f:
         f.write(output.decode("utf-8"))

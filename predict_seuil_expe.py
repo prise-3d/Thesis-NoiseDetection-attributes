@@ -151,7 +151,9 @@ def main():
 
         # end of scene => display of results
 
-        model_treshold_path = threshold_map_folder + '/' + p_model_file.split('/')[1]
+        # construct path using model name for saving threshold map folder
+        model_treshold_path = threshold_map_folder + '/' + p_model_file.split('/')[-1]
+        
         if not os.path.exists(model_treshold_path):
             os.makedirs(model_treshold_path)
 
