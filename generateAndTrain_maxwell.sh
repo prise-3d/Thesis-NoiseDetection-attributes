@@ -31,18 +31,20 @@ fi
 for nb_zones in {6,8,10,12,16}; do
 
     echo $start $end
-    for mode in {"svd","svdn","svdne"}; do
 
-        for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
+    for metric in {"lab","mscn"}; do
+        for mode in {"svd","svdn","svdne"}; do
+            for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
 
-            FILENAME="data_svm/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${mode}"
-            MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${mode}"
+                FILENAME="data/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
+                MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
 
-            echo $FILENAME
-            python generate_data_svm_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
-            python models/${model}_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
-            python predict_seuil_expe.py --interval "${start}, ${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --limit_detection '2'
-            python save_model_result_in_md.py --interval "${start}, ${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}"
+                echo $FILENAME
+                python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
+                python models/${model}_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
+                python predict_seuil_expe.py --interval "${start}, ${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+                python save_model_result_in_md.py --interval "${start}, ${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}"
+            done
         done
     done
 done

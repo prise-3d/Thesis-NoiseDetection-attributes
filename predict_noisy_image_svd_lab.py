@@ -7,23 +7,23 @@ from PIL import Image
 
 import sys, os, getopt
 
-min_max_file_path = './fichiersSVD_light/min_max_values'
+min_max_file_path = './fichiersSVD_light/lab_min_max_values'
 
 def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python predict_noisy_image.py --image path/to/xxxx --interval "0,20" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "0,20" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hi:t:m:o", ["help=", "image=", "interval=", "model=", "mode="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python predict_noisy_image.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python predict_noisy_image.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+            print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
             sys.exit()
         elif o in ("-i", "--image"):
             p_img_file = a
