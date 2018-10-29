@@ -42,8 +42,9 @@ for nb_zones in {6,8,10,12,16}; do
                 echo $FILENAME
                 python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
                 python models/${model}_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
-                python predict_seuil_expe.py --interval "${start}, ${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
-                python save_model_result_in_md.py --interval "${start}, ${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}"
+                echo predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+                python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+                python save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
             done
         done
     done
