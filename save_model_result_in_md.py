@@ -22,17 +22,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python save_model_result_in_md.py --interval "0,20" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python save_model_result_in_md.py --interval "0,20" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ["lab", "mscn"]')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l", ["help=", "interval=", "model=", "mode="])
+        opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l", ["help=", "interval=", "model=", "mode=", "metric="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ["lab", "mscn"]')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+            print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ["lab", "mscn"]')
             sys.exit()
         elif o in ("-t", "--interval"):
             p_interval = list(map(int, a.split(',')))
@@ -43,6 +43,8 @@ def main():
 
             if p_mode != 'svdn' and p_mode != 'svdne' and p_mode != 'svd':
                 assert False, "Mode not recognized"
+        elif o in ("-me", "--metric"):
+            p_metric = a
         else:
             assert False, "unhandled option"
 
@@ -51,7 +53,7 @@ def main():
 
     begin, end = p_interval
 
-    bash_cmd = "bash testModelByScene.sh '" + str(begin) + "' '" + str(end) + "' '" + p_model_file + "' '" + p_mode + "'"
+    bash_cmd = "bash testModelByScene.sh '" + str(begin) + "' '" + str(end) + "' '" + p_model_file + "' '" + p_mode + "' '" + p_metric + "'" 
     print(bash_cmd)
      
     ## call command ##
@@ -65,13 +67,14 @@ def main():
     if not os.path.exists(markdowns_folder):
         os.makedirs(markdowns_folder)
         
-    md_model_path = markdowns_folder + '/' + p_model_file.split('/')[1].replace('.joblib', '.md')
+    # get model name to construct model
+    md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace('.joblib', '.md'))
 
     with open(md_model_path, 'w') as f:
         f.write(output.decode("utf-8"))
 
         # read each threshold_map information if exists
-        model_map_info_path = threshold_map_folder + '/' + p_model_file.replace('saved_models/', '')
+        model_map_info_path = os.path.join(threshold_map_folder, p_model_file.replace('saved_models/', ''))
 
         if not os.path.exists(model_map_info_path):
             f.write('\n\n No threshold map information')
@@ -81,7 +84,7 @@ def main():
             # get all map information
             for t_map_file in maps_files:
                 
-                file_path = model_map_info_path + '/' + t_map_file
+                file_path = os.path.join(model_map_info_path, t_map_file)
                 with open(file_path, 'r') as map_file:
 
                     title_scene =  t_map_file.replace(threshold_map_file_prefix, '')

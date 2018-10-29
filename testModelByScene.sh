@@ -28,10 +28,18 @@ if [ -z "$4" ]
     exit 1
 fi
 
+if [ -z "$5" ]
+  then
+    echo "No fifth argument supplied"
+    echo "Need of metric : 'lab', 'mscn'"
+    exit 1
+fi
+
 INPUT_BEGIN=$1
 INPUT_END=$2
 INPUT_MODEL=$3
 INPUT_MODE=$4
+INPUT_METRIC=$5
 
 zones="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15"
 
@@ -44,10 +52,10 @@ echo "---|--------|-------|----------"
 
 for scene in {"A","B","C","D","E","F","G","H","I"}; do
 
-  FILENAME="data_svm/data_${mode}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
+  FILENAME="data/data_${INPUT_MODE}_${INPUT_METRIC}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
 
-  python generate_data_svm.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
+  python generate_data_model.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --metric ${INPUT_METRIC} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
 
-  python prediction_scene.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}.prediction" --scene ${scene}
+  python prediction_scene.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}_metric_${INPUT_METRIC}.prediction" --scene ${scene}
 
 done

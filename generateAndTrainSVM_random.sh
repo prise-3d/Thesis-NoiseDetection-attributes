@@ -33,17 +33,20 @@ for size in {"4","8","16","26","32","40"}; do
 
     for nb_zones in {2,3,4,5,6,7,8,9,10}; do
 
-        for mode in {"svd","svdn","svdne"}; do
+        for metric in {"lab","mscn"}; do
+            
+            for mode in {"svd","svdn","svdne"}; do
 
-            FILENAME="data_svm/data_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_random"
-            MODEL_NAME="saved_models/${INPUT_MODEL_NAME}_${mode}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}"
+                FILENAME="data/data_${mode}_${metric}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_random"
+                MODEL_NAME="${INPUT_MODEL_NAME}_${mode}_${metric}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}"
 
-            echo $FILENAME
-            python generate_data_svm_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
-            python svm_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME} &
+                echo $FILENAME
+                python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
+                python svm_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME} &
 
-            # add computation of scenes score and LaTeX display of its
+                # add computation of scenes score and LaTeX display of its
 
+            done
         done
     done
 if [ -z "$2" ]

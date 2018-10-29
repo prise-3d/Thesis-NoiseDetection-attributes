@@ -6,6 +6,11 @@
 pip install -r requirements.txt
 ```
 
+Generate all needed data for each metrics (lab and mscn)
+```
+python generate_all_data.py
+```
+
 ## How to use
 
 ### Multiple folders and scripts are availables :
@@ -14,29 +19,29 @@ pip install -r requirements.txt
 - **fichiersSVD/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
 - **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...) but here with reduction of information for few scenes. Information used in our case.
 - **models/*.py** : all models developed to predict noise in image.
-- **data_svm/\*** : folder which will contain all *.train* & *.test* files in order to train model.
+- **data/\*** : folder which will contain all *.train* & *.test* files in order to train model.
 - **saved_models/*.joblib** : all scikit learn models saved.
 - **models_info/*.md** : all markdown files generated to get quick information about model performance and prediction.
 
 ### Scripts for generating data files
 
 Two scripts can be used for generating data in order to fit model :
-- **generate_data_svm.py** : zones are specified and stayed fixed for each scene
-- **generate_data_svm_random.py** : zones are chosen randomly (just a number of zone is specified)
+- **generate_data_model.py** : zones are specified and stayed fixed for each scene
+- **generate_data_model_random.py** : zones are chosen randomly (just a number of zone is specified)
 
 
 **Remark** : Note here that all python script have *--help* command.
 
 ```
-python generate_data_svm.py --help
+python generate_data_model.py --help
 
-python generate_data_svm.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "0, 1, 2" --percent 0.7 --sep : --rowindex 1
+python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "0, 1, 2" --percent 0.7 --sep : --rowindex 1
 ```
 
 Parameters explained : 
 - **output** : filename of data (which will be split into two parts, *.train* and *.test* relative to your choices).
 - **interval** : the interval of data you want to use from SVD vector.
-- **kind** : kind of data ['svd', 'sdvn', 'sdvne']; not normalize, normalize vector only and normalize together.
+- **kind** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 - **scenes** : scenes choice for training dataset.
 - **zones** : zones to take for training dataset.
 - **percent** : percent of data amount of zone to take (choose randomly) of zone
@@ -48,7 +53,7 @@ Parameters explained :
 This is an example of how to train a model
 
 ```python
-python models/xxxxx.py --data 'data_svm/xxxxx.train' --output 'model_file_to_save'
+python models/xxxxx.py --data 'data/xxxxx.train' --output 'model_file_to_save'
 ```
 
 ### Predict image using model
@@ -57,6 +62,12 @@ Now we have a model trained, we can use it with an image as input :
 
 ```python
 python predict_noisy_image_svd_lab.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
+```
+
+You can also use specific metric (lab or mscn at the moment)
+
+```python
+python predict_noisy_image_svd_mscn.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
 ```
 
 The model will return only 0 or 1 :
@@ -79,7 +90,7 @@ python prediction_scene.py --data path/to/xxxx.csv --model saved_model/xxxx.jobl
 In order to see if a model well generalized, a bash script is available :
 
 ```bash
-bash testModelByScene.sh '100' '110' 'saved_models/xxxx.joblib' 'svdne'
+bash testModelByScene.sh '100' '110' 'saved_models/xxxx.joblib' 'svdne' 'lab'
 ```
 
 Parameters list :
@@ -94,13 +105,13 @@ Parameters list :
 Main objective of this project is to predict as well as a human the noise perception on a photo realistic image. Human threshold is available from training data. So a script was developed to give the predicted treshold from model and compare predicted treshold from the expected one.
 
 ```python
-python predict_noisy_image.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --limit_detection xx
+python predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn'] --limit_detection xx
 ```
 
 Parameters list :
 - **model** : mode file saved to use
 - **interval** : the interval of data you want to use from SVD vector.
-- **mode** : kind of data ['svd', 'sdvn', 'sdvne']; not normalize, normalize vector only and normalize together.
+- **mode** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 - **limit_detection** : number of not noisy images found to stop and return threshold (integer).
 
 ### Display model performance information
@@ -114,13 +125,13 @@ The content will be divised into two parts :
 The previous script need to already have ran to obtain and display treshold maps on this markdown file.
 
 ```python
-python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"]
+python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn'] 
 ```
 
 Parameters list :
 - **model** : mode file saved to use
 - **interval** : the interval of data you want to use from SVD vector.
-- **mode** : kind of data ['svd', 'sdvn', 'sdvne']; not normalize, normalize vector only and normalize together.
+- **mode** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 
 
 Markdown file is saved using model name into **models_info** folder.
@@ -131,4 +142,4 @@ All others bash scripts are used to combine and run multiple model combinations.
 
 ## How to contribute
 
-This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.
+This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.git 

@@ -35,15 +35,18 @@ for size in {"4","8","16","26","32","40"}; do
 
         zones_str="${zones//, /-}"
 
-        for mode in {"svd","svdn","svdne"}; do
+        for metric in {"lab","mscn"}; do
 
-            FILENAME="data_svm/data_${mode}_N${size}_B${start}_E${end}_zones${zones_str}"
-            MODEL_NAME="saved_models/${INPUT_MODEL_NAME}_${mode}_N${size}_B${start}_E${end}_zones_${zones_str}"
+            for mode in {"svd","svdn","svdne"}; do
 
-            echo $FILENAME
-            python generate_data_svm.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --scenes "${scenes}" --zones "${zones}" --percent 1 --sep ';' --rowindex '0'
-            python svm_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME} &
+                FILENAME="data/data_${mode}_${metric}_N${size}_B${start}_E${end}_zones${zones_str}"
+                MODEL_NAME="saved_models/${INPUT_MODEL_NAME}_${mode}_${metric}_N${size}_B${start}_E${end}_zones_${zones_str}"
 
+                echo $FILENAME
+                python generate_data_model.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --zones "${zones}" --percent 1 --sep ';' --rowindex '0'
+                python svm_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME} &
+
+            done
         done
     done
 
