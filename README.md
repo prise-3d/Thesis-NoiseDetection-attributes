@@ -142,4 +142,4 @@ All others bash scripts are used to combine and run multiple model combinations.
 
 ## How to contribute
 
-This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.
+This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.git 

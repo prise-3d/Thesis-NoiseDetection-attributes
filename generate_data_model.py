@@ -15,10 +15,9 @@ import json
 
 config_filename   = "config"
 zone_folder       = "zone"
-min_max_filename  = "min_max_values"
-output_file_svd   = "SVD_LAB_test_im6.csv"
-output_file_svdn  = "SVDN_LAB_test_im6.csv"
-output_file_svdne = "SVDNE_LAB_test_im6.csv"
+min_max_filename  = "_min_max_values"
+generic_output_file_svd = '_random.csv'
+output_data_folder = 'data'
 
 # define all scenes values
 scenes = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
@@ -26,42 +25,7 @@ scenes_indexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 choices = ['svd', 'svdn', 'svdne']
 path = './fichiersSVD_light'
 zones = np.arange(16)
-file_choice = [output_file_svd, output_file_svdn, output_file_svdne]
 seuil_expe_filename = 'seuilExpe'
-
-def generate_data_svd_lab():
-    """
-    @brief Method which generates all .csv files from scenes photos
-    @param path - path of scenes folder information
-    @return nothing
-    """
-
-    # TODO :
-    # - parcourir chaque dossier de scene
-    scenes = os.listdir(path)
-
-    for folder_scene in scenes:
-
-        folder_path = path + "/" + folder_scene
-
-        with open(folder_path + "/" + config_filename, "r") as config_file:
-            last_image_name = config_file.readline().strip()
-            prefix_image_name = config_file.readline().strip()
-            start_index_image = config_file.readline().strip()
-            end_index_image = config_file.readline().strip()
-            step_counter = int(config_file.readline().strip())
-
-
-        current_counter_index = int(start_index_image)
-        end_counter_index = int(start_index_image)
-
-        print(current_counter_index)
-        while(current_counter_index <= end_index_image):
-            print(current_counter_index)
-            current_counter_index += step_counter
-
-    # - récupérer les informations des fichiers de configurations
-    # - création des fichiers de sortie SVD, SVDE, SVDNE
 
 def construct_new_line(path_seuil, interval, line, sep, index):
     begin, end = interval
@@ -87,7 +51,7 @@ def construct_new_line(path_seuil, interval, line, sep, index):
 
     return line
 
-def generate_data_model(_filename, _interval, _choice, _scenes = scenes, _zones = zones, _percent = 1, _sep=':', _index=True):
+def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes, _zones = zones, _percent = 1, _sep=':', _index=True):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"
@@ -96,21 +60,19 @@ def generate_data_model(_filename, _interval, _choice, _scenes = scenes, _zones 
         raise Exception("Please select filename with directory path to save data. Example : data/dataset")
 
     # create path if not exists
-    output_folder = output_train_filename.split('/')[0]
-
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    if not os.path.exists(output_data_folder):
+        os.makedirs(output_data_folder)
 
     train_file = open(output_train_filename, 'w')
     test_file = open(output_test_filename, 'w')
 
     scenes = os.listdir(path)
 
-    if min_max_filename in scenes:
-        scenes.remove(min_max_filename)
+    # remove min max file from scenes folder
+    scenes = [s for s in scenes if min_max_filename not in s]
 
     for id_scene, folder_scene in enumerate(scenes):
-        scene_path = path + "/" + folder_scene
+        scene_path = os.path.join(path, folder_scene)
 
         zones_folder = []
         # create zones list
@@ -121,9 +83,10 @@ def generate_data_model(_filename, _interval, _choice, _scenes = scenes, _zones 
             zones_folder.append("zone"+index_str)
 
         for id_zone, zone_folder in enumerate(zones_folder):
-            zone_path = scene_path + "/" + zone_folder
-            data_filename = file_choice[choices.index(_choice)]
-            data_file_path = zone_path + "/" + data_filename
+            zone_path = os.path.join(scene_path, zone_folder) 
+            data_filename = _metric + "_" + _choice + generic_output_file_svd
+            data_file_path = os.path.join(zone_path, data_filename)
+
 
              # getting number of line and read randomly lines
             f = open(data_file_path)
@@ -134,7 +97,7 @@ def generate_data_model(_filename, _interval, _choice, _scenes = scenes, _zones 
             lines_indexes = np.arange(num_lines)
             random.shuffle(lines_indexes)
 
-            path_seuil = zone_path + "/" + seuil_expe_filename
+            path_seuil = os.path.join(zone_path, seuil_expe_filename)
 
             counter = 0
             # check if user select current scene and zone to be part of training data set
@@ -159,17 +122,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "1, 2, 3" --percent 0.7 --sep ":" --rowindex "1"')
+        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3" --percent 0.7 --sep ":" --rowindex "1"')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:z:p:r", ["help=", "output=", "interval=", "kind=", "scenes=", "zones=", "percent=", "sep=", "rowindex="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:z:p:r", ["help=", "output=", "interval=", "kind=", "metric=", "scenes=", "zones=", "percent=", "sep=", "rowindex="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "1, 2, 3" --percent 0.7 --sep ":" --rowindex "1"')
+        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3" --percent 0.7 --sep ":" --rowindex "1"')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "1, 2, 3" --percent 0.7 --sep ":" --rowindex "1"')
+            print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3" --percent 0.7 --sep ":" --rowindex "1"')
             sys.exit()
         elif o in ("-o", "--output"):
             p_filename = a
@@ -177,6 +140,8 @@ def main():
             p_interval = list(map(int, a.split(',')))
         elif o in ("-k", "--kind"):
             p_kind = a
+        elif o in ("-m", "--metric"):
+            p_metric = a
         elif o in ("-s", "--scenes"):
             p_scenes = a.split(',')
         elif o in ("-z", "--zones"):
@@ -204,7 +169,7 @@ def main():
         scenes_selected.append(scenes[index])
 
     # create database using img folder (generate first time only)
-    generate_data_model(p_filename, p_interval, p_kind, scenes_selected, p_zones, p_percent, p_sep, p_rowindex)
+    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_zones, p_percent, p_sep, p_rowindex)
 
 if __name__== "__main__":
     main()

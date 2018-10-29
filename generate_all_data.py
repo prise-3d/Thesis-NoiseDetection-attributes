@@ -106,7 +106,10 @@ def generate_data_svd(data_type, mode):
                 
                 # get data from mode 
                 if data_type == 'lab':
-                    data = image_processing.get_LAB_L_SVD_s(block)
+
+                    block_file_path = '/tmp/lab_img.png'
+                    block.save(block_file_path)
+                    data = image_processing.get_LAB_L_SVD_s(Image.open(block_file_path))
                 
                 if data_type == 'mscn':
 
@@ -148,6 +151,9 @@ def generate_data_svd(data_type, mode):
 
                 # now write data into current writer 
                 current_file = svd_output_files[id_block]
+
+                # add of index
+                current_file.write(current_counter_index_str + ';')
 
                 for val in data:
                     current_file.write(str(val) + ";")

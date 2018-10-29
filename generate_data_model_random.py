@@ -76,7 +76,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
     scenes = [s for s in scenes if min_max_filename not in s]
 
     for id_scene, folder_scene in enumerate(scenes):
-        scene_path = path + "/" + folder_scene
+        scene_path = os.path.join(path, folder_scene)
 
         zones_folder = []
         # create zones list
@@ -92,7 +92,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
         for id_zone, zone_folder in enumerate(zones_folder):
             zone_path = os.path.join(scene_path, zone_folder)
             data_filename = _metric + "_" + _choice + generic_output_file_svd
-            data_file_path = os.path(zone_path, data_filename)
+            data_file_path = os.path.join(zone_path, data_filename)
 
             # getting number of line and read randomly lines
             f = open(data_file_path)
@@ -103,7 +103,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
             lines_indexes = np.arange(num_lines)
             random.shuffle(lines_indexes)
 
-            path_seuil = zone_path + "/" + seuil_expe_filename
+            path_seuil = os.path.join(zone_path, seuil_expe_filename)
 
             counter = 0
             # check if user select current scene and zone to be part of training data set
@@ -129,17 +129,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python generate_data.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1')
+        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:n:p:r", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "nb_zones=", "percent=", "sep=", "rowindex="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_data.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1')
+        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_data.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1')
+            print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1')
             sys.exit()
         elif o in ("-o", "--output"):
             p_filename = a
