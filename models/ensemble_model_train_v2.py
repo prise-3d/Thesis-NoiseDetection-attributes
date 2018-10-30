@@ -39,17 +39,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python smv_model_train.py --data xxxx --output xxxx')
+        print('python ensemble_model_train_v2.py --data xxxx --output xxxx')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hd:o", ["help=", "data=", "output="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python smv_model_train.py --data xxxx --output xxxx')
+        print('python ensemble_model_train_v2.py --data xxxx --output xxxx')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python smv_model_train.py --data xxxx --output xxxx')
+            print('python ensemble_model_train_v2.py --data xxxx --output xxxx')
             sys.exit()
         elif o in ("-d", "--data"):
             p_data_file = a

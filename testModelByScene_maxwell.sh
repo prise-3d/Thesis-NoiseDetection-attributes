@@ -51,7 +51,8 @@ echo ""
 echo " # | GLOBAL | NOISY | NOT NOISY"
 echo "---|--------|-------|----------"
 
-for scene in {"A","B","C","D","E","F","G","H","I"}; do
+# only take maxwell scenes
+for scene in {"A","D","G","H"}; do
 
   FILENAME="data/data_${INPUT_MODE}_${INPUT_METRIC}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
 

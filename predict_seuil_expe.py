@@ -64,8 +64,12 @@ def main():
     for id_scene, folder_scene in enumerate(scenes):
     
         print(folder_scene)
-        scene_path = scenes_path + "/" + folder_scene
-        with open(scene_path + "/" + config_filename, "r") as config_file:
+
+        scene_path = os.path.join(scenes_path, folder_scene)
+
+        config_path = os.path.join(scene_path, config_filename)
+
+        with open(config_path, "r") as config_file:
             last_image_name = config_file.readline().strip()
             prefix_image_name = config_file.readline().strip()
             start_index_image = config_file.readline().strip()
@@ -84,7 +88,9 @@ def main():
                 index_str = "0" + index_str
             zone_folder = "zone"+index_str
 
-            with open(scene_path + "/" + zone_folder + "/" + threshold_expe_filename) as f:
+            threshold_path_file = os.path.join(os.path.join(scene_path, zone_folder), threshold_expe_filename)
+
+            with open(threshold_path_file) as f:
                 threshold = int(f.readline())
                 threshold_expes.append(threshold)
 
@@ -106,7 +112,7 @@ def main():
             while len(start_index_image) > len(current_counter_index_str):
                 current_counter_index_str = "0" + current_counter_index_str
 
-            img_path = scene_path + "/" + prefix_image_name + current_counter_index_str + ".png"
+            img_path = os.path.join(scene_path, prefix_image_name + current_counter_index_str + ".png")
 
             current_img = Image.open(img_path)
             img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
@@ -118,10 +124,11 @@ def main():
                 
                 # check only if necessary for this scene (not already detected)
                 if not threshold_expes_detected[id_block]:
+
                     tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                     block.save(tmp_file_path)
 
-                    python_cmd = "python predict_noisy_image_svd_" + p_metric + ".py --image " + tmp_file_path + \
+                    python_cmd = "python metrics_predictions/predict_noisy_image_svd_" + p_metric + ".py --image " + tmp_file_path + \
                                     " --interval '" + p_interval + \
                                     "' --model " + p_model_file  + \
                                     " --mode " + p_mode
@@ -155,14 +162,15 @@ def main():
         # end of scene => display of results
 
         # construct path using model name for saving threshold map folder
-        model_treshold_path = threshold_map_folder + '/' + p_model_file.split('/')[-1]
+        model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', ''))
         
+        # create threshold model path if necessary
         if not os.path.exists(model_treshold_path):
             os.makedirs(model_treshold_path)
 
         abs_dist = []
 
-        map_filename = model_treshold_path + "/" + threshold_map_file_prefix + folder_scene
+        map_filename = os.path.join(model_treshold_path, threshold_map_file_prefix + folder_scene)
         f_map = open(map_filename, 'w')
 
         line_information = ""

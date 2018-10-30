@@ -6,9 +6,20 @@
 pip install -r requirements.txt
 ```
 
-Generate all needed data for each metrics (lab and mscn)
+Generate all needed data for each metrics
 ```
-python generate_all_data.py
+python generate_all_data.py --metric all
+```
+
+For noise detection, many metrics are available :
+- lab
+- mscn
+- low_bits_2
+- low_bits_4
+
+You can also specify metric you want to compute :
+```
+python generate_all_data.py --metric mscn
 ```
 
 ## How to use
@@ -61,18 +72,23 @@ python models/xxxxx.py --data 'data/xxxxx.train' --output 'model_file_to_save'
 Now we have a model trained, we can use it with an image as input :
 
 ```python
-python predict_noisy_image_svd_lab.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
-```
-
-You can also use specific metric (lab or mscn at the moment)
-
-```python
-python predict_noisy_image_svd_mscn.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
+python metrics_predictions/predict_noisy_image_svd_lab.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
 ```
 
 The model will return only 0 or 1 :
 - 1 means noisy image is detected.
 - 0 means image seem to be not noisy.
+
+You can also use other specific metric
+
+```python
+python metrics_predictions/predict_noisy_image_svd_mscn.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
+```
+
+All SVD metrics you developed need :
+- Name added into *metric_choices* global array variable of **generate_all_data.py** file.
+- A specification of how you compute the metric into generate_data_svd method of **generate_all_data.py** file.
+- A prediction script into **metrics_predictions** folder. Name need to follow this rule : *predict_noisy_image_svd_xxxx.py*
 
 ### Predict scene using model
 
@@ -98,6 +114,7 @@ Parameters list :
 - 2 : End of interval of data from SVD to use
 - 3 : Model we want to test
 - 4 : Kind of data input used by trained model
+- 5 : Metric used by model
 
 
 ### Get treshold map 
@@ -105,7 +122,7 @@ Parameters list :
 Main objective of this project is to predict as well as a human the noise perception on a photo realistic image. Human threshold is available from training data. So a script was developed to give the predicted treshold from model and compare predicted treshold from the expected one.
 
 ```python
-python predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn'] --limit_detection xx
+python predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn', ...] --limit_detection xx
 ```
 
 Parameters list :

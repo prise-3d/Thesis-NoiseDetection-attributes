@@ -43,7 +43,7 @@ for size in {"4","8","16","26","32","40"}; do
                 echo $FILENAME
                 python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
                 python ensemble_model_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
-                bash testModelByScene.sh "${start}" "${end}" "./saved_models/${MODEL_NAME}.joblib" "${mode}" "${metric}" >> "./saved_models/${MODEL_NAME}.tex"
+                bash testModelByScene.sh "${start}" "${end}" "saved_models/${MODEL_NAME}.joblib" "${mode}" "${metric}" >> "saved_models/${MODEL_NAME}.tex"
 
             done
         done
