@@ -7,8 +7,17 @@ if [ -z "$1" ]
     exit 1
 fi
 
+if [ -z "$2" ]
+  then
+    echo "No argument supplied"
+    echo "Need of metric information"
+    exit 1
+fi
+
+
 VECTOR_SIZE=200
 size=$1
+metric=$2
 
 # selection of four scenes (only maxwell)
 scenes="A, D, G, H"
@@ -32,20 +41,18 @@ for nb_zones in {6,8,10,12,16}; do
 
     echo $start $end
 
-    for metric in {"lab","mscn"}; do
-        for mode in {"svd","svdn","svdne"}; do
-            for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
+    for mode in {"svd","svdn","svdne"}; do
+        for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
 
-                FILENAME="data/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
-                MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
+            FILENAME="data/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
+            MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
 
-                echo $FILENAME
-                python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
-                python models/${model}_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
-                echo predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
-                python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
-                python save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "./saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
-            done
+            echo $FILENAME
+            python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
+            python models/${model}_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
+           
+            python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+            python save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
         done
     done
 done

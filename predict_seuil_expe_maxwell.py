@@ -93,9 +93,9 @@ def main():
                     index_str = "0" + index_str
                 zone_folder = "zone"+index_str
 
-                os.path.join(os.path.join(scene_path, zone_folder), threshold_expe_filename)
+                threshold_path_file = os.path.join(os.path.join(scene_path, zone_folder), threshold_expe_filename)
 
-                with open(scene_path + "/" + zone_folder + "/" + threshold_expe_filename) as f:
+                with open(threshold_path_file) as f:
                     threshold = int(f.readline())
                     threshold_expes.append(threshold)
 
@@ -129,10 +129,11 @@ def main():
                     
                     # check only if necessary for this scene (not already detected)
                     if not threshold_expes_detected[id_block]:
+
                         tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                         block.save(tmp_file_path)
 
-                        python_cmd = "python predict_noisy_image_svd_" + p_metric + ".py --image " + tmp_file_path + \
+                        python_cmd = "python metrics_predictions/predict_noisy_image_svd_" + p_metric + ".py --image " + tmp_file_path + \
                                         " --interval '" + p_interval + \
                                         "' --model " + p_model_file  + \
                                         " --mode " + p_mode
@@ -166,8 +167,9 @@ def main():
             # end of scene => display of results
 
             # construct path using model name for saving threshold map folder
-            model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1])
+            model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', '_'))
             
+            # create threshold model path if necessary
             if not os.path.exists(model_treshold_path):
                 os.makedirs(model_treshold_path)
 

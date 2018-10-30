@@ -44,6 +44,7 @@ INPUT_METRIC=$5
 zones="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15"
 
 echo "**Model :** ${INPUT_MODEL}"
+echo "**Metric :** ${INPUT_METRIC}"
 echo "**Mode :** ${INPUT_MODE}"
 echo "**Vector range :** [${INPUT_BEGIN}, ${INPUT_END}]"
 echo ""

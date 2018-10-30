@@ -31,6 +31,8 @@ path = './fichiersSVD_light'
 zones = np.arange(16)
 seuil_expe_filename = 'seuilExpe'
 
+metric_choices = ['lab', 'mscn', 'bit_low_4', 'bit_low_2']
+
 def generate_data_svd(data_type, mode):
     """
     @brief Method which generates all .csv files from scenes photos
@@ -104,7 +106,12 @@ def generate_data_svd(data_type, mode):
 
             for id_block, block in enumerate(img_blocks):
                 
+                ###########################
+                # Metric computation part #
+                ###########################
+
                 # get data from mode 
+                # Here you can add the way you compute data
                 if data_type == 'lab':
 
                     block_file_path = '/tmp/lab_img.png'
@@ -123,6 +130,24 @@ def generate_data_svd(data_type, mode):
 
                     # extract from temp image
                     data = metrics.get_SVD_s(img_block)
+                
+                if data_type == 'low_bits_4':
+
+                    low_bits_4 = image_processing.rgb_to_grey_low_bits(block)
+
+                    # extract from temp image
+                    data = metrics.get_SVD_s(low_bits_4)
+
+                if data_type == 'low_bits_2':
+
+                    low_bits_2 = image_processing.rgb_to_grey_low_bits(block, 3)
+
+                    # extract from temp image
+                    data = metrics.get_SVD_s(low_bits_2)
+
+                ##################
+                # Data mode part #
+                ##################
 
                 # modify data depending mode 
                 if mode == 'svdne':
@@ -159,9 +184,11 @@ def generate_data_svd(data_type, mode):
                     current_file.write(str(val) + ";")
                 
                 current_file.write('\n')
-        
+
+            start_index_image_int = int(start_index_image)
+            print(data_type + "_" + mode + "_" + folder_scene + " - " + "{0:.2f}".format((current_counter_index - start_index_image_int) / (end_counter_index - start_index_image_int)* 100.) + "%")
             current_counter_index += step_counter
-        
+           
         for f in svd_output_files:
             f.close()
 
@@ -176,15 +203,39 @@ def generate_data_svd(data_type, mode):
 
 def main():
 
-    # all mscn data
-    generate_data_svd('mscn', 'svd')
-    generate_data_svd('mscn', 'svdn')
-    generate_data_svd('mscn', 'svdne')
+    if len(sys.argv) <= 1:
+        print('Run with default parameters...')
+        print('python generate_all_data.py --metric all')
+        print('python generate_all_data.py --metric lab')
+        sys.exit(2)
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hm", ["help=", "metric="])
+    except getopt.GetoptError:
+        # print help information and exit:
+        print('python generate_all_data.py --metric all')
+        sys.exit(2)
+    for o, a in opts:
+        if o == "-h":
+            print('python generate_all_data.py --metric all')
+            sys.exit()
+        elif o in ("-m", "--metric"):
+            p_metric = a
 
-    # all lab data
-    generate_data_svd('lab', 'svd')
-    generate_data_svd('lab', 'svdn')
-    generate_data_svd('lab', 'svdne')
+            if p_metric != 'all' and p_metric not in metric_choices:
+                assert False, "Invalid metric choice"
+        else:
+            assert False, "unhandled option"
+
+    # generate all or specific metric data
+    if p_metric == 'all':
+        for m in metric_choices:
+            generate_data_svd(m, 'svd')
+            generate_data_svd(m, 'svdn')
+            generate_data_svd(m, 'svdne')
+    else:
+        generate_data_svd(p_metric, 'svd')
+        generate_data_svd(p_metric, 'svdn')
+        generate_data_svd(p_metric, 'svdne')
 
 if __name__== "__main__":
     main()
