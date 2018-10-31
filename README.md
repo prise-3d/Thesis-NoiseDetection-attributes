@@ -7,7 +7,7 @@ pip install -r requirements.txt
 ```
 
 Generate all needed data for each metrics
-```
+```bash
 python generate_all_data.py --metric all
 ```
 
@@ -18,7 +18,7 @@ For noise detection, many metrics are available :
 - low_bits_4
 
 You can also specify metric you want to compute :
-```
+```bash
 python generate_all_data.py --metric mscn
 ```
 
@@ -63,7 +63,7 @@ Parameters explained :
 
 This is an example of how to train a model
 
-```python
+```bash
 python models/xxxxx.py --data 'data/xxxxx.train' --output 'model_file_to_save'
 ```
 
@@ -71,7 +71,7 @@ python models/xxxxx.py --data 'data/xxxxx.train' --output 'model_file_to_save'
 
 Now we have a model trained, we can use it with an image as input :
 
-```python
+```bash
 python metrics_predictions/predict_noisy_image_svd_lab.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
 ```
 
@@ -81,7 +81,7 @@ The model will return only 0 or 1 :
 
 You can also use other specific metric
 
-```python
+```bash
 python metrics_predictions/predict_noisy_image_svd_mscn.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --mode 'svdn'
 ```
 
@@ -94,7 +94,7 @@ All SVD metrics you developed need :
 
 Now we have a model trained, we can use it with an image as input :
 
-```python
+```bash
 python prediction_scene.py --data path/to/xxxx.csv --model saved_model/xxxx.joblib --output xxxxx --scene xxxx
 ```
 **Remark** : *scene* parameter expected need to be the correct name of the Scene.
@@ -121,7 +121,7 @@ Parameters list :
 
 Main objective of this project is to predict as well as a human the noise perception on a photo realistic image. Human threshold is available from training data. So a script was developed to give the predicted treshold from model and compare predicted treshold from the expected one.
 
-```python
+```bash
 python predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn', ...] --limit_detection xx
 ```
 
@@ -141,7 +141,7 @@ The content will be divised into two parts :
 
 The previous script need to already have ran to obtain and display treshold maps on this markdown file.
 
-```python
+```bash
 python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn'] 
 ```
 

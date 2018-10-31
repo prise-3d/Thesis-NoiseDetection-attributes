@@ -13,8 +13,9 @@ from sklearn.metrics import accuracy_score
 
 import sys, os, getopt
 
+saved_models_folder = 'saved_models'
 current_dirpath = os.getcwd()
-output_model_folder = os.path.join(current_dirpath, 'saved_models')
+output_model_folder = os.path.join(current_dirpath, saved_models_folder)
 
 def get_best_model(X_train, y_train):
     
@@ -84,6 +85,10 @@ def main():
     y_pred = svm_model.predict(X_test)
     print("**Test :** " + str(accuracy_score(y_test, y_pred)))
 
+    # create path if not exists
+    if not os.path.exists(saved_models_folder):
+        os.makedirs(saved_models_folder)
+        
     joblib.dump(svm_model, output_model_folder + '/' + p_output + '.joblib') 
 
 if __name__== "__main__":

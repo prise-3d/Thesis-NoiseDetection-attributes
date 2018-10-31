@@ -16,8 +16,10 @@ from sklearn.metrics import accuracy_score
 
 import sys, os, getopt
 
+
+saved_models_folder = 'saved_models'
 current_dirpath = os.getcwd()
-output_model_folder = os.path.join(current_dirpath, 'saved_models')
+output_model_folder = os.path.join(current_dirpath, saved_models_folder)
 
 def get_best_model(X_train, y_train):
     Cs = [0.001, 0.01, 0.1, 1, 10, 20, 30]
@@ -106,6 +108,10 @@ def main():
 
     y_pred = ensemble_model.predict(X_test)
     print("**Test :** " + str(accuracy_score(y_test, y_pred)))
+
+    # create path if not exists
+    if not os.path.exists(saved_models_folder):
+        os.makedirs(saved_models_folder)
 
     joblib.dump(ensemble_model, output_model_folder + '/' +  p_output + '.joblib') 
 
