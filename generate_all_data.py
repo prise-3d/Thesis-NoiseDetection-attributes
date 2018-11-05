@@ -16,6 +16,7 @@ import json
 from PIL import Image
 from ipfml import image_processing
 from ipfml import metrics
+from skimage import color
 
 config_filename   = "config"
 zone_folder       = "zone"
@@ -31,7 +32,7 @@ path = './fichiersSVD_light'
 zones = np.arange(16)
 seuil_expe_filename = 'seuilExpe'
 
-metric_choices = ['lab', 'mscn', 'bit_low_4', 'bit_low_2']
+metric_choices = ['mscn', 'mscn_revisited', 'bit_low_2', 'bit_low_3', 'bit_low_4']
 
 def generate_data_svd(data_type, mode):
     """
@@ -118,25 +119,42 @@ def generate_data_svd(data_type, mode):
                     block.save(block_file_path)
                     data = image_processing.get_LAB_L_SVD_s(Image.open(block_file_path))
                 
-                if data_type == 'mscn':
+                if data_type == 'mscn_revisited':
 
-                    img_mscn = image_processing.rgb_to_mscn(block)
+                    img_mscn_revisited = image_processing.rgb_to_mscn(block)
 
                     # save tmp as img
-                    img_output = Image.fromarray(img_mscn.astype('uint8'), 'L')
-                    mscn_file_path = '/tmp/mscn_img.png'
-                    img_output.save(mscn_file_path)
-                    img_block = Image.open(mscn_file_path)
+                    img_output = Image.fromarray(img_mscn_revisited.astype('uint8'), 'L')
+                    mscn_revisited_file_path = '/tmp/mscn_revisited_img.png'
+                    img_output.save(mscn_revisited_file_path)
+                    img_block = Image.open(mscn_revisited_file_path)
 
                     # extract from temp image
                     data = metrics.get_SVD_s(img_block)
                 
+                if data_type == 'mscn':
+
+                    img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
+                    img_mscn = image_processing.calculate_mscn_coefficients(img_gray, 7)
+                    img_mscn_norm = image_processing.normalize_2D_arr(img_mscn)
+
+                    img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
+
+                    data = metrics.get_SVD_s(img_mscn_gray)
+
                 if data_type == 'low_bits_4':
 
                     low_bits_4 = image_processing.rgb_to_grey_low_bits(block)
 
                     # extract from temp image
                     data = metrics.get_SVD_s(low_bits_4)
+
+                if data_type == 'low_bits_3':
+
+                    low_bits_3 = image_processing.rgb_to_grey_low_bits(block, 7)
+
+                    # extract from temp image
+                    data = metrics.get_SVD_s(low_bits_3)
 
                 if data_type == 'low_bits_2':
 

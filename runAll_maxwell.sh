@@ -11,7 +11,7 @@ echo 'model_name; vector_size; start; end; nb_zones; metric; mode; train; test; 
 
 for size in {"4","8","16","26","32","40"}; do
 
-    for metric in {"lab","mscn","low_bits_4","low_bits_2"}; do
+    for metric in {"lab","mscn","mscn_revisited","low_bits_2","low_bits_3","low_bits_4"}; do
         bash generateAndTrain_maxwell.sh ${size} ${metric} &
     done
 done
