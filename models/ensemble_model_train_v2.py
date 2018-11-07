@@ -84,8 +84,8 @@ def main():
 
     y_dataset = final_df.ix[:,0]
     x_dataset = final_df.ix[:,1:]
-
-    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0.5, random_state=42)
+    
+    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0., random_state=42)
 
     svm_model = get_best_model(X_train, y_train)
     knc_model = KNeighborsClassifier(n_neighbors=2)
@@ -106,8 +106,8 @@ def main():
     y_train_model = ensemble_model.predict(X_train)
     print("**Train :** " + str(accuracy_score(y_train, y_train_model)))
 
-    y_pred = ensemble_model.predict(X_test)
-    print("**Test :** " + str(accuracy_score(y_test, y_pred)))
+    #y_pred = ensemble_model.predict(X_test)
+    #print("**Test :** " + str(accuracy_score(y_test, y_pred)))
 
     # create path if not exists
     if not os.path.exists(saved_models_folder):

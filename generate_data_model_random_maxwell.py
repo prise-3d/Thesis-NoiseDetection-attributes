@@ -24,7 +24,7 @@ generic_output_file_svd = '_random.csv'
 output_data_folder = 'data'
 
 # define all scenes values, here only use Maxwell scenes
-scenes = ['Appart1opt02', 'Cuisine01', 'SdbCentre', 'SdbDroite']
+scenes_list = ['Appart1opt02', 'Cuisine01', 'SdbCentre', 'SdbDroite']
 scenes_indexes = ['A', 'D', 'G', 'H']
 choices = ['svd', 'svdn', 'svdne']
 path = './fichiersSVD_light'
@@ -55,7 +55,7 @@ def construct_new_line(path_seuil, interval, line, sep, index):
 
     return line
 
-def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes, _nb_zones = 4, _percent = 1, _sep=':', _index=True):
+def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _nb_zones = 4, _percent = 1, _sep=':', _index=True):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"
@@ -76,50 +76,54 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
     scenes = [s for s in scenes if min_max_filename not in s]
 
     for id_scene, folder_scene in enumerate(scenes):
-        scene_path = os.path.join(path, folder_scene)
 
-        zones_folder = []
-        # create zones list
-        for index in zones:
-            index_str = str(index)
-            if len(index_str) < 2:
-                index_str = "0" + index_str
-            zones_folder.append("zone"+index_str)
+        # only take care of maxwell scenes
+        if folder_scene in scenes_list:
 
-        # shuffle list of zones (=> randomly choose zones)
-        random.shuffle(zones_folder)
+            scene_path = os.path.join(path, folder_scene)
 
-        for id_zone, zone_folder in enumerate(zones_folder):
-            zone_path = os.path.join(scene_path, zone_folder)
-            data_filename = _metric + "_" + _choice + generic_output_file_svd
-            data_file_path = os.path.join(zone_path, data_filename)
+            zones_folder = []
+            # create zones list
+            for index in zones:
+                index_str = str(index)
+                if len(index_str) < 2:
+                    index_str = "0" + index_str
+                zones_folder.append("zone"+index_str)
 
-            # getting number of line and read randomly lines
-            f = open(data_file_path)
-            lines = f.readlines()
+            # shuffle list of zones (=> randomly choose zones)
+            random.shuffle(zones_folder)
 
-            num_lines = len(lines)
+            for id_zone, zone_folder in enumerate(zones_folder):
+                zone_path = os.path.join(scene_path, zone_folder)
+                data_filename = _metric + "_" + _choice + generic_output_file_svd
+                data_file_path = os.path.join(zone_path, data_filename)
 
-            lines_indexes = np.arange(num_lines)
-            random.shuffle(lines_indexes)
+                # getting number of line and read randomly lines
+                f = open(data_file_path)
+                lines = f.readlines()
 
-            path_seuil = os.path.join(zone_path, seuil_expe_filename)
+                num_lines = len(lines)
 
-            counter = 0
-            # check if user select current scene and zone to be part of training data set
-            for index in lines_indexes:
-                line = construct_new_line(path_seuil, _interval, lines[index], _sep, _index)
+                lines_indexes = np.arange(num_lines)
+                random.shuffle(lines_indexes)
 
-                percent = counter / num_lines
-                
-                if id_zone < _nb_zones and folder_scene in _scenes and percent <= _percent:
-                    train_file.write(line)
-                else:
-                    test_file.write(line)
+                path_seuil = os.path.join(zone_path, seuil_expe_filename)
 
-                counter += 1
+                counter = 0
+                # check if user select current scene and zone to be part of training data set
+                for index in lines_indexes:
+                    line = construct_new_line(path_seuil, _interval, lines[index], _sep, _index)
 
-            f.close()
+                    percent = counter / num_lines
+                    
+                    if id_zone < _nb_zones and folder_scene in _scenes and percent <= _percent:
+                        train_file.write(line)
+                    else:
+                        test_file.write(line)
+
+                    counter += 1
+
+                f.close()
 
     train_file.close()
     test_file.close()
@@ -170,7 +174,7 @@ def main():
 
     for scene_id in p_scenes:
         index = scenes_indexes.index(scene_id.strip())
-        scenes_selected.append(scenes[index])
+        scenes_selected.append(scenes_list[index])
 
     # create database using img folder (generate first time only)
     generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_nb_zones, p_percent, p_sep, p_rowindex)

@@ -68,12 +68,12 @@ def main():
     else:
         print(str(accuracy_global) + " \t | " + str(accuracy_noisy) + " \t | " + str(accuracy_not_noisy)) 
 
-    with open(p_output, 'w') as f:
-        f.write("Global accuracy found %s " % str(accuracy_global))
-        f.write("Noisy accuracy found %s " % str(accuracy_noisy))
-        f.write("Not noisy accuracy found %s " % str(accuracy_not_noisy))
-        for prediction in y_pred:
-            f.write(str(prediction) + '\n')
+        with open(p_output, 'w') as f:
+            f.write("Global accuracy found %s " % str(accuracy_global))
+            f.write("Noisy accuracy found %s " % str(accuracy_noisy))
+            f.write("Not noisy accuracy found %s " % str(accuracy_not_noisy))
+            for prediction in y_pred:
+                f.write(str(prediction) + '\n')
 
 
 if __name__== "__main__":
