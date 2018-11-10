@@ -100,7 +100,7 @@ def main():
     # 2. Construction of the model : Ensemble model structure
     #######################
 
-    svm_model = get_best_model(y_dataset_train, y_dataset_train)
+    svm_model = get_best_model(x_dataset_train, y_dataset_train)
     knc_model = KNeighborsClassifier(n_neighbors=2)
     gbc_model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
     lr_model = LogisticRegression(solver='liblinear', multi_class='ovr', random_state=1)

@@ -1,5 +1,8 @@
+from sklearn.utils import shuffle
 from sklearn.externals import joblib
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 import pandas as pd
@@ -180,8 +183,8 @@ def main():
 
     X_test, X_val, y_test, y_val = train_test_split(x_dataset_test, y_dataset_test, test_size=0.5, random_state=1)
 
-    y_test_model = ensemble_model.predict(X_test)
-    y_val_model = ensemble_model.predict(X_val)
+    y_test_model = model.predict(X_test)
+    y_val_model = model.predict(X_val)
 
     val_accuracy = accuracy_score(y_val, y_val_model)
     test_accuracy = accuracy_score(y_test, y_test_model)
@@ -191,18 +194,35 @@ def main():
     val_f1 = f1_score(y_val, y_val_model)
     test_f1 = f1_score(y_test, y_test_model)
 
+    # stats of all dataset
+    all_x_data = pd.concat([x_dataset_train, X_test, X_val])
+    all_y_data = pd.concat([y_dataset_train, y_test, y_val])
+
+    all_y_model = model.predict(all_x_data)
+    all_accuracy = accuracy_score(all_y_data, all_y_model)
+    all_f1_score = f1_score(all_y_data, all_y_model)
+
+    # stats of dataset sizes
+    total_samples = final_df_train_size + val_set_size + test_set_size
+
+    model_scores.append(final_df_train_size / total_samples)
+    model_scores.append(val_set_size / total_samples)
+    model_scores.append(test_set_size / total_samples)
+
     # add of scores
     model_scores.append(val_scores.mean())
     model_scores.append(val_accuracy)
     model_scores.append(test_accuracy)
+    model_scores.append(all_accuracy)
 
     model_scores.append(train_f1)
     model_scores.append(val_f1)
     model_scores.append(test_f1)
+    model_scores.append(all_f1_score)
 
     # TODO : improve...
     # check if it's always the case...
-    nb_zones = data_filenames[0].split('_')[7]
+    nb_zones = current_data_file_path.split('_')[7]
 
     final_file_line = current_model_name + '; ' + str(end - begin) + '; ' + str(begin) + '; ' + str(end) + '; ' + str(nb_zones) + '; ' + p_metric + '; ' + p_mode
 
