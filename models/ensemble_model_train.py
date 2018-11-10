@@ -6,12 +6,11 @@ from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 import sklearn.svm as svm
 from sklearn.utils import shuffle
 from sklearn.externals import joblib
+from sklearn.metrics import accuracy_score, f1_score
+from sklearn.model_selection import cross_val_score
 
 import numpy as np
-
 import pandas as pd
-from sklearn.metrics import accuracy_score
-
 import sys, os, getopt
 
 saved_models_folder = 'saved_models'
@@ -19,13 +18,13 @@ current_dirpath = os.getcwd()
 output_model_folder = os.path.join(current_dirpath, saved_models_folder)
 
 def get_best_model(X_train, y_train):
-    Cs = [0.001, 0.01, 0.1, 1, 10]
-    gammas = [0.001, 0.01, 0.1, 1]
+
+    Cs = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
+    gammas = [0.001, 0.01, 0.1, 1, 5, 10, 100]
     param_grid = {'kernel':['rbf'], 'C': Cs, 'gamma' : gammas}
-    
-    parameters = {'kernel':['rbf'], 'C': np.arange(1, 20)}
-    svc = svm.SVC(gamma="scale", probability=True)
-    clf = GridSearchCV(svc, parameters, cv=5, scoring='accuracy', verbose=10)
+
+    svc = svm.SVC(probability=True)
+    clf = GridSearchCV(svc, param_grid, cv=10, scoring='accuracy', verbose=10)
 
     clf.fit(X_train, y_train)
 
@@ -60,53 +59,109 @@ def main():
     if not os.path.exists(output_model_folder):
         os.makedirs(output_model_folder)
 
-    # get and split data
-    dataset = pd.read_csv(p_data_file, header=None, sep=";")
+    ########################
+    # 1. Get and prepare data
+    ########################
+    dataset_train = pd.read_csv(p_data_file + '.train', header=None, sep=";")
+    dataset_test = pd.read_csv(p_data_file + '.test', header=None, sep=";")
 
-     # default first shuffle of data
-    dataset = shuffle(dataset)
-    
+    # default first shuffle of data
+    dataset_train = shuffle(dataset_train)
+    dataset_test = shuffle(dataset_test)
+
     # get dataset with equal number of classes occurences
-    noisy_df = dataset[dataset.ix[:, 0] == 1]
-    not_noisy_df = dataset[dataset.ix[:, 0] == 0]
-    nb_noisy = len(noisy_df.index)
-    
-    final_df = pd.concat([not_noisy_df[0:nb_noisy], noisy_df])
-    #final_df = pd.concat([not_noisy_df, noisy_df])
-    
-    # shuffle data another time
-    final_df = shuffle(final_df)
-    
-    print(len(final_df.index))
+    noisy_df_train = dataset_train[dataset_train.ix[:, 0] == 1]
+    not_noisy_df_train = dataset_train[dataset_train.ix[:, 0] == 0]
+    nb_noisy_train = len(noisy_df_train.index)
 
-    y_dataset = final_df.ix[:,0]
-    x_dataset = final_df.ix[:,1:]
+    noisy_df_test = dataset_test[dataset_test.ix[:, 0] == 1]
+    not_noisy_df_test = dataset_test[dataset_test.ix[:, 0] == 0]
+    nb_noisy_test = len(noisy_df_test.index)
+
+    final_df_train = pd.concat([not_noisy_df_train[0:nb_noisy_train], noisy_df_train])
+    final_df_test = pd.concat([not_noisy_df_test[0:nb_noisy_test], noisy_df_test])
+
+    # shuffle data another time
+    final_df_train = shuffle(final_df_train)
+    final_df_test = shuffle(final_df_test)
+
+    final_df_train_size = len(final_df_train.index)
+    final_df_test_size = len(final_df_test.index)
 
     # use of the whole data set for training
-    X_train, X_test, y_train, y_test = train_test_split(x_dataset, y_dataset, test_size=0., random_state=42)
+    x_dataset_train = final_df_train.ix[:,1:]
+    x_dataset_test = final_df_test.ix[:,1:]
 
-    svm_model = get_best_model(X_train, y_train)
+    y_dataset_train = final_df_train.ix[:,0]
+    y_dataset_test = final_df_test.ix[:,0]
+
+    #######################
+    # 2. Construction of the model : Ensemble model structure
+    #######################
+
+    svm_model = get_best_model(x_dataset_train, y_dataset_train)
 
     lr_model = LogisticRegression(solver='liblinear', multi_class='ovr', random_state=1)
     rf_model = RandomForestClassifier(n_estimators=100, random_state=1)
 
     ensemble_model = VotingClassifier(estimators=[
-       ('svm', svm_model), ('lr', lr_model), ('rf', rf_model)],
-       voting='soft', weights=[1,1,1])
+       ('svm', svm_model), ('lr', lr_model), ('rf', rf_model)], voting='soft', weights=[1,1,1])
 
-    ensemble_model.fit(X_train, y_train)
+    #######################
+    # 3. Fit model : use of cross validation to fit model
+    #######################
+    print("-------------------------------------------")
+    print("Train dataset size: ", final_df_train_size)
+    ensemble_model.fit(x_dataset_train, y_dataset_train)
+    val_scores = cross_val_score(ensemble_model, x_dataset_train, y_dataset_train, cv=5)
+    print("Accuracy: %0.2f (+/- %0.2f)" % (val_scores.mean(), val_scores.std() * 2))
 
-    y_train_model = ensemble_model.predict(X_train)
-    print("**Train :** " + str(accuracy_score(y_train, y_train_model)))
+    ######################
+    # 4. Test : Validation and test dataset from .test dataset
+    ######################
 
-    #y_pred = ensemble_model.predict(X_test)
-    #print("**Test :** " + str(accuracy_score(y_test, y_pred)))
+    # we need to specify validation size to 20% of whole dataset
+    val_set_size = int(final_df_train_size/3)
+    test_set_size = val_set_size
 
-    # create path if not exists
+    total_validation_size = val_set_size + test_set_size
+
+    if final_df_test_size > total_validation_size:
+        x_dataset_test = x_dataset_test[0:total_validation_size]
+        y_dataset_test = y_dataset_test[0:total_validation_size]
+
+    X_test, X_val, y_test, y_val = train_test_split(x_dataset_test, y_dataset_test, test_size=0.5, random_state=1)
+
+    y_test_model = ensemble_model.predict(X_test)
+    y_val_model = ensemble_model.predict(X_val)
+
+    val_accuracy = accuracy_score(y_val, y_val_model)
+    test_accuracy = accuracy_score(y_test, y_test_model)
+
+    val_f1 = f1_score(y_val, y_val_model)
+    test_f1 = f1_score(y_test, y_test_model)
+
+
+    ###################
+    # 5. Output : Print and write all information in csv
+    ###################
+
+    print("Validation dataset size ", val_set_size)
+    print("Validation: ", val_accuracy)
+    print("Validation F1: ", val_f1)
+    print("Test dataset size ", test_set_size)
+    print("Test: ", val_accuracy)
+    print("Test F1: ", test_f1)
+
+
+    ##################
+    # 6. Save model : create path if not exists
+    ##################
+
     if not os.path.exists(saved_models_folder):
         os.makedirs(saved_models_folder)
 
-    joblib.dump(ensemble_model, output_model_folder + '/' + p_output + '.joblib') 
+    joblib.dump(ensemble_model, output_model_folder + '/' + p_output + '.joblib')
 
 if __name__== "__main__":
     main()

@@ -7,7 +7,7 @@ mkdir -p models_info
 touch ${file_path}
 
 # add of header
-echo 'model_name; vector_size; start; end; nb_zones; metric; mode; train; test; global' >> ${file_path}
+echo 'model_name; vector_size; start; end; nb_zones; metric; mode; train; val; test; F1_train; F1_val; F1_test' >> ${file_path}
 
 for size in {"4","8","16","26","32","40"}; do
 

@@ -48,15 +48,15 @@ for counter in {0..4}; do
                 MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
 
                 echo $FILENAME
-                
+
                 # only compute if necessary (perhaps server will fall.. Just in case)
                 if grep -q "${MODEL_NAME}" "${result_filename}"; then
 
                     echo "${MODEL_NAME} results already generated..."
                 else
                     python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
-                    python models/${model}_train.py --data ${FILENAME}.train --output ${MODEL_NAME}
-                
+                    python models/${model}_train.py --data ${FILENAME} --output ${MODEL_NAME}
+
                     python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
                     python save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
                 fi
@@ -66,7 +66,7 @@ for counter in {0..4}; do
 
     if [ "$counter" -eq "0" ]; then
         start=$(($start+50-$half))
-    else 
+    else
         start=$(($start+50))
     fi
 
