@@ -53,7 +53,7 @@ def generate_data_svd(data_type, mode):
 
     # go ahead each scenes
     for id_scene, folder_scene in enumerate(scenes):
-    
+
         print(folder_scene)
         scene_path = os.path.join(path, folder_scene)
 
@@ -78,7 +78,7 @@ def generate_data_svd(data_type, mode):
             index_str = str(index)
             if len(index_str) < 2:
                 index_str = "0" + index_str
-            
+
             current_zone = "zone"+index_str
             zones_folder.append(current_zone)
 
@@ -94,7 +94,7 @@ def generate_data_svd(data_type, mode):
 
 
         while(current_counter_index <= end_counter_index):
-            
+
             current_counter_index_str = str(current_counter_index)
 
             while len(start_index_image) > len(current_counter_index_str):
@@ -106,19 +106,19 @@ def generate_data_svd(data_type, mode):
             img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
 
             for id_block, block in enumerate(img_blocks):
-                
+
                 ###########################
                 # Metric computation part #
                 ###########################
 
-                # get data from mode 
+                # get data from mode
                 # Here you can add the way you compute data
                 if data_type == 'lab':
 
                     block_file_path = '/tmp/lab_img.png'
                     block.save(block_file_path)
                     data = image_processing.get_LAB_L_SVD_s(Image.open(block_file_path))
-                
+
                 if data_type == 'mscn_revisited':
 
                     img_mscn_revisited = image_processing.rgb_to_mscn(block)
@@ -131,7 +131,7 @@ def generate_data_svd(data_type, mode):
 
                     # extract from temp image
                     data = metrics.get_SVD_s(img_block)
-                
+
                 if data_type == 'mscn':
 
                     img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
@@ -144,21 +144,21 @@ def generate_data_svd(data_type, mode):
 
                 if data_type == 'low_bits_4':
 
-                    low_bits_4 = image_processing.rgb_to_grey_low_bits(block)
+                    low_bits_4 = image_processing.rgb_to_LAB_L_low_bits(block)
 
                     # extract from temp image
                     data = metrics.get_SVD_s(low_bits_4)
 
                 if data_type == 'low_bits_3':
 
-                    low_bits_3 = image_processing.rgb_to_grey_low_bits(block, 7)
+                    low_bits_3 = image_processing.rgb_to_LAB_L_low_bits(block, 7)
 
                     # extract from temp image
                     data = metrics.get_SVD_s(low_bits_3)
 
                 if data_type == 'low_bits_2':
 
-                    low_bits_2 = image_processing.rgb_to_grey_low_bits(block, 3)
+                    low_bits_2 = image_processing.rgb_to_LAB_L_low_bits(block, 3)
 
                     # extract from temp image
                     data = metrics.get_SVD_s(low_bits_2)
@@ -167,22 +167,22 @@ def generate_data_svd(data_type, mode):
                 # Data mode part #
                 ##################
 
-                # modify data depending mode 
+                # modify data depending mode
                 if mode == 'svdne':
 
                     # getting max and min information from min_max_filename
                     with open(data_min_max_filename, 'r') as f:
                         min_val = float(f.readline())
                         max_val = float(f.readline())
-                    
+
                     data = image_processing.normalize_arr_with_range(data, min_val, max_val)
-                
+
                 if mode == 'svdn':
                     data = image_processing.normalize_arr(data)
-                
+
                 # save min and max found from dataset in order to normalize data using whole data known
                 if mode == 'svd':
-                    
+
                     current_min = data.min()
                     current_max = data.max()
 
@@ -192,7 +192,7 @@ def generate_data_svd(data_type, mode):
                     if current_max > max_val_found:
                         max_val_found = current_max
 
-                # now write data into current writer 
+                # now write data into current writer
                 current_file = svd_output_files[id_block]
 
                 # add of index
@@ -200,13 +200,13 @@ def generate_data_svd(data_type, mode):
 
                 for val in data:
                     current_file.write(str(val) + ";")
-                
+
                 current_file.write('\n')
 
             start_index_image_int = int(start_index_image)
             print(data_type + "_" + mode + "_" + folder_scene + " - " + "{0:.2f}".format((current_counter_index - start_index_image_int) / (end_counter_index - start_index_image_int)* 100.) + "%")
             current_counter_index += step_counter
-           
+
         for f in svd_output_files:
             f.close()
 
