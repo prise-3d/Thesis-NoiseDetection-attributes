@@ -1,8 +1,8 @@
 # project data
-data
-saved_models
-threshold_map
-models_info
+data/*
+saved_models/*
+threshold_map/*
+models_info/*
 
 fichiersSVD_light/*/*/*.csv
 fichiersSVD_light/*_min_max_values

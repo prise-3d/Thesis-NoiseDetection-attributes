@@ -5,11 +5,10 @@ import numpy as np
 from ipfml import image_processing
 from ipfml import metrics
 from PIL import Image
-from skimage import color
 
 import sys, os, getopt
 
-min_max_file_path = 'fichiersSVD_light/mscn_min_max_values'
+min_max_file_path = 'fichiersSVD_light/mscn_revisited_min_max_values'
 
 def main():
 
@@ -46,13 +45,16 @@ def main():
 
     # load image
     img = Image.open(p_img_file)
-    
-    img_gray = np.array(color.rgb2gray(np.asarray(img))*255, 'uint8')
-    img_mscn = image_processing.calculate_mscn_coefficients(img_gray, 7)
-    img_mscn_norm = image_processing.normalize_2D_arr(img_mscn)
-    img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
+    img_mscn = image_processing.rgb_to_mscn(img)
 
-    SVD_MSCN = metrics.get_SVD_s(img_mscn_gray)
+    # save tmp as img
+    img_output = Image.fromarray(img_mscn.astype('uint8'), 'L')
+    mscn_file_path = '/tmp/mscn_revisited_img.png'
+    img_output.save(mscn_file_path)
+    img_block = Image.open(mscn_file_path)
+
+    # extract from temp image
+    SVD_MSCN_REVISITED = metrics.get_SVD_s(img_block)
 
 
     # check mode to normalize data
@@ -64,12 +66,12 @@ def main():
             min = float(f.readline().replace('\n', ''))
             max = float(f.readline().replace('\n', ''))
 
-        l_values = image_processing.normalize_arr_with_range(SVD_MSCN, min, max)
+        l_values = image_processing.normalize_arr_with_range(SVD_MSCN_REVISITED, min, max)
 
     elif p_mode == 'svdn':
-        l_values = image_processing.normalize_arr(SVD_MSCN)
+        l_values = image_processing.normalize_arr(SVD_MSCN_REVISITED)
     else:
-        l_values = SVD_MSCN
+        l_values = SVD_MSCN_REVISITED
 
     
     # get interval values

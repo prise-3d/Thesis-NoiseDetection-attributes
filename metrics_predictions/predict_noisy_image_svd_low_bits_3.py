@@ -5,27 +5,26 @@ import numpy as np
 from ipfml import image_processing
 from ipfml import metrics
 from PIL import Image
-from skimage import color
 
 import sys, os, getopt
 
-min_max_file_path = 'fichiersSVD_light/mscn_min_max_values'
+min_max_file_path = 'fichiersSVD_light/low_bits_3_min_max_values'
 
 def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python predict_noisy_image_svd_mscn.py --image path/to/xxxx --interval "0,20" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "0,20" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hi:t:m:o", ["help=", "image=", "interval=", "model=", "mode="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python predict_noisy_image_svd_mscn.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+        print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python predict_nopredict_noisy_image_svd_mscnisy_image.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
+            print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svdn", "svdne"]')
             sys.exit()
         elif o in ("-i", "--image"):
             p_img_file = os.path.join(os.path.join(os.path.dirname(__file__),'../'), a)
@@ -42,36 +41,29 @@ def main():
             assert False, "unhandled option"
 
     # load of model file
-    model = joblib.load(p_model_file) 
+    model = joblib.load(p_model_file)
 
     # load image
     img = Image.open(p_img_file)
-    
-    img_gray = np.array(color.rgb2gray(np.asarray(img))*255, 'uint8')
-    img_mscn = image_processing.calculate_mscn_coefficients(img_gray, 7)
-    img_mscn_norm = image_processing.normalize_2D_arr(img_mscn)
-    img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
-
-    SVD_MSCN = metrics.get_SVD_s(img_mscn_gray)
-
+    low_bits_3_values = metrics.get_SVD_s(image_processing.rgb_to_LAB_L_low_bits(img, 7))
 
     # check mode to normalize data
     if p_mode == 'svdne':
-        
+
         # need to read min_max_file
         file_path = os.path.join(os.path.join(os.path.dirname(__file__),'../'), min_max_file_path)
         with open(file_path, 'r') as f:
             min = float(f.readline().replace('\n', ''))
             max = float(f.readline().replace('\n', ''))
 
-        l_values = image_processing.normalize_arr_with_range(SVD_MSCN, min, max)
+        l_values = image_processing.normalize_arr_with_range(low_bits_3_values, min, max)
 
     elif p_mode == 'svdn':
-        l_values = image_processing.normalize_arr(SVD_MSCN)
+        l_values = image_processing.normalize_arr(low_bits_3_values)
     else:
-        l_values = SVD_MSCN
+        l_values = low_bits_3_values
 
-    
+
     # get interval values
     begin, end = p_interval
     test_data = l_values[begin:end]

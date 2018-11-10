@@ -167,7 +167,7 @@ def main():
             # end of scene => display of results
 
             # construct path using model name for saving threshold map folder
-            model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', '_'))
+            model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', ''))
             
             # create threshold model path if necessary
             if not os.path.exists(model_treshold_path):

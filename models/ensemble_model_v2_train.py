@@ -2,11 +2,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
 
 import sklearn.svm as svm
 from sklearn.utils import shuffle
 from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score, f1_score
+
 from sklearn.model_selection import cross_val_score
 
 import numpy as np
@@ -18,7 +21,6 @@ current_dirpath = os.getcwd()
 output_model_folder = os.path.join(current_dirpath, saved_models_folder)
 
 def get_best_model(X_train, y_train):
-
     Cs = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
     gammas = [0.001, 0.01, 0.1, 1, 5, 10, 100]
     param_grid = {'kernel':['rbf'], 'C': Cs, 'gamma' : gammas}
@@ -37,17 +39,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python svm_model_train.py --data xxxx --output xxxx')
+        print('python ensemble_model_train_v2.py --data xxxx --output xxxx')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hd:o", ["help=", "data=", "output="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python svm_model_train.py --data xxxx --output xxxx')
+        print('python ensemble_model_train_v2.py --data xxxx --output xxxx')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python svm_model_train.py --data xxxx --output xxxx')
+            print('python ensemble_model_train_v2.py --data xxxx --output xxxx')
             sys.exit()
         elif o in ("-d", "--data"):
             p_data_file = a
@@ -59,9 +61,7 @@ def main():
     if not os.path.exists(output_model_folder):
         os.makedirs(output_model_folder)
 
-    ########################
     # 1. Get and prepare data
-    ########################
     dataset_train = pd.read_csv(p_data_file + '.train', header=None, sep=";")
     dataset_test = pd.read_csv(p_data_file + '.test', header=None, sep=";")
 
@@ -95,19 +95,33 @@ def main():
     y_dataset_train = final_df_train.ix[:,0]
     y_dataset_test = final_df_test.ix[:,0]
 
+
     #######################
     # 2. Construction of the model : Ensemble model structure
     #######################
 
     svm_model = get_best_model(x_dataset_train, y_dataset_train)
+    knc_model = KNeighborsClassifier(n_neighbors=2)
+    gbc_model = GradientBoostingClassifier(n_estimators=100, learning_rate=1.0, max_depth=1, random_state=0)
+    lr_model = LogisticRegression(solver='liblinear', multi_class='ovr', random_state=1)
+    rf_model = RandomForestClassifier(n_estimators=100, random_state=1)
+
+    ensemble_model = VotingClassifier(estimators=[
+       ('lr', lr_model),
+       ('knc', knc_model),
+       ('gbc', gbc_model),
+       ('svm', svm_model),
+       ('rf', rf_model)],
+       voting='soft', weights=[1, 1, 1, 1, 1])
+
 
     #######################
     # 3. Fit model : use of cross validation to fit model
     #######################
     print("-------------------------------------------")
     print("Train dataset size: ", final_df_train_size)
-    svm_model.fit(x_dataset_train, y_dataset_train)
-    val_scores = cross_val_score(svm_model, x_dataset_train, y_dataset_train, cv=5)
+    ensemble_model.fit(x_dataset_train, y_dataset_train)
+    val_scores = cross_val_score(ensemble_model, x_dataset_train, y_dataset_train, cv=5)
     print("Accuracy: %0.2f (+/- %0.2f)" % (val_scores.mean(), val_scores.std() * 2))
 
     ######################
@@ -126,15 +140,14 @@ def main():
 
     X_test, X_val, y_test, y_val = train_test_split(x_dataset_test, y_dataset_test, test_size=0.5, random_state=1)
 
-    y_test_model = svm_model.predict(X_test)
-    y_val_model = svm_model.predict(X_val)
+    y_test_model = ensemble_model.predict(X_test)
+    y_val_model = ensemble_model.predict(X_val)
 
     val_accuracy = accuracy_score(y_val, y_val_model)
     test_accuracy = accuracy_score(y_test, y_test_model)
 
     val_f1 = f1_score(y_val, y_val_model)
     test_f1 = f1_score(y_test, y_test_model)
-
 
     ###################
     # 5. Output : Print and write all information in csv
@@ -155,7 +168,7 @@ def main():
     if not os.path.exists(saved_models_folder):
         os.makedirs(saved_models_folder)
 
-    joblib.dump(svm_model, output_model_folder + '/' + p_output + '.joblib')
+    joblib.dump(ensemble_model, output_model_folder + '/' +  p_output + '.joblib')
 
 if __name__== "__main__":
     main()
