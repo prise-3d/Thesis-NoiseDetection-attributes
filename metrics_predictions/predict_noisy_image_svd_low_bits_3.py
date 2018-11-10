@@ -41,15 +41,15 @@ def main():
             assert False, "unhandled option"
 
     # load of model file
-    model = joblib.load(p_model_file) 
+    model = joblib.load(p_model_file)
 
     # load image
     img = Image.open(p_img_file)
-    low_bits_3_values = metrics.get_SVD_s(image_processing.rgb_to_grey_low_bits(img, 7))
+    low_bits_3_values = metrics.get_SVD_s(image_processing.rgb_to_LAB_L_low_bits(img, 7))
 
     # check mode to normalize data
     if p_mode == 'svdne':
-        
+
         # need to read min_max_file
         file_path = os.path.join(os.path.join(os.path.dirname(__file__),'../'), min_max_file_path)
         with open(file_path, 'r') as f:
@@ -63,7 +63,7 @@ def main():
     else:
         l_values = low_bits_3_values
 
-    
+
     # get interval values
     begin, end = p_interval
     test_data = l_values[begin:end]
