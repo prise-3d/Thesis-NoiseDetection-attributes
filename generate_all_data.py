@@ -32,7 +32,7 @@ path = './fichiersSVD_light'
 zones = np.arange(16)
 seuil_expe_filename = 'seuilExpe'
 
-metric_choices = ['mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4']
+metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4']
 
 def generate_data_svd(data_type, mode):
     """
