@@ -205,6 +205,10 @@ def main():
     # stats of dataset sizes
     total_samples = final_df_train_size + val_set_size + test_set_size
 
+    model_scores.append(final_df_train_size)
+    model_scores.append(val_set_size)
+    model_scores.append(test_set_size)
+
     model_scores.append(final_df_train_size / total_samples)
     model_scores.append(val_set_size / total_samples)
     model_scores.append(test_set_size / total_samples)
