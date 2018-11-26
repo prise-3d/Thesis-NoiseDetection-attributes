@@ -5,6 +5,7 @@ simulate_models="simulate_models.csv"
 
 # selection of four scenes (only maxwell)
 scenes="A, D, G, H"
+VECTOR_SIZE=200
 
 for size in {"4","8","16","26","32","40"}; do
     for metric in {"lab","mscn","mscn_revisited","low_bits_2","low_bits_3","low_bits_4"}; do
@@ -27,17 +28,22 @@ for size in {"4","8","16","26","32","40"}; do
 
              for nb_zones in {4,6,8,10,12,14}; do
 
-                 echo $start $end
-
                  for mode in {"svd","svdn","svdne"}; do
                      for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
+
+                        FILENAME="data/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
 
                         MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
 
                         if grep -q "${MODEL_NAME}" "${simulate_models}"; then
                             echo "Run simulation for model ${MODEL_NAME}"
 
-                            python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+                            # by default regenerate model
+                            python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
+
+                            python models/${model}_train.py --data ${FILENAME} --output ${MODEL_NAME}
+
+                            python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' &
                         fi
                     done
                 done
