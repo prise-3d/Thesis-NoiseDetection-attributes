@@ -1,0 +1,54 @@
+#! bin/bash
+
+# file which contains model names we want to use for simulation
+simulate_models="simulate_models.csv"
+
+# selection of four scenes (only maxwell)
+scenes="A, D, G, H"
+
+for size in {"4","8","16","26","32","40"}; do
+    for metric in {"lab","mscn","mscn_revisited","low_bits_2","low_bits_3","low_bits_4"}; do
+
+        half=$(($size/2))
+        start=-$half
+
+        for counter in {0..4}; do
+             end=$(($start+$size))
+
+             if [ "$end" -gt "$VECTOR_SIZE" ]; then
+                 start=$(($VECTOR_SIZE-$size))
+                 end=$(($VECTOR_SIZE))
+             fi
+
+             if [ "$start" -lt "0" ]; then
+                 start=$((0))
+                 end=$(($size))
+             fi
+
+             for nb_zones in {4,6,8,10,12,14}; do
+
+                 echo $start $end
+
+                 for mode in {"svd","svdn","svdne"}; do
+                     for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
+
+                        MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
+
+                        if grep -q "${MODEL_NAME}" "${simulate_models}"; then
+                            echo "Run simulation for model ${MODEL_NAME}"
+
+                            python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+                        fi
+                    done
+                done
+            done
+
+            if [ "$counter" -eq "0" ]; then
+                start=$(($start+50-$half))
+            else
+                start=$(($start+50))
+            fi
+
+        done
+    done
+done

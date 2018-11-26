@@ -4,6 +4,8 @@ saved_models/*
 threshold_map/*
 models_info/*
 
+simulate_models.csv
+
 fichiersSVD_light/*/*/*.csv
 fichiersSVD_light/*_min_max_values
 
