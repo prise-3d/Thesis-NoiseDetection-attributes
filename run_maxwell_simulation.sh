@@ -43,7 +43,10 @@ for size in {"4","8","16","26","32","40"}; do
 
                             python models/${model}_train.py --data ${FILENAME} --output ${MODEL_NAME}
 
-                            python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' &
+                            python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+
+                            python save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
+
                         fi
                     done
                 done
