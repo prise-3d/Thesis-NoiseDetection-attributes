@@ -20,7 +20,7 @@ tmp_filename = '/tmp/__model__img_to_predict.png'
 maxwell_scenes = ['Appart1opt02', 'Cuisine01', 'SdbCentre', 'SdbDroite']
 
 threshold_map_folder = "threshold_map"
-threshold_map_file_prefix = "treshold_map_"
+simulation_curves_zones = "simulation_curves_zones_"
 
 zones = np.arange(16)
 
@@ -82,9 +82,8 @@ def main():
                 step_counter = int(config_file.readline().strip())
 
             threshold_expes = []
-            threshold_expes_detected = []
-            threshold_expes_counter = []
             threshold_expes_found = []
+            block_predictions_str = []
 
             # get zones list info
             for index in zones:
@@ -100,17 +99,16 @@ def main():
                     threshold_expes.append(threshold)
 
                     # Initialize default data to get detected model threshold found
-                    threshold_expes_detected.append(False)
-                    threshold_expes_counter.append(0)
                     threshold_expes_found.append(int(end_index_image)) # by default use max
+
+                block_predictions_str.append(index_str + ";" + p_model_file + ";" + str(threshold) + ";" + str(start_index_image) + ";" + str(step_counter))
 
             current_counter_index = int(start_index_image)
             end_counter_index = int(end_index_image)
 
             print(current_counter_index)
-            check_all_done = False
 
-            while(current_counter_index <= end_counter_index and not check_all_done):
+            while(current_counter_index <= end_counter_index):
 
                 current_counter_index_str = str(current_counter_index)
 
@@ -122,13 +120,10 @@ def main():
                 current_img = Image.open(img_path)
                 img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
 
-
-                check_all_done = all(d == True for d in threshold_expes_detected)
-
                 for id_block, block in enumerate(img_blocks):
 
                     # check only if necessary for this scene (not already detected)
-                    if not threshold_expes_detected[id_block]:
+                    #if not threshold_expes_detected[id_block]:
 
                         tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                         block.save(tmp_file_path)
@@ -148,20 +143,14 @@ def main():
 
                         prediction = int(output)
 
-                        if prediction == 0:
-                            threshold_expes_counter[id_block] = threshold_expes_counter[id_block] + 1
-                        else:
-                            threshold_expes_counter[id_block] = 0
-
-                        if threshold_expes_counter[id_block] == p_limit:
-                            threshold_expes_detected[id_block] = True
-                            threshold_expes_found[id_block] = current_counter_index
+                        # save here in specific file of block all the predictions done
+                        block_predictions_str[id_block] = block_predictions_str[id_block] + ";" + str(prediction)
 
                         print(str(id_block) + " : " + str(current_counter_index) + "/" + str(threshold_expes[id_block]) + " => " + str(prediction))
 
                 current_counter_index += step_counter
                 print("------------------------")
-                print("Scene " + str(id_scene + 1) + "/" + str(len(maxwell_scenes)))
+                print("Scene " + str(id_scene + 1) + "/" + str(len(scenes)))
                 print("------------------------")
 
             # end of scene => display of results
@@ -173,47 +162,14 @@ def main():
             if not os.path.exists(model_treshold_path):
                 os.makedirs(model_treshold_path)
 
-            abs_dist = []
-
-            map_filename = os.path.join(model_treshold_path, threshold_map_file_prefix + folder_scene)
+            map_filename = os.path.join(model_treshold_path, simulation_curves_zones + folder_scene)
             f_map = open(map_filename, 'w')
 
-            line_information = ""
-
-            # default header
-            f_map.write('|  |    |    |  |\n')
-            f_map.write('---|----|----|---\n')
-            for id, threshold in enumerate(threshold_expes_found):
-
-                line_information += str(threshold) + " / " + str(threshold_expes[id]) + " | "
-                abs_dist.append(abs(threshold - threshold_expes[id]))
-
-                if (id + 1) % 4 == 0:
-                    f_map.write(line_information + '\n')
-                    line_information = ""
-
-            f_map.write(line_information + '\n')
-
-            min_abs_dist = min(abs_dist)
-            max_abs_dist = max(abs_dist)
-            avg_abs_dist = sum(abs_dist) / len(abs_dist)
-
-            f_map.write('\nScene information : ')
-            f_map.write('\n- BEGIN : ' + str(start_index_image))
-            f_map.write('\n- END : ' + str(end_index_image))
-
-            f_map.write('\n\nDistances information : ')
-            f_map.write('\n- MIN : ' + str(min_abs_dist))
-            f_map.write('\n- MAX : ' + str(max_abs_dist))
-            f_map.write('\n- AVG : ' + str(avg_abs_dist))
-
-            f_map.write('\n\nOther information : ')
-            f_map.write('\n- Detection limit : ' + str(p_limit))
-
-            # by default print last line
+            for line in block_predictions_str:
+                f_map.write(line + '\n')
             f_map.close()
 
-            print("Scene " + str(id_scene + 1) + "/" + str(len(scenes)) + " Done..")
+            print("Scene " + str(id_scene + 1) + "/" + str(len(maxwell_scenes)) + " Done..")
             print("------------------------")
 
             time.sleep(10)

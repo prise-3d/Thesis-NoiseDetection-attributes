@@ -32,7 +32,7 @@ path = './fichiersSVD_light'
 zones = np.arange(16)
 seuil_expe_filename = 'seuilExpe'
 
-metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6']
+metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2']
 
 def generate_data_svd(data_type, mode):
     """
@@ -177,6 +177,11 @@ def generate_data_svd(data_type, mode):
 
                     # extract from temp image
                     data = metrics.get_SVD_s(low_bits_2)
+
+                if data_type == 'low_bits_4_shifted_2':
+
+                    data = metrics.get_SVD_s(image_processing.rgb_to_LAB_L_bits(block, (3, 6)))
+
 
                 ##################
                 # Data mode part #

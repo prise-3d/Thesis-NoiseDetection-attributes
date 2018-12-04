@@ -33,7 +33,7 @@ seuil_expe_filename = 'seuilExpe'
 
 metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6']
 
-def display_data_scenes(data_type, p_scene):
+def display_data_scenes(data_type, p_scene, p_kind):
     """
     @brief Method which generates all .csv files from scenes photos
     @param path - path of scenes folder information
@@ -193,22 +193,35 @@ def display_data_scenes(data_type, p_scene):
                     ##################
 
                     # modify data depending mode
-                    data = image_processing.normalize_arr(data)
+
+                    if p_kind == 'svdn':
+                        data = image_processing.normalize_arr(data)
+
+                    if p_kind == 'svdne':
+                        path_min_max = os.path.join(path, data_type + min_max_filename)
+
+                        with open(path_min_max, 'r') as f:
+                            min_val = float(f.readline())
+                            max_val = float(f.readline())
+
+                        data = image_processing.normalize_arr_with_range(data, min_val, max_val)
+
+                    # append of data
                     images_data.append(data)
 
                 zones_images_data.append(images_data)
 
             fig=plt.figure(figsize=(8, 8))
-            fig.suptitle(data_type + " values for " + p_scene + " scene", fontsize=20)
+            fig.suptitle(data_type + " values for " + p_scene + " scene (normalization : " + p_kind + ")", fontsize=20)
 
             for id, data in enumerate(zones_images_data):
                 fig.add_subplot(4, 4, (id + 1))
                 plt.plot(data[0], label='Noisy_' + start_index_image)
                 plt.plot(data[1], label='Threshold_' + threshold_info[id])
                 plt.plot(data[2], label='Reference_' + end_index_image)
-                plt.ylabel(data_type + ' SVD, ZONE_' + str(id + 1), fontsize=14)
-                plt.xlabel('Vector features', fontsize=16)
-                plt.legend(bbox_to_anchor=(0.5, 1), loc=2, borderaxespad=0.2, fontsize=14)
+                plt.ylabel(data_type + ' SVD, ZONE_' + str(id + 1), fontsize=18)
+                plt.xlabel('Vector features', fontsize=18)
+                plt.legend(bbox_to_anchor=(0.5, 1), loc=2, borderaxespad=0.2, fontsize=18)
                 plt.ylim(0, 0.1)
             plt.show()
 
@@ -216,18 +229,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python generate_all_data.py --metric all --scene A')
-        print('python generate_all_data.py --metric lab --scene A')
+        print('python generate_all_data.py --metric all --scene A --kind svdn')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm", ["help=", "metric=", "scene="])
+        opts, args = getopt.getopt(sys.argv[1:], "hm:s:k", ["help=", "metric=", "scene=", "kind="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_all_data.py --metric all --scene A')
+        print('python generate_all_data.py --metric all --scene A --kind svdn')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_all_data.py --metric all --scene A')
+            print('python generate_all_data.py --metric all --scene A --kind svdn')
             sys.exit()
         elif o in ("-m", "--metric"):
             p_metric = a
@@ -241,11 +253,16 @@ def main():
                 assert False, "Invalid metric choice"
             else:
                 p_scene = scenes_list[scenes_indexes.index(p_scene)]
+        elif o in ("-k", "--kind"):
+            p_kind = a
+
+            if p_kind not in choices:
+                assert False, "Invalid metric choice"
         else:
             assert False, "unhandled option"
 
 
-    display_data_scenes(p_metric, p_scene)
+    display_data_scenes(p_metric, p_scene, p_kind)
 
 if __name__== "__main__":
     main()

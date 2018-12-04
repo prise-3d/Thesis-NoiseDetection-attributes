@@ -12,6 +12,10 @@ low_bits_3_svd_values = []
 
 low_bits_4_svd_values = []
 
+low_bits_5_svd_values = []
+
+low_bits_6_svd_values = []
+
 mscn_revisited_svd_values = []
 
 mscn_svd_values = []
@@ -76,6 +80,26 @@ def open_and_display(path):
     low_bits_svd = [b / low_bits_svd[0] for b in low_bits_svd]
 
     low_bits_4_svd_values.append(low_bits_svd)
+
+    # computation of low bits parts 5 bits
+    low_bits_block = image_processing.rgb_to_LAB_L_low_bits(block_used, 31)
+
+    low_bits_svd = metrics.get_SVD_s(low_bits_block)
+
+    low_bits_svd = [b / low_bits_svd[0] for b in low_bits_svd]
+
+    low_bits_5_svd_values.append(low_bits_svd)
+
+    # computation of low bits parts 6 bits
+    low_bits_block = image_processing.rgb_to_LAB_L_low_bits(block_used, 63)
+
+    low_bits_svd = metrics.get_SVD_s(low_bits_block)
+
+    low_bits_svd = [b / low_bits_svd[0] for b in low_bits_svd]
+
+    low_bits_6_svd_values.append(low_bits_svd)
+
+
 
     # Other MSCN
     img_grey = np.array(color.rgb2gray(np.asarray(block_used))*255, 'uint8')
@@ -158,6 +182,24 @@ plt.plot(low_bits_4_svd_values[0], label='Noisy')
 plt.plot(low_bits_4_svd_values[1], label='Threshold')
 plt.plot(low_bits_4_svd_values[2], label='Reference')
 plt.ylabel('Low 4 bits SVD')
+plt.xlabel('Vector features')
+plt.legend(bbox_to_anchor=(0.7, 1), loc=2, borderaxespad=0.2)
+plt.ylim(0, 0.1)
+plt.show()
+
+plt.plot(low_bits_5_svd_values[0], label='Noisy')
+plt.plot(low_bits_5_svd_values[1], label='Threshold')
+plt.plot(low_bits_5_svd_values[2], label='Reference')
+plt.ylabel('Low 5 bits SVD')
+plt.xlabel('Vector features')
+plt.legend(bbox_to_anchor=(0.7, 1), loc=2, borderaxespad=0.2)
+plt.ylim(0, 0.1)
+plt.show()
+
+plt.plot(low_bits_6_svd_values[0], label='Noisy')
+plt.plot(low_bits_6_svd_values[1], label='Threshold')
+plt.plot(low_bits_6_svd_values[2], label='Reference')
+plt.ylabel('Low 6 bits SVD')
 plt.xlabel('Vector features')
 plt.legend(bbox_to_anchor=(0.7, 1), loc=2, borderaxespad=0.2)
 plt.ylim(0, 0.1)
