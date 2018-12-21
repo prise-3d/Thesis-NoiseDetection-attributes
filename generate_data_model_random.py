@@ -71,7 +71,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
     test_file = open(output_test_filename, 'w')
 
     scenes = os.listdir(path)
-    
+
     # remove min max file from scenes folder
     scenes = [s for s in scenes if min_max_filename not in s]
 
@@ -111,7 +111,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
                 line = construct_new_line(path_seuil, _interval, lines[index], _sep, _index)
 
                 percent = counter / num_lines
-                
+
                 if id_zone < _nb_zones and folder_scene in _scenes and percent <= _percent:
                     train_file.write(line)
                 else:

@@ -14,12 +14,16 @@ python generate_all_data.py --metric all
 For noise detection, many metrics are available :
 - lab
 - mscn
+- mscn_revisited
 - low_bits_2
 - low_bits_4
+- low_bits_5
+- low_bits_6
+- low_bits_4_shifted_2
 
-You can also specify metric you want to compute :
+You can also specify metric you want to compute and image step to avoid some images :
 ```bash
-python generate_all_data.py --metric mscn
+python generate_all_data.py --metric mscn --step 50
 ```
 
 ## How to use
@@ -27,9 +31,9 @@ python generate_all_data.py --metric mscn
 ### Multiple folders and scripts are availables :
 
 
-- **fichiersSVD/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
-- **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...) but here with reduction of information for few scenes. Information used in our case.
+- **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
 - **models/*.py** : all models developed to predict noise in image.
+- **utils/** : contains all usefull script or modules.
 - **data/\*** : folder which will contain all *.train* & *.test* files in order to train model.
 - **saved_models/*.joblib** : all scikit learn models saved.
 - **models_info/*.md** : all markdown files generated to get quick information about model performance and prediction.
