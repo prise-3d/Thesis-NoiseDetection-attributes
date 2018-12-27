@@ -1,8 +1,8 @@
 from ipfml import image_processing, metrics
 from PIL import Image
+from skimage import color
 
 import numpy as np
-
 
 def get_svd_data(data_type, block):
     """

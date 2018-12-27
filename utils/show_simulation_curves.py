@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os, sys
 
+from utils.data_type_module import get_svd_data
+
 label_freq = 6
 folder_path = "Curve_simulations"
 

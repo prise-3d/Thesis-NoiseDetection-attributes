@@ -173,7 +173,7 @@ def generate_data_svd(data_type, mode):
             f.write(str(min_val_found) + '\n')
             f.write(str(max_val_found) + '\n')
 
-    print("%s : end of data generation\n" % _mode)
+    print("%s : end of data generation\n" % mode)
 
 
 def main():
