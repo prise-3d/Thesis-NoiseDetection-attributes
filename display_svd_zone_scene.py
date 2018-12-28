@@ -8,6 +8,7 @@ Created on Fri Sep 14 21:02:42 2018
 
 from __future__ import print_function
 import sys, os, getopt
+
 import numpy as np
 import random
 import time
@@ -19,8 +20,7 @@ from ipfml import metrics
 from skimage import color
 
 import matplotlib.pyplot as plt
-
-from data_type_module import get_svd_data
+from modules.utils.data_type import get_svd_data
 
 config_filename   = "config"
 zone_folder       = "zone"
@@ -31,7 +31,7 @@ scenes_list = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 
 metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2']
 scenes_indexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 choices = ['svd', 'svdn', 'svdne']
-path = './../fichiersSVD_light'
+path = './fichiersSVD_light'
 zones = np.arange(16)
 seuil_expe_filename = 'seuilExpe'
 
@@ -161,14 +161,14 @@ def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode):
 
             for id, data in enumerate(zones_images_data):
 
-                p_label = p_scene + "_" + images_indexes[0]
+                p_label = p_scene + "_" + images_indexes[id]
 
                 if images_indexes[id] == threshold_image_zone:
-                    plt.plot(data, label=p_label, lw=4)
+                    plt.plot(data, label=p_label, lw=4, color='red')
                 else:
                     plt.plot(data, label=p_label)
 
-            plt.legend(bbox_to_anchor=(0.5, 1), loc=2, borderaxespad=0.2, fontsize=14)
+            plt.legend(bbox_to_anchor=(0.8, 1), loc=2, borderaxespad=0.2, fontsize=14)
             plt.ylim(0, 0.1)
 
             plt.show()

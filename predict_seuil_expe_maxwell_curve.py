@@ -172,6 +172,7 @@ def main():
             print("Scene " + str(id_scene + 1) + "/" + str(len(maxwell_scenes)) + " Done..")
             print("------------------------")
 
+            print("Model predictions are saved into %s" map_filename)
             time.sleep(10)
 
 

@@ -13,7 +13,7 @@ import random
 import time
 import json
 
-from utils.data_type_module import get_svd_data
+from modules.utils.data_type import get_svd_data
 from PIL import Image
 from ipfml import image_processing
 from ipfml import metrics

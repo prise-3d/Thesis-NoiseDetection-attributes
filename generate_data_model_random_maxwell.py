@@ -14,8 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing
-from ipfml import metrics
+from ipfml import image_processing, metrics
 
 config_filename   = "config"
 zone_folder       = "zone"
