@@ -14,12 +14,16 @@ python generate_all_data.py --metric all
 For noise detection, many metrics are available :
 - lab
 - mscn
+- mscn_revisited
 - low_bits_2
 - low_bits_4
+- low_bits_5
+- low_bits_6
+- low_bits_4_shifted_2
 
-You can also specify metric you want to compute :
+You can also specify metric you want to compute and image step to avoid some images :
 ```bash
-python generate_all_data.py --metric mscn
+python generate_all_data.py --metric mscn --step 50
 ```
 
 ## How to use
@@ -27,9 +31,9 @@ python generate_all_data.py --metric mscn
 ### Multiple folders and scripts are availables :
 
 
-- **fichiersSVD/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
-- **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...) but here with reduction of information for few scenes. Information used in our case.
+- **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
 - **models/*.py** : all models developed to predict noise in image.
+- **utils/** : contains all usefull script or modules.
 - **data/\*** : folder which will contain all *.train* & *.test* files in order to train model.
 - **saved_models/*.joblib** : all scikit learn models saved.
 - **models_info/*.md** : all markdown files generated to get quick information about model performance and prediction.
@@ -99,6 +103,18 @@ python prediction_scene.py --data path/to/xxxx.csv --model saved_model/xxxx.jobl
 ```
 **Remark** : *scene* parameter expected need to be the correct name of the Scene.
 
+### Visualize data
+
+All scripts with names **display_\*.py** are used to display data information or results.
+
+Just use --help option to get more information.
+
+### Simulate model on scene
+
+All scripts named **predict_seuil_expe\*.py** are used to simulate model prediction during rendering process.
+
+Once you have simulation done. Checkout your **threshold_map/%MODEL_NAME/simulation_curves_zones_\*** folder and use it with help of **display_simulation_curves.py** script.
+
 ## Others scripts
 
 ### Test model on all scene data
@@ -150,8 +166,7 @@ Parameters list :
 - **interval** : the interval of data you want to use from SVD vector.
 - **mode** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
 
-
-Markdown file is saved using model name into **models_info** folder.
+Markdown file with all information is saved using model name into **models_info** folder.
 
 ### Others...
 
