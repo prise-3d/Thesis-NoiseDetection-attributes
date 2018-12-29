@@ -9,20 +9,24 @@ import sys, os, getopt
 import subprocess
 import time
 
+from modules.utils import config as cfg
+
+config_filename           = cfg.config_filename
+scenes_path               = cfg.dataset_path
+min_max_filename          = cfg.min_max_filename_extension
+threshold_expe_filename   = cfg.seuil_expe_filename
+
+threshold_map_folder      = cfg.threshold_map_folder
+threshold_map_file_prefix = cfg.threshold_map_folder + "_"
+
+zones                     = cfg.zones_indices
+maxwell_scenes            = cfg.maxwell_scenes_names
+
+simulation_curves_zones   = "simulation_curves_zones_"
+tmp_filename              = '/tmp/__model__img_to_predict.png'
+
 current_dirpath = os.getcwd()
 
-config_filename   = "config"
-scenes_path = './fichiersSVD_light'
-min_max_filename = '_min_max_values'
-threshold_expe_filename = 'seuilExpe'
-tmp_filename = '/tmp/__model__img_to_predict.png'
-
-maxwell_scenes = ['Appart1opt02', 'Cuisine01', 'SdbCentre', 'SdbDroite']
-
-threshold_map_folder = "threshold_map"
-simulation_curves_zones = "simulation_curves_zones_"
-
-zones = np.arange(16)
 
 def main():
 

@@ -14,16 +14,19 @@ import sys, os, getopt
 import subprocess
 import time
 
+from modules.utils import config as cfg
+
+threshold_map_folder        = cfg.threshold_map_folder
+threshold_map_file_prefix   = cfg.threshold_map_folder + "_"
+
+markdowns_folder            = cfg.models_information_folder
+final_csv_model_comparisons = cfg.csv_model_comparisons_filename
+models_name                 = cfg.models_names_list
+
+zones                       = cfg.zones_indices
+
 current_dirpath = os.getcwd()
 
-threshold_map_folder = "threshold_map"
-threshold_map_file_prefix = "treshold_map_"
-
-markdowns_folder = "models_info"
-final_csv_model_comparisons = "models_comparisons.csv"
-models_name = ["svm_model","ensemble_model","ensemble_model_v2"]
-
-zones = np.arange(16)
 
 def main():
 

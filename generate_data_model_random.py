@@ -17,19 +17,24 @@ from PIL import Image
 from ipfml import image_processing
 from ipfml import metrics
 
-config_filename   = "config"
-zone_folder       = "zone"
-min_max_filename  = "_min_max_values"
-generic_output_file_svd = '_random.csv'
-output_data_folder = 'data'
+from modules.utils import config as cfg
+
+# getting configuration information
+config_filename         = cfg.config_filename
+zone_folder             = cfg.zone_folder
+min_max_filename        = cfg.min_max_filename_extension
 
 # define all scenes values
-scenes = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
-scenes_indexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
-choices = ['svd', 'svdn', 'svdne']
-path = './fichiersSVD_light'
-zones = np.arange(16)
-seuil_expe_filename = 'seuilExpe'
+scenes_list             = cfg.scenes_names
+scenes_indexes          = cfg.scenes_indices
+choices                 = cfg.normalization_choices
+path                    = cfg.dataset_path
+zones                   = cfg.zones_indices
+seuil_expe_filename     = cfg.seuil_expe_filename
+
+metric_choices          = cfg.metric_choices_labels
+
+output_data_folder      = cfg.output_data_folder
 
 def construct_new_line(path_seuil, interval, line, sep, index):
     begin, end = interval

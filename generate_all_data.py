@@ -19,27 +19,32 @@ from ipfml import image_processing
 from ipfml import metrics
 from skimage import color
 
-config_filename   = "config"
-zone_folder       = "zone"
-min_max_filename  = "_min_max_values"
-generic_output_file_svd = '_random.csv'
-output_data_folder = 'data'
+from modules.utils import config as cfg
+
+# getting configuration information
+config_filename         = cfg.config_filename
+zone_folder             = cfg.zone_folder
+min_max_filename        = cfg.min_max_filename_extension
 
 # define all scenes values
-scenes = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
-scenes_indexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
-choices = ['svd', 'svdn', 'svdne']
-path = './fichiersSVD_light'
-zones = np.arange(16)
-seuil_expe_filename = 'seuilExpe'
+scenes_list             = cfg.scenes_names
+scenes_indexes          = cfg.scenes_indices
+choices                 = cfg.normalization_choices
+path                    = cfg.dataset_path
+zones                   = cfg.zones_indices
+seuil_expe_filename     = cfg.seuil_expe_filename
 
-metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2']
-picture_step = 10
+metric_choices          = cfg.metric_choices_labels
+output_data_folder      = cfg.output_data_folder
+
+generic_output_file_svd = '_random.csv'
+picture_step            = 10
 
 def generate_data_svd(data_type, mode):
     """
-    @brief Method which generates all .csv files from scenes photos
-    @param path - path of scenes folder information
+    @brief Method which generates all .csv files from scenes
+    @param data_type,  metric choice
+    @param mode, normalization choice
     @return nothing
     """
 

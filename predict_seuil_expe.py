@@ -9,18 +9,21 @@ import sys, os, getopt
 import subprocess
 import time
 
+from modules.utils import config as cfg
+
+config_filename           = cfg.config_filename
+scenes_path               = cfg.dataset_path
+min_max_filename          = cfg.min_max_filename_extension
+threshold_expe_filename   = cfg.seuil_expe_filename
+
+threshold_map_folder      = cfg.threshold_map_folder
+threshold_map_file_prefix = cfg.threshold_map_folder + "_"
+
+zones                     = cfg.zones_indices
+
+tmp_filename              = '/tmp/__model__img_to_predict.png'
+
 current_dirpath = os.getcwd()
-
-config_filename   = "config"
-scenes_path = './fichiersSVD_light'
-min_max_filename = '_min_max_values'
-threshold_expe_filename = 'seuilExpe'
-tmp_filename = '/tmp/__model__img_to_predict.png'
-
-threshold_map_folder = "threshold_map"
-threshold_map_file_prefix = "treshold_map_"
-
-zones = np.arange(16)
 
 def main():
 
@@ -47,7 +50,7 @@ def main():
 
             if p_mode != 'svdn' and p_mode != 'svdne' and p_mode != 'svd':
                 assert False, "Mode not recognized"
-    
+
         elif o in ("-me", "--metric"):
             p_metric = a
         elif o in ("-l", "--limit_detection"):
@@ -56,13 +59,13 @@ def main():
             assert False, "unhandled option"
 
     scenes = os.listdir(scenes_path)
-    
+
     if min_max_filename in scenes:
         scenes.remove(min_max_filename)
 
     # go ahead each scenes
     for id_scene, folder_scene in enumerate(scenes):
-    
+
         print(folder_scene)
 
         scene_path = os.path.join(scenes_path, folder_scene)
@@ -106,7 +109,7 @@ def main():
         check_all_done = False
 
         while(current_counter_index <= end_counter_index and not check_all_done):
-            
+
             current_counter_index_str = str(current_counter_index)
 
             while len(start_index_image) > len(current_counter_index_str):
@@ -121,7 +124,7 @@ def main():
             check_all_done = all(d == True for d in threshold_expes_detected)
 
             for id_block, block in enumerate(img_blocks):
-                
+
                 # check only if necessary for this scene (not already detected)
                 if not threshold_expes_detected[id_block]:
 
@@ -135,9 +138,9 @@ def main():
 
                     ## call command ##
                     p = subprocess.Popen(python_cmd, stdout=subprocess.PIPE, shell=True)
-                    
+
                     (output, err) = p.communicate()
-                    
+
                     ## Wait for result ##
                     p_status = p.wait()
 
@@ -147,7 +150,7 @@ def main():
                         threshold_expes_counter[id_block] = threshold_expes_counter[id_block] + 1
                     else:
                         threshold_expes_counter[id_block] = 0
-                    
+
                     if threshold_expes_counter[id_block] == p_limit:
                         threshold_expes_detected[id_block] = True
                         threshold_expes_found[id_block] = current_counter_index
@@ -163,7 +166,7 @@ def main():
 
         # construct path using model name for saving threshold map folder
         model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', ''))
-        
+
         # create threshold model path if necessary
         if not os.path.exists(model_treshold_path):
             os.makedirs(model_treshold_path)
@@ -186,7 +189,7 @@ def main():
             if (id + 1) % 4 == 0:
                 f_map.write(line_information + '\n')
                 line_information = ""
-        
+
         f_map.write(line_information + '\n')
 
         min_abs_dist = min(abs_dist)

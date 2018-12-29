@@ -7,10 +7,13 @@ import os, sys, getopt
 from modules.utils.data_type import get_svd_data
 
 label_freq = 6
-folder_path = "Curve_simulations"
-
 
 def display_curves(folder_path):
+    """
+    @brief Method used to display simulation given .csv files
+    @param folder_path, folder which contains all .csv files obtained during simulation
+    @return nothing
+    """
 
     data_files = os.listdir(folder_path)
 

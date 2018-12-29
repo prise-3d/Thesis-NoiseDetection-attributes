@@ -22,22 +22,26 @@ from skimage import color
 import matplotlib.pyplot as plt
 from modules.utils.data_type import get_svd_data
 
-config_filename   = "config"
-zone_folder       = "zone"
-min_max_filename  = "_min_max_values"
+from modules.utils import config as cfg
+
+# getting configuration information
+config_filename     = cfg.config_filename
+zone_folder         = cfg.zone_folder
+min_max_filename    = cfg.min_max_filename_extension
 
 # define all scenes values
-scenes_list = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
-metric_choices = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2']
-scenes_indexes = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
-choices = ['svd', 'svdn', 'svdne']
-path = './fichiersSVD_light'
-zones = np.arange(16)
-seuil_expe_filename = 'seuilExpe'
+scenes_list         = cfg.scenes_names
+scenes_indexes      = cfg.scenes_indices
+choices             = cfg.normalization_choices
+path                = cfg.dataset_path
+zones               = cfg.zones_indices
+seuil_expe_filename = cfg.seuil_expe_filename
+
+metric_choices      = cfg.metric_choices_labels
 
 max_nb_bits = 8
 
-def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode):
+def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode, p_step):
     """
     @brief Method which gives information about svd curves from zone of picture
     @param p_scene, scene expected to show svd values
@@ -110,13 +114,14 @@ def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode):
                     current_counter_index_str = "0" + current_counter_index_str
 
 
-                if current_counter_index >= begin and current_counter_index <= end:
-                    images_indexes.append(current_counter_index_str)
+                if current_counter_index % p_step == 0:
+                    if current_counter_index >= begin and current_counter_index <= end:
+                        images_indexes.append(current_counter_index_str)
 
-                if seuil_learned < int(current_counter_index) and not threshold_image_found:
+                    if seuil_learned < int(current_counter_index) and not threshold_image_found:
 
-                    threshold_image_found = True
-                    threshold_image_zone = current_counter_index_str
+                        threshold_image_found = True
+                        threshold_image_zone = current_counter_index_str
 
                 current_counter_index += step_counter
 
@@ -175,19 +180,23 @@ def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode):
 
 def main():
 
+
+    # by default p_step value is 10 to enable all photos
+    p_step = 10
+
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python display_svd_zone_scene.py --scene A --interval "0,200" --zone 3 --metric lab --mode svdne')
+        print('python display_svd_zone_scene.py --scene A --interval "0,200" --zone 3 --metric lab --mode svdne --step 50')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:i:z:l:m", ["help=", "scene=", "interval=", "zone=", "metric=", "mode="])
+        opts, args = getopt.getopt(sys.argv[1:], "hs:i:z:l:m:s", ["help=", "scene=", "interval=", "zone=", "metric=", "mode=", "step="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python display_svd_zone_scene.py --scene A --interval "0,200" --zone 3 --metric lab --mode svdne')
+        print('python display_svd_zone_scene.py --scene A --interval "0,200" --zone 3 --metric lab --mode svdne --step 50')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python display_svd_zone_scene.py --scene A --interval "0,200" --zone 3 --metric lab --mode svdne')
+            print('python display_svd_zone_scene.py --scene A --interval "0,200" --zone 3 --metric lab --mode svdne --step 50')
             sys.exit()
         elif o in ("-s", "--scene"):
             p_scene = a
@@ -214,10 +223,13 @@ def main():
             if p_mode not in choices:
                 assert False, "Invalid normalization choice, expected ['svd', 'svdn', 'svdne']"
 
+        elif o in ("-s", "--step"):
+            p_step = int(a)
+
         else:
             assert False, "unhandled option"
 
-    display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode)
+    display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode, p_step)
 
 if __name__== "__main__":
     main()
