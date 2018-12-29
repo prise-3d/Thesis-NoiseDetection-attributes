@@ -16,19 +16,23 @@ import json
 from PIL import Image
 from ipfml import image_processing, metrics
 
-config_filename   = "config"
-zone_folder       = "zone"
-min_max_filename  = "_min_max_values"
-generic_output_file_svd = '_random.csv'
-output_data_folder = 'data'
+from modules.utils import config as cfg
 
-# define all scenes values, here only use Maxwell scenes
-scenes_list = ['Appart1opt02', 'Cuisine01', 'SdbCentre', 'SdbDroite']
-scenes_indexes = ['A', 'D', 'G', 'H']
-choices = ['svd', 'svdn', 'svdne']
-path = './fichiersSVD_light'
-zones = np.arange(16)
-seuil_expe_filename = 'seuilExpe'
+# getting configuration information
+config_filename         = cfg.config_filename
+zone_folder             = cfg.zone_folder
+min_max_filename        = cfg.min_max_filename_extension
+
+# define all scenes values
+scenes_list             = cfg.maxwell_scenes_names
+scenes_indexes          = cfg.maxwell_scenes_indices
+choices                 = cfg.normalization_choices
+path                    = cfg.dataset_path
+zones                   = cfg.zones_indices
+seuil_expe_filename     = cfg.seuil_expe_filename
+
+metric_choices          = cfg.metric_choices_labels
+output_data_folder      = cfg.output_data_folder
 
 min_value_interval = sys.maxsize
 max_value_interval = 0

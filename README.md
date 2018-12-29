@@ -33,16 +33,17 @@ python generate_all_data.py --metric mscn --step 50
 
 - **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
 - **models/*.py** : all models developed to predict noise in image.
-- **utils/** : contains all usefull script or modules.
 - **data/\*** : folder which will contain all *.train* & *.test* files in order to train model.
 - **saved_models/*.joblib** : all scikit learn models saved.
-- **models_info/*.md** : all markdown files generated to get quick information about model performance and prediction.
+- **models_info/*** : all markdown files generated to get quick information about model performance and prediction. This folder contains also **model_comparisons.csv** obtained after running runAll_maxwell.sh script.
+- **modules/\*** : contains all modules usefull for the whole project (such as configuration variables)
 
 ### Scripts for generating data files
 
 Two scripts can be used for generating data in order to fit model :
 - **generate_data_model.py** : zones are specified and stayed fixed for each scene
 - **generate_data_model_random.py** : zones are chosen randomly (just a number of zone is specified)
+- **generate_data_model_random_maxwell.py** : zones are chosen randomly (just a number of zone is specified). Only maxwell scene are used.
 
 
 **Remark** : Note here that all python script have *--help* command.
@@ -53,7 +54,7 @@ python generate_data_model.py --help
 python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "0, 1, 2" --percent 0.7 --sep : --rowindex 1
 ```
 
-Parameters explained : 
+Parameters explained :
 - **output** : filename of data (which will be split into two parts, *.train* and *.test* relative to your choices).
 - **interval** : the interval of data you want to use from SVD vector.
 - **kind** : kind of data ['svd', 'svdn', 'svdne']; not normalize, normalize vector only and normalize together.
@@ -113,7 +114,7 @@ Just use --help option to get more information.
 
 All scripts named **predict_seuil_expe\*.py** are used to simulate model prediction during rendering process.
 
-Once you have simulation done. Checkout your **threshold_map/%MODEL_NAME/simulation_curves_zones_\*** folder and use it with help of **display_simulation_curves.py** script.
+Once you have simulation done. Checkout your **threshold_map/%MODEL_NAME%/simulation\_curves\_zones\_\*/** folder and use it with help of **display_simulation_curves.py** script.
 
 ## Others scripts
 
@@ -133,7 +134,7 @@ Parameters list :
 - 5 : Metric used by model
 
 
-### Get treshold map 
+### Get treshold map
 
 Main objective of this project is to predict as well as a human the noise perception on a photo realistic image. Human threshold is available from training data. So a script was developed to give the predicted treshold from model and compare predicted treshold from the expected one.
 
@@ -158,7 +159,7 @@ The content will be divised into two parts :
 The previous script need to already have ran to obtain and display treshold maps on this markdown file.
 
 ```bash
-python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn'] 
+python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn']
 ```
 
 Parameters list :
@@ -174,4 +175,4 @@ All others bash scripts are used to combine and run multiple model combinations.
 
 ## How to contribute
 
-This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.git 
+This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.git

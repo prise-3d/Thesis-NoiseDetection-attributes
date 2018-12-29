@@ -9,14 +9,16 @@ import sys, os, getopt
 import subprocess
 import time
 
+
+from modules.utils import config as cfg
+
+threshold_map_folder      = cfg.threshold_map_folder
+threshold_map_file_prefix = cfg.threshold_map_folder + "_"
+
+markdowns_folder          = cfg.models_information_folder
+zones                     = cfg.zones_indices
+
 current_dirpath = os.getcwd()
-
-threshold_map_folder = "threshold_map"
-threshold_map_file_prefix = "treshold_map_"
-
-markdowns_folder = "models_info"
-
-zones = np.arange(16)
 
 def main():
 
@@ -48,25 +50,25 @@ def main():
         else:
             assert False, "unhandled option"
 
-    
+
     # call model and get global result in scenes
 
     begin, end = p_interval
 
-    bash_cmd = "bash testModelByScene.sh '" + str(begin) + "' '" + str(end) + "' '" + p_model_file + "' '" + p_mode + "' '" + p_metric + "'" 
+    bash_cmd = "bash testModelByScene.sh '" + str(begin) + "' '" + str(end) + "' '" + p_model_file + "' '" + p_mode + "' '" + p_metric + "'"
     print(bash_cmd)
-     
+
     ## call command ##
     p = subprocess.Popen(bash_cmd, stdout=subprocess.PIPE, shell=True)
-    
+
     (output, err) = p.communicate()
-    
+
     ## Wait for result ##
     p_status = p.wait()
 
     if not os.path.exists(markdowns_folder):
         os.makedirs(markdowns_folder)
-        
+
     # get model name to construct model
     md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace('.joblib', '.md'))
 
@@ -83,7 +85,7 @@ def main():
 
             # get all map information
             for t_map_file in maps_files:
-                
+
                 file_path = os.path.join(model_map_info_path, t_map_file)
                 with open(file_path, 'r') as map_file:
 
