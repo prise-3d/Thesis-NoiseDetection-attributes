@@ -33,16 +33,17 @@ python generate_all_data.py --metric mscn --step 50
 
 - **fichiersSVD_light/\*** : all scene files information (zones of each scene, SVD descriptor files information and so on...).
 - **models/*.py** : all models developed to predict noise in image.
-- **utils/** : contains all usefull script or modules.
 - **data/\*** : folder which will contain all *.train* & *.test* files in order to train model.
 - **saved_models/*.joblib** : all scikit learn models saved.
-- **models_info/*.md** : all markdown files generated to get quick information about model performance and prediction.
+- **models_info/*** : all markdown files generated to get quick information about model performance and prediction. This folder contains also **model_comparisons.csv** obtained after running runAll_maxwell.sh script.
+- **modules/\*** : contains all modules usefull for the whole project (such as configuration variables)
 
 ### Scripts for generating data files
 
 Two scripts can be used for generating data in order to fit model :
 - **generate_data_model.py** : zones are specified and stayed fixed for each scene
 - **generate_data_model_random.py** : zones are chosen randomly (just a number of zone is specified)
+- **generate_data_model_random_maxwell.py** : zones are chosen randomly (just a number of zone is specified). Only maxwell scene are used.
 
 
 **Remark** : Note here that all python script have *--help* command.
