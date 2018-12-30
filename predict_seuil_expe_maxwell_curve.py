@@ -32,17 +32,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python predict_seuil_expe_maxwell.py --interval "0,20" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
+        print('python predict_seuil_expe_maxwell_curve.py --interval "0,20" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l", ["help=", "interval=", "model=", "mode=", "metric=", "limit_detection="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python predict_seuil_expe_maxwell.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
+        print('python predict_seuil_expe_maxwell_curve.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python predict_seuil_expe_maxwell.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
+            print('python predict_seuil_expe_maxwell_curve.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
             sys.exit()
         elif o in ("-t", "--interval"):
             p_interval = a
@@ -160,13 +160,13 @@ def main():
             # end of scene => display of results
 
             # construct path using model name for saving threshold map folder
-            model_treshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', ''))
+            model_threshold_path = os.path.join(threshold_map_folder, p_model_file.split('/')[-1].replace('.joblib', ''))
 
             # create threshold model path if necessary
-            if not os.path.exists(model_treshold_path):
-                os.makedirs(model_treshold_path)
+            if not os.path.exists(model_threshold_path):
+                os.makedirs(model_threshold_path)
 
-            map_filename = os.path.join(model_treshold_path, simulation_curves_zones + folder_scene)
+            map_filename = os.path.join(model_threshold_path, simulation_curves_zones + folder_scene)
             f_map = open(map_filename, 'w')
 
             for line in block_predictions_str:
