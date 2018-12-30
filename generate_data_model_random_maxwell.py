@@ -34,6 +34,7 @@ seuil_expe_filename     = cfg.seuil_expe_filename
 metric_choices          = cfg.metric_choices_labels
 output_data_folder      = cfg.output_data_folder
 
+generic_output_file_svd = '_random.csv'
 min_value_interval = sys.maxsize
 max_value_interval = 0
 

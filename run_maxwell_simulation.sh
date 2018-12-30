@@ -39,7 +39,7 @@ for size in {"4","8","16","26","32","40"}; do
                             echo "Run simulation for model ${MODEL_NAME}"
 
                             # by default regenerate model
-                            python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
+                            python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --norm 0 --sep ';' --rowindex '0'
 
                             python models/${model}_train.py --data ${FILENAME} --output ${MODEL_NAME}
 
