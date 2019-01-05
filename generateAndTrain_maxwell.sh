@@ -46,6 +46,7 @@ for counter in {0..4}; do
 
                 FILENAME="data/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
                 MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
+                CUSTOM_MIN_MAX_FILENAME="N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}_min_max"
 
                 echo $FILENAME
 
@@ -54,10 +55,10 @@ for counter in {0..4}; do
 
                     echo "${MODEL_NAME} results already generated..."
                 else
-                    python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0'
-                    python models/${model}_train.py --data ${FILENAME} --output ${MODEL_NAME}
+                    python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                    python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
-                    #python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
+                    #python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
                     python save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
                 fi
             done

@@ -2,7 +2,7 @@ from sklearn.externals import joblib
 
 import numpy as np
 
-from ipfml import image_processing
+from ipfml import processing
 from PIL import Image
 
 import sys, os, getopt
@@ -30,19 +30,21 @@ current_dirpath = os.getcwd()
 
 def main():
 
+    p_custom = False
+
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python predict_seuil_expe_maxwell_curve.py --interval "0,20" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
+        print('python predict_seuil_expe_maxwell_curve.py --interval "0,20" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx --custom min_max_filename')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l", ["help=", "interval=", "model=", "mode=", "metric=", "limit_detection="])
+        opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l:c", ["help=", "interval=", "model=", "mode=", "metric=", "limit_detection=", "custom="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python predict_seuil_expe_maxwell_curve.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
+        print('python predict_seuil_expe_maxwell_curve.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx --custom min_max_filename')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python predict_seuil_expe_maxwell_curve.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx')
+            print('python predict_seuil_expe_maxwell_curve.py --interval "xx,xx" --model path/to/xxxx.joblib --mode svdn --metric lab --limit_detection xx --custom min_max_filename')
             sys.exit()
         elif o in ("-t", "--interval"):
             p_interval = a
@@ -58,13 +60,16 @@ def main():
             p_metric = a
         elif o in ("-l", "--limit_detection"):
             p_limit = int(a)
+        elif o in ("-c", "--custom"):
+            p_custom = a
         else:
             assert False, "unhandled option"
 
     scenes = os.listdir(scenes_path)
 
-    if min_max_filename in scenes:
-        scenes.remove(min_max_filename)
+    scenes = [s for s in scenes if s in maxwell_scenes]
+
+    print(scenes)
 
     # go ahead each scenes
     for id_scene, folder_scene in enumerate(scenes):
@@ -122,7 +127,7 @@ def main():
                 img_path = os.path.join(scene_path, prefix_image_name + current_counter_index_str + ".png")
 
                 current_img = Image.open(img_path)
-                img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
+                img_blocks = processing.divide_in_blocks(current_img, (200, 200))
 
                 for id_block, block in enumerate(img_blocks):
 
@@ -132,10 +137,15 @@ def main():
                         tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                         block.save(tmp_file_path)
 
-                        python_cmd = "python metrics_predictions/predict_noisy_image_svd_" + p_metric + ".py --image " + tmp_file_path + \
+                        python_cmd = "python predict_noisy_image_svd.py --image " + tmp_file_path + \
                                         " --interval '" + p_interval + \
                                         "' --model " + p_model_file  + \
-                                        " --mode " + p_mode
+                                        " --mode " + p_mode + \
+                                        " --metric " + p_metric
+
+                        # specify use of custom file for min max normalization
+                        if p_custom:
+                            python_cmd = python_cmd + ' --custom ' + p_custom
 
                         ## call command ##
                         p = subprocess.Popen(python_cmd, stdout=subprocess.PIPE, shell=True)

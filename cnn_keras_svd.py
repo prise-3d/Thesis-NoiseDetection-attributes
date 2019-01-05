@@ -10,7 +10,7 @@ from sklearn.utils import shuffle
 import numpy as np
 import pandas as pd
 
-from ipfml import image_processing
+from ipfml import processing
 from PIL import Image
 
 import sys, os, getopt

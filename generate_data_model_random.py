@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing
+from ipfml import processing
 from ipfml import metrics
 
 from modules.utils import config as cfg
@@ -60,7 +60,7 @@ def construct_new_line(path_seuil, interval, line, sep, index):
 
     return line
 
-def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes, _nb_zones = 4, _percent = 1, _sep=':', _index=True):
+def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _nb_zones = 4, _percent = 1, _sep=':', _index=True):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"

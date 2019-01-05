@@ -2,7 +2,7 @@ from sklearn.externals import joblib
 
 import numpy as np
 
-from ipfml import image_processing
+from ipfml import processing
 from PIL import Image
 
 import sys, os, getopt

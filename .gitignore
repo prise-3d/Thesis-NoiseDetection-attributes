@@ -3,6 +3,7 @@ data/*
 saved_models/*
 threshold_map/*
 models_info/*
+custom_norm/*
 
 simulate_models.csv
 

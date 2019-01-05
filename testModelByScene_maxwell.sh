@@ -35,6 +35,13 @@ if [ -z "$5" ]
     exit 1
 fi
 
+if [ -z "$6" ]
+  then
+    echo "No sixth argument supplied"
+fi
+
+
+
 INPUT_BEGIN=$1
 INPUT_END=$2
 INPUT_MODEL=$3

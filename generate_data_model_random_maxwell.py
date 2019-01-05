@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing, metrics
+from ipfml import processing, metrics
 
 from modules.utils import config as cfg
 
@@ -33,8 +33,11 @@ seuil_expe_filename     = cfg.seuil_expe_filename
 
 metric_choices          = cfg.metric_choices_labels
 output_data_folder      = cfg.output_data_folder
+custom_min_max_folder   = cfg.min_max_custom_folder
+min_max_ext             = cfg.min_max_filename_extension
 
 generic_output_file_svd = '_random.csv'
+
 min_value_interval = sys.maxsize
 max_value_interval = 0
 
@@ -48,7 +51,7 @@ def construct_new_line(path_seuil, interval, line, norm, sep, index):
     metrics = [float(m) for m in metrics]
 
     if norm:
-        metrics = image_processing.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
+        metrics = processing.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
 
     with open(path_seuil, "r") as seuil_file:
         seuil_learned = int(seuil_file.readline().strip())
@@ -202,19 +205,21 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
 
 def main():
 
+    p_custom = False
+
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --norm 1 --sep : --rowindex 1')
+        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:n:p:r", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "nb_zones=", "percent=", "norm=", "sep=", "rowindex="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:n:p:r:c", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "nb_zones=", "percent=", "sep=", "rowindex=", "custom="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --norm 1 --sep : --rowindex 1')
+        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --norm 1 --sep : --rowindex 1')
+            print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
             sys.exit()
         elif o in ("-o", "--output"):
             p_filename = a
@@ -228,11 +233,6 @@ def main():
             p_scenes = a.split(',')
         elif o in ("-n", "--nb_zones"):
             p_nb_zones = int(a)
-        elif o in ("-n", "--norm"):
-            if int(a) == 1:
-                p_norm = True
-            else:
-                p_norm = False
         elif o in ("-p", "--percent"):
             p_percent = float(a)
         elif o in ("-s", "--sep"):
@@ -242,6 +242,8 @@ def main():
                 p_rowindex = True
             else:
                 p_rowindex = False
+        elif o in ("-c", "--custom"):
+            p_custom = a
         else:
             assert False, "unhandled option"
 
@@ -253,11 +255,22 @@ def main():
         scenes_selected.append(scenes_list[index])
 
     # find min max value if necessary to renormalize data
-    if p_norm:
+    if p_custom:
         get_min_max_value_interval(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_nb_zones, p_percent)
 
+        # write new file to save
+        if not os.path.exists(custom_min_max_folder):
+            os.makedirs(custom_min_max_folder)
+
+        min_max_folder_path = os.path.join(os.path.dirname(__file__), custom_min_max_folder)
+        min_max_filename_path = os.path.join(min_max_folder_path, p_custom)
+
+        with open(min_max_filename_path, 'w') as f:
+            f.write(str(min_value_interval) + '\n')
+            f.write(str(max_value_interval) + '\n')
+
     # create database using img folder (generate first time only)
-    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_nb_zones, p_percent, p_norm, p_sep, p_rowindex)
+    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_nb_zones, p_percent, p_custom, p_sep, p_rowindex)
 
 if __name__== "__main__":
     main()

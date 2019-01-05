@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
 
-from ipfml import image_processing
+from ipfml import processing
 from PIL import Image
 
 import sys, os, getopt
@@ -53,7 +53,7 @@ def main():
 
             if p_mode != 'svdn' and p_mode != 'svdne' and p_mode != 'svd':
                 assert False, "Mode not recognized"
-        elif o in ("-c", "--metric"):
+        elif o in ("-m", "--metric"):
             p_metric = a
         else:
             assert False, "unhandled option"
@@ -64,6 +64,7 @@ def main():
     begin, end = p_interval
 
     bash_cmd = "bash testModelByScene_maxwell.sh '" + str(begin) + "' '" + str(end) + "' '" + p_model_file + "' '" + p_mode + "' '" + p_metric + "'"
+
     print(bash_cmd)
 
     ## call command ##

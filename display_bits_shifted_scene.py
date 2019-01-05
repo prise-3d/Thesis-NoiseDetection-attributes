@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing
+from ipfml import processing
 from ipfml import metrics
 from skimage import color
 import matplotlib.pyplot as plt
@@ -135,7 +135,7 @@ def display_data_scenes(nb_bits, p_scene):
 
                     block_used = np.array(current_img)
 
-                    low_bits_block = image_processing.rgb_to_LAB_L_bits(block_used, (i + 1, i + nb_bits + 1))
+                    low_bits_block = processing.rgb_to_LAB_L_bits(block_used, (i + 1, i + nb_bits + 1))
                     low_bits_svd = metrics.get_SVD_s(low_bits_block)
                     low_bits_svd = [b / low_bits_svd[0] for b in low_bits_svd]
                     low_bits_svd_values[i].append(low_bits_svd)

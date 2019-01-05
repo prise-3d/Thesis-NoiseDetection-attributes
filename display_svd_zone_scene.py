@@ -15,7 +15,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing
+from ipfml import processing
 from ipfml import metrics
 from skimage import color
 
@@ -133,7 +133,7 @@ def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode, p_step):
                 img_path = os.path.join(scene_path, prefix_image_name + str(index) + ".png")
 
                 current_img = Image.open(img_path)
-                img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
+                img_blocks = processing.divide_in_blocks(current_img, (200, 200))
 
                 # getting expected block id
                 block = img_blocks[p_zone]
@@ -153,10 +153,10 @@ def display_svd_values(p_scene, p_interval, p_zone, p_metric, p_mode, p_step):
                         min_val = float(f.readline())
                         max_val = float(f.readline())
 
-                    data = image_processing.normalize_arr_with_range(data, min_val, max_val)
+                    data = processing.normalize_arr_with_range(data, min_val, max_val)
 
                 if p_mode == 'svdn':
-                    data = image_processing.normalize_arr(data)
+                    data = processing.normalize_arr(data)
 
                 zones_images_data.append(data)
 
