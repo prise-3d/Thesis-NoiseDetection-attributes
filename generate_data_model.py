@@ -83,7 +83,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
             zones_folder.append("zone"+index_str)
 
         for id_zone, zone_folder in enumerate(zones_folder):
-            zone_path = os.path.join(scene_path, zone_folder) 
+            zone_path = os.path.join(scene_path, zone_folder)
             data_filename = _metric + "_" + _choice + generic_output_file_svd
             data_file_path = os.path.join(zone_path, data_filename)
 
@@ -105,7 +105,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
                 line = construct_new_line(path_seuil, _interval, lines[index], _sep, _index)
 
                 percent = counter / num_lines
-                
+
                 if id_zone in _zones and folder_scene in _scenes and percent <= _percent:
                     train_file.write(line)
                 else:

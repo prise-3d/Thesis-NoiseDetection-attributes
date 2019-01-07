@@ -1,18 +1,19 @@
 import numpy as np
 
-config_filename                 = "config"
 zone_folder                     = "zone"
-min_max_filename_extension      = "_min_max_values"
 output_data_folder              = 'data'
 dataset_path                    = 'fichiersSVD_light'
-seuil_expe_filename             = 'seuilExpe'
 threshold_map_folder            = 'threshold_map'
 models_information_folder       = 'models_info'
 saved_models_folder             = 'saved_models'
+min_max_custom_folder           = 'custom_norm'
+
 csv_model_comparisons_filename  = "models_comparisons.csv"
+seuil_expe_filename             = 'seuilExpe'
+min_max_filename_extension      = "_min_max_values"
+config_filename                 = "config"
 
 models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2"]
-
 
 # define all scenes values
 scenes_names                    = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']

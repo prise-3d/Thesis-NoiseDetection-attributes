@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing
+from ipfml import processing
 from ipfml import metrics
 from skimage import color
 import matplotlib.pyplot as plt
@@ -121,14 +121,14 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
                     img_path = os.path.join(scene_path, prefix_image_name + index + ".png")
 
                     current_img = Image.open(img_path)
-                    img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
+                    img_blocks = processing.divide_in_blocks(current_img, (200, 200))
 
                     # getting expected block id
                     block = img_blocks[id_zone]
 
                     # get data from mode
                     # Here you can add the way you compute data
-                    low_bits_block = image_processing.rgb_to_LAB_L_bits(block, (p_shifted + 1, p_shifted + p_bits + 1))
+                    low_bits_block = processing.rgb_to_LAB_L_bits(block, (p_shifted + 1, p_shifted + p_bits + 1))
                     data = metrics.get_SVD_s(low_bits_block)
 
                     ##################
@@ -136,7 +136,7 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
                     ##################
 
                     # modify data depending mode
-                    data = image_processing.normalize_arr(data)
+                    data = processing.normalize_arr(data)
                     images_data.append(data)
 
                 zones_images_data.append(images_data)

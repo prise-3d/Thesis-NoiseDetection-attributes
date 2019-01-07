@@ -1,4 +1,4 @@
-from ipfml import image_processing, metrics
+from ipfml import processing, metrics
 from PIL import Image
 from skimage import color
 
@@ -13,11 +13,11 @@ def get_svd_data(data_type, block):
 
         block_file_path = '/tmp/lab_img.png'
         block.save(block_file_path)
-        data = image_processing.get_LAB_L_SVD_s(Image.open(block_file_path))
+        data = processing.get_LAB_L_SVD_s(Image.open(block_file_path))
 
     if data_type == 'mscn_revisited':
 
-        img_mscn_revisited = image_processing.rgb_to_mscn(block)
+        img_mscn_revisited = processing.rgb_to_mscn(block)
 
         # save tmp as img
         img_output = Image.fromarray(img_mscn_revisited.astype('uint8'), 'L')
@@ -31,8 +31,8 @@ def get_svd_data(data_type, block):
     if data_type == 'mscn':
 
         img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
-        img_mscn = image_processing.calculate_mscn_coefficients(img_gray, 7)
-        img_mscn_norm = image_processing.normalize_2D_arr(img_mscn)
+        img_mscn = processing.calculate_mscn_coefficients(img_gray, 7)
+        img_mscn_norm = processing.normalize_2D_arr(img_mscn)
 
         img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
 
@@ -40,43 +40,32 @@ def get_svd_data(data_type, block):
 
     if data_type == 'low_bits_6':
 
-        low_bits_6 = image_processing.rgb_to_LAB_L_low_bits(block, 63)
-
-        # extract from temp image
+        low_bits_6 = processing.rgb_to_LAB_L_low_bits(block, 6)
         data = metrics.get_SVD_s(low_bits_6)
 
     if data_type == 'low_bits_5':
 
-        low_bits_5 = image_processing.rgb_to_LAB_L_low_bits(block, 31)
-
-        # extract from temp image
+        low_bits_5 = processing.rgb_to_LAB_L_low_bits(block, 5)
         data = metrics.get_SVD_s(low_bits_5)
-
 
     if data_type == 'low_bits_4':
 
-        low_bits_4 = image_processing.rgb_to_LAB_L_low_bits(block)
-
-        # extract from temp image
+        low_bits_4 = processing.rgb_to_LAB_L_low_bits(block, 4)
         data = metrics.get_SVD_s(low_bits_4)
 
     if data_type == 'low_bits_3':
 
-        low_bits_3 = image_processing.rgb_to_LAB_L_low_bits(block, 7)
-
-        # extract from temp image
+        low_bits_3 = processing.rgb_to_LAB_L_low_bits(block, 3)
         data = metrics.get_SVD_s(low_bits_3)
 
     if data_type == 'low_bits_2':
 
-        low_bits_2 = image_processing.rgb_to_LAB_L_low_bits(block, 3)
-
-        # extract from temp image
+        low_bits_2 = processing.rgb_to_LAB_L_low_bits(block, 2)
         data = metrics.get_SVD_s(low_bits_2)
 
     if data_type == 'low_bits_4_shifted_2':
 
-        data = metrics.get_SVD_s(image_processing.rgb_to_LAB_L_bits(block, (3, 6)))
+        data = metrics.get_SVD_s(processing.rgb_to_LAB_L_bits(block, (3, 6)))
 
     return data
 

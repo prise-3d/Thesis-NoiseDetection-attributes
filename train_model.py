@@ -13,46 +13,41 @@ import numpy as np
 import pandas as pd
 import sys, os, getopt
 
-saved_models_folder = 'saved_models'
+from modules.utils import config as cfg
+from modules import models as mdl
+
+saved_models_folder = cfg.saved_models_folder
+models_list         = cfg.models_names_list
+
 current_dirpath = os.getcwd()
 output_model_folder = os.path.join(current_dirpath, saved_models_folder)
-
-def get_best_model(X_train, y_train):
-
-    Cs = [0.001, 0.01, 0.1, 1, 10, 100, 1000]
-    gammas = [0.001, 0.01, 0.1, 1, 5, 10, 100]
-    param_grid = {'kernel':['rbf'], 'C': Cs, 'gamma' : gammas}
-
-    svc = svm.SVC(probability=True)
-    clf = GridSearchCV(svc, param_grid, cv=10, scoring='accuracy', verbose=10)
-
-    clf.fit(X_train, y_train)
-
-    model = clf.best_estimator_
-
-    return model
 
 
 def main():
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python svm_model_train.py --data xxxx --output xxxx')
+    if len(sys.argv) <= 2:
+        print('python train_model.py --data xxxx --output xxxx --choice svm_model')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:o", ["help=", "data=", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hd:o:c", ["help=", "data=", "output=", "choice="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python svm_model_train.py --data xxxx --output xxxx')
+        print('python train_model.py --data xxxx --output xxxx --choice svm_model')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python svm_model_train.py --data xxxx --output xxxx')
+            print('python train_model.py --data xxxx --output xxxx --choice svm_model')
             sys.exit()
         elif o in ("-d", "--data"):
             p_data_file = a
         elif o in ("-o", "--output"):
             p_output = a
+        elif o in ("-c", "--choice"):
+            p_choice = a
+
+            if not p_choice in models_list:
+                assert False, "Unknown model choice"
+
         else:
             assert False, "unhandled option"
 
@@ -99,15 +94,14 @@ def main():
     # 2. Construction of the model : Ensemble model structure
     #######################
 
-    svm_model = get_best_model(x_dataset_train, y_dataset_train)
+    print("-------------------------------------------")
+    print("Train dataset size: ", final_df_train_size)
+    model = mdl.get_trained_model(p_choice, x_dataset_train, y_dataset_train)
 
     #######################
     # 3. Fit model : use of cross validation to fit model
     #######################
-    print("-------------------------------------------")
-    print("Train dataset size: ", final_df_train_size)
-    svm_model.fit(x_dataset_train, y_dataset_train)
-    val_scores = cross_val_score(svm_model, x_dataset_train, y_dataset_train, cv=5)
+    val_scores = cross_val_score(model, x_dataset_train, y_dataset_train, cv=5)
     print("Accuracy: %0.2f (+/- %0.2f)" % (val_scores.mean(), val_scores.std() * 2))
 
     ######################
@@ -126,8 +120,8 @@ def main():
 
     X_test, X_val, y_test, y_val = train_test_split(x_dataset_test, y_dataset_test, test_size=0.5, random_state=1)
 
-    y_test_model = svm_model.predict(X_test)
-    y_val_model = svm_model.predict(X_val)
+    y_test_model = model.predict(X_test)
+    y_val_model = model.predict(X_val)
 
     val_accuracy = accuracy_score(y_val, y_val_model)
     test_accuracy = accuracy_score(y_test, y_test_model)
@@ -147,15 +141,15 @@ def main():
     print("Test: ", val_accuracy)
     print("Test F1: ", test_f1)
 
+
     ##################
     # 6. Save model : create path if not exists
     ##################
 
-    # create path if not exists
     if not os.path.exists(saved_models_folder):
         os.makedirs(saved_models_folder)
 
-    joblib.dump(svm_model, output_model_folder + '/' + p_output + '.joblib')
+    joblib.dump(model, output_model_folder + '/' + p_output + '.joblib')
 
 if __name__== "__main__":
     main()

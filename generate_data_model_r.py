@@ -24,8 +24,8 @@ zone_folder             = cfg.zone_folder
 min_max_filename        = cfg.min_max_filename_extension
 
 # define all scenes values
-scenes_list             = cfg.maxwell_scenes_names
-scenes_indexes          = cfg.maxwell_scenes_indices
+scenes_list             = cfg.scenes_names
+scenes_indexes          = cfg.scenes_indices
 choices                 = cfg.normalization_choices
 path                    = cfg.dataset_path
 zones                   = cfg.zones_indices
@@ -35,6 +35,7 @@ metric_choices          = cfg.metric_choices_labels
 output_data_folder      = cfg.output_data_folder
 custom_min_max_folder   = cfg.min_max_custom_folder
 min_max_ext             = cfg.min_max_filename_extension
+zones_indices           = cfg.zones_indices
 
 generic_output_file_svd = '_random.csv'
 
@@ -111,7 +112,6 @@ def get_min_max_value_interval(_filename, _interval, _choice, _metric):
                 # check if user select current scene and zone to be part of training data set
                 for line in lines:
 
-
                     begin, end = _interval
 
                     line_data = line.split(';')
@@ -130,7 +130,7 @@ def get_min_max_value_interval(_filename, _interval, _choice, _metric):
                     counter += 1
 
 
-def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _nb_zones = 4, _percent = 1, _norm = False, _sep=':', _index=True):
+def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _zones = zones_indices, _percent = 1, _norm = False, _sep=':', _index=True):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"
@@ -165,9 +165,6 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
                     index_str = "0" + index_str
                 zones_folder.append("zone"+index_str)
 
-            # shuffle list of zones (=> randomly choose zones)
-            random.shuffle(zones_folder)
-
             for id_zone, zone_folder in enumerate(zones_folder):
                 zone_path = os.path.join(scene_path, zone_folder)
                 data_filename = _metric + "_" + _choice + generic_output_file_svd
@@ -191,7 +188,7 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
 
                     percent = counter / num_lines
 
-                    if id_zone < _nb_zones and folder_scene in _scenes and percent <= _percent:
+                    if id_zone in _zones and folder_scene in _scenes and percent <= _percent:
                         train_file.write(line)
                     else:
                         test_file.write(line)
@@ -209,18 +206,18 @@ def main():
     p_custom = False
 
     if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:n:p:r:c", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "nb_zones=", "percent=", "sep=", "rowindex=", "custom="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:z:p:r:c", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "zones=", "percent=", "sep=", "rowindex=", "custom="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_data_model_random.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --nb_zones 5 --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+            print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+
             sys.exit()
         elif o in ("-o", "--output"):
             p_filename = a
@@ -232,8 +229,11 @@ def main():
             p_metric = a
         elif o in ("-s", "--scenes"):
             p_scenes = a.split(',')
-        elif o in ("-n", "--nb_zones"):
-            p_nb_zones = int(a)
+        elif o in ("-z", "--zones"):
+            if ',' in a:
+                p_zones = list(map(int, a.split(',')))
+            else:
+                p_zones = [a.strip()]
         elif o in ("-p", "--percent"):
             p_percent = float(a)
         elif o in ("-s", "--sep"):
@@ -271,7 +271,7 @@ def main():
             f.write(str(max_value_interval) + '\n')
 
     # create database using img folder (generate first time only)
-    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_nb_zones, p_percent, p_custom, p_sep, p_rowindex)
+    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_zones, p_percent, p_custom, p_sep, p_rowindex)
 
 if __name__== "__main__":
     main()

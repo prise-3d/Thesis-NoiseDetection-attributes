@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import image_processing
+from ipfml import processing
 from ipfml import metrics
 from skimage import color
 import matplotlib.pyplot as plt
@@ -120,7 +120,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                     img_path = os.path.join(scene_path, prefix_image_name + index + ".png")
 
                     current_img = Image.open(img_path)
-                    img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
+                    img_blocks = processing.divide_in_blocks(current_img, (200, 200))
 
                     # getting expected block id
                     block = img_blocks[id_zone]
@@ -131,11 +131,11 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
                         block_file_path = '/tmp/lab_img.png'
                         block.save(block_file_path)
-                        data = image_processing.get_LAB_L_SVD_s(Image.open(block_file_path))
+                        data = processing.get_LAB_L_SVD_s(Image.open(block_file_path))
 
                     if data_type == 'mscn_revisited':
 
-                        img_mscn_revisited = image_processing.rgb_to_mscn(block)
+                        img_mscn_revisited = processing.rgb_to_mscn(block)
 
                         # save tmp as img
                         img_output = Image.fromarray(img_mscn_revisited.astype('uint8'), 'L')
@@ -149,8 +149,8 @@ def display_data_scenes(data_type, p_scene, p_kind):
                     if data_type == 'mscn':
 
                         img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
-                        img_mscn = image_processing.calculate_mscn_coefficients(img_gray, 7)
-                        img_mscn_norm = image_processing.normalize_2D_arr(img_mscn)
+                        img_mscn = processing.calculate_mscn_coefficients(img_gray, 7)
+                        img_mscn_norm = processing.normalize_2D_arr(img_mscn)
 
                         img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
 
@@ -158,7 +158,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
                     if data_type == 'low_bits_6':
 
-                        low_bits_6 = image_processing.rgb_to_LAB_L_low_bits(block, 63)
+                        low_bits_6 = processing.rgb_to_LAB_L_low_bits(block, 63)
 
                         # extract from temp image
                         data = metrics.get_SVD_s(low_bits_6)
@@ -166,7 +166,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
                     if data_type == 'low_bits_5':
 
-                        low_bits_5 = image_processing.rgb_to_LAB_L_low_bits(block, 31)
+                        low_bits_5 = processing.rgb_to_LAB_L_low_bits(block, 31)
 
                         # extract from temp image
                         data = metrics.get_SVD_s(low_bits_5)
@@ -174,21 +174,21 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
                     if data_type == 'low_bits_4':
 
-                        low_bits_4 = image_processing.rgb_to_LAB_L_low_bits(block)
+                        low_bits_4 = processing.rgb_to_LAB_L_low_bits(block)
 
                         # extract from temp image
                         data = metrics.get_SVD_s(low_bits_4)
 
                     if data_type == 'low_bits_3':
 
-                        low_bits_3 = image_processing.rgb_to_LAB_L_low_bits(block, 7)
+                        low_bits_3 = processing.rgb_to_LAB_L_low_bits(block, 7)
 
                         # extract from temp image
                         data = metrics.get_SVD_s(low_bits_3)
 
                     if data_type == 'low_bits_2':
 
-                        low_bits_2 = image_processing.rgb_to_LAB_L_low_bits(block, 3)
+                        low_bits_2 = processing.rgb_to_LAB_L_low_bits(block, 3)
 
                         # extract from temp image
                         data = metrics.get_SVD_s(low_bits_2)
@@ -200,7 +200,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                     # modify data depending mode
 
                     if p_kind == 'svdn':
-                        data = image_processing.normalize_arr(data)
+                        data = processing.normalize_arr(data)
 
                     if p_kind == 'svdne':
                         path_min_max = os.path.join(path, data_type + min_max_filename)
@@ -209,7 +209,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                             min_val = float(f.readline())
                             max_val = float(f.readline())
 
-                        data = image_processing.normalize_arr_with_range(data, min_val, max_val)
+                        data = processing.normalize_arr_with_range(data, min_val, max_val)
 
                     # append of data
                     images_data.append(data)

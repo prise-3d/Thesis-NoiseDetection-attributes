@@ -15,7 +15,7 @@ import json
 
 from modules.utils.data_type import get_svd_data
 from PIL import Image
-from ipfml import image_processing
+from ipfml import processing
 from ipfml import metrics
 from skimage import color
 
@@ -111,7 +111,7 @@ def generate_data_svd(data_type, mode):
                 img_path = os.path.join(scene_path, prefix_image_name + current_counter_index_str + ".png")
 
                 current_img = Image.open(img_path)
-                img_blocks = image_processing.divide_in_blocks(current_img, (200, 200))
+                img_blocks = processing.divide_in_blocks(current_img, (200, 200))
 
                 for id_block, block in enumerate(img_blocks):
 
@@ -133,10 +133,10 @@ def generate_data_svd(data_type, mode):
                             min_val = float(f.readline())
                             max_val = float(f.readline())
 
-                        data = image_processing.normalize_arr_with_range(data, min_val, max_val)
+                        data = processing.normalize_arr_with_range(data, min_val, max_val)
 
                     if mode == 'svdn':
-                        data = image_processing.normalize_arr(data)
+                        data = processing.normalize_arr(data)
 
                     # save min and max found from dataset in order to normalize data using whole data known
                     if mode == 'svd':
