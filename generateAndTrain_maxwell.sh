@@ -37,7 +37,7 @@ for counter in {0..4}; do
         end=$(($size))
     fi
 
-    for nb_zones in {4,6,8,10,12,14}; do
+    for nb_zones in {4,6,8,10,12}; do
 
         echo $start $end
 
