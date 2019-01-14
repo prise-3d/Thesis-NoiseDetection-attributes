@@ -20,7 +20,7 @@ from ipfml import metrics
 from skimage import color
 
 import matplotlib.pyplot as plt
-from modules.utils.data_type import get_svd_data
+from modules.utils.data import get_svd_data
 
 from modules.utils import config as cfg
 

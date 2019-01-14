@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os, sys, getopt
 
-from modules.utils.data_type import get_svd_data
+from modules.utils.data import get_svd_data
 
 label_freq = 6
 
