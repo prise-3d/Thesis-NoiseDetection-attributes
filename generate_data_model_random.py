@@ -258,7 +258,7 @@ def main():
         elif o in ("-n", "--nb_zones"):
             p_nb_zones = int(a)
         elif o in ("-r", "--random"):
-            p_randrom = int(a)
+            p_random = int(a)
         elif o in ("-p", "--percent"):
             p_percent = float(a)
         elif o in ("-s", "--sep"):
