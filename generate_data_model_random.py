@@ -201,7 +201,7 @@ def generate_data_model(_scenes_list, _filename, _interval, _choice, _metric, _s
                     image_index = int(data.split(';')[0])
 
                     if image_index % _step == 0:
-                        line = construct_new_line(path_seuil, _interval, data, _choice, _norm, _sep, _index)
+                        line = construct_new_line(path_seuil, _interval, data, _choice, _norm)
 
                         if id_zone < _nb_zones and folder_scene in _scenes and percent <= _percent:
                             train_file_data.append(line)
@@ -219,7 +219,7 @@ def generate_data_model(_scenes_list, _filename, _interval, _choice, _metric, _s
         train_file.write(line)
 
     for line in test_file_data:
-        test_file_data.write(line)
+        test_file.write(line)
 
     train_file.close()
     test_file.close()
