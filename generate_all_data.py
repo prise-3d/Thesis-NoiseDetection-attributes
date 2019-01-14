@@ -176,7 +176,7 @@ def generate_data_svd(data_type, mode):
             f.write(str(min_val_found) + '\n')
             f.write(str(max_val_found) + '\n')
 
-    print("%s : end of data generation\n" % mode)
+    print("%s_%s : end of data generation\n" % (data_type, mode))
 
 
 def main():
@@ -191,7 +191,7 @@ def main():
         print('python generate_all_data.py --metric lab')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hms", ["help=", "metric=", "step="])
+        opts, args = getopt.getopt(sys.argv[1:], "hms", ["help=", "metric="])
     except getopt.GetoptError:
         # print help information and exit:
         print('python generate_all_data.py --metric all')

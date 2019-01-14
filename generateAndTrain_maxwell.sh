@@ -54,7 +54,7 @@ for counter in {0..4}; do
 
                     echo "${MODEL_NAME} results already generated..."
                 else
-                    python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --renderer "maxwell" --step 40 --random 1 --percent 1
+                    python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --renderer "maxwell" --step 40 --random 1 --percent 1
                     python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
                     #python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2'
