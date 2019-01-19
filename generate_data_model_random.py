@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import processing, metrics
+from ipfml import processing, metrics, utils
 
 from modules.utils import config as cfg
 from modules.utils import data as dt
@@ -57,9 +57,9 @@ def construct_new_line(path_seuil, interval, line, choice, norm):
     if norm:
 
         if choice == 'svdne':
-            metrics = processing.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
+            metrics = utils.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
         if choice == 'svdn':
-            metrics = processing.normalize_arr(metrics)
+            metrics = utils.normalize_arr(metrics)
 
     with open(path_seuil, "r") as seuil_file:
         seuil_learned = int(seuil_file.readline().strip())

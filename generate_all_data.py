@@ -15,8 +15,7 @@ import json
 
 from modules.utils.data import get_svd_data
 from PIL import Image
-from ipfml import processing
-from ipfml import metrics
+from ipfml import processing, metrics, utils
 from skimage import color
 
 from modules.utils import config as cfg
@@ -131,10 +130,10 @@ def generate_data_svd(data_type, mode):
                         min_val = float(f.readline())
                         max_val = float(f.readline())
 
-                    data = processing.normalize_arr_with_range(data, min_val, max_val)
+                    data = utils.normalize_arr_with_range(data, min_val, max_val)
 
                 if mode == 'svdn':
-                    data = processing.normalize_arr(data)
+                    data = utils.normalize_arr(data)
 
                 # save min and max found from dataset in order to normalize data using whole data known
                 if mode == 'svd':

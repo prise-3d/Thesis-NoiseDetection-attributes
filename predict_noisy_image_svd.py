@@ -2,7 +2,7 @@ from sklearn.externals import joblib
 
 import numpy as np
 
-from ipfml import processing
+from ipfml import processing, utils
 from PIL import Image
 
 import sys, os, getopt
@@ -84,10 +84,10 @@ def main():
                 min_val = float(f.readline().replace('\n', ''))
                 max_val = float(f.readline().replace('\n', ''))
 
-            test_data = processing.normalize_arr_with_range(test_data, min_val, max_val)
+            test_data = utils.normalize_arr_with_range(test_data, min_val, max_val)
 
         if p_mode == 'svdn':
-            test_data = processing.normalize_arr(test_data)
+            test_data = utils.normalize_arr(test_data)
 
     else:
 
@@ -103,10 +103,10 @@ def main():
                 min_val = float(f.readline().replace('\n', ''))
                 max_val = float(f.readline().replace('\n', ''))
 
-            l_values = processing.normalize_arr_with_range(data, min_val, max_val)
+            l_values = utils.normalize_arr_with_range(data, min_val, max_val)
 
         elif p_mode == 'svdn':
-            l_values = processing.normalize_arr(data)
+            l_values = utils.normalize_arr(data)
         else:
             l_values = data
 
