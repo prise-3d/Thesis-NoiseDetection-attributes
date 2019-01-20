@@ -27,7 +27,7 @@ def display_curves(folder_path):
         df = pd.read_csv(path_file, header=None, sep=";")
 
 
-        fig=plt.figure(figsize=(20, 20))
+        fig=plt.figure(figsize=(35, 22))
         fig.suptitle("Detection simulation for " + scene_names[id] + " scene", fontsize=20)
 
         for index, row in df.iterrows():
@@ -61,8 +61,8 @@ def display_curves(folder_path):
             plt.xticks(x, x_labels, rotation=45)
             plt.ylim(-1, 2)
 
-        plt.show()
         plt.savefig(os.path.join(folder_path, scene_names[id] + '_simulation_curve.png'))
+        #plt.show()
 
 def main():
 
