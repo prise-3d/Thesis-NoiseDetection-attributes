@@ -14,7 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import processing, metrics
+from ipfml import processing, metrics, utils
 
 from modules.utils import config as cfg
 from modules.utils import data as dt
@@ -28,7 +28,7 @@ min_max_filename        = cfg.min_max_filename_extension
 all_scenes_list         = cfg.scenes_names
 all_scenes_indices      = cfg.scenes_indices
 
-choices                 = cfg.normalization_choices
+normalization_choices   = cfg.normalization_choices
 path                    = cfg.dataset_path
 zones                   = cfg.zones_indices
 seuil_expe_filename     = cfg.seuil_expe_filename
@@ -57,9 +57,9 @@ def construct_new_line(path_seuil, interval, line, choice, norm):
     if norm:
 
         if choice == 'svdne':
-            metrics = processing.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
+            metrics = utils.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
         if choice == 'svdn':
-            metrics = processing.normalize_arr(metrics)
+            metrics = utils.normalize_arr(metrics)
 
     with open(path_seuil, "r") as seuil_file:
         seuil_learned = int(seuil_file.readline().strip())
@@ -76,7 +76,7 @@ def construct_new_line(path_seuil, interval, line, choice, norm):
 
     return line
 
-def get_min_max_value_interval(_scenes_list, _filename, _interval, _choice, _metric):
+def get_min_max_value_interval(_scenes_list, _filename, _interval, _choice, _metric, _custom):
 
     global min_value_interval, max_value_interval
 
@@ -106,7 +106,13 @@ def get_min_max_value_interval(_scenes_list, _filename, _interval, _choice, _met
             for id_zone, zone_folder in enumerate(zones_folder):
 
                 zone_path = os.path.join(scene_path, zone_folder)
-                data_filename = _metric + "_" + _choice + generic_output_file_svd
+
+                # if custom normalization choices then we use svd values not already normalized
+                if _custom:
+                    data_filename = _metric + "_svd"+ generic_output_file_svd
+                else:
+                    data_filename = _metric + "_" + _choice + generic_output_file_svd
+
                 data_file_path = os.path.join(zone_path, data_filename)
 
                 # getting number of line and read randomly lines
@@ -136,7 +142,7 @@ def get_min_max_value_interval(_scenes_list, _filename, _interval, _choice, _met
                     counter += 1
 
 
-def generate_data_model(_scenes_list, _filename, _interval, _choice, _metric, _scenes, _nb_zones = 4, _percent = 1, _random=0, _step=1, _norm = False):
+def generate_data_model(_scenes_list, _filename, _interval, _choice, _metric, _scenes, _nb_zones = 4, _percent = 1, _random=0, _step=1, _custom = False):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"
@@ -178,7 +184,13 @@ def generate_data_model(_scenes_list, _filename, _interval, _choice, _metric, _s
 
             for id_zone, zone_folder in enumerate(zones_folder):
                 zone_path = os.path.join(scene_path, zone_folder)
-                data_filename = _metric + "_" + _choice + generic_output_file_svd
+
+                # if custom normalization choices then we use svd values not already normalized
+                if _custom:
+                    data_filename = _metric + "_svd"+ generic_output_file_svd
+                else:
+                    data_filename = _metric + "_" + _choice + generic_output_file_svd
+
                 data_file_path = os.path.join(zone_path, data_filename)
 
                 # getting number of line and read randomly lines
@@ -201,7 +213,7 @@ def generate_data_model(_scenes_list, _filename, _interval, _choice, _metric, _s
                     image_index = int(data.split(';')[0])
 
                     if image_index % _step == 0:
-                        line = construct_new_line(path_seuil, _interval, data, _choice, _norm)
+                        line = construct_new_line(path_seuil, _interval, data, _choice, _custom)
 
                         if id_zone < _nb_zones and folder_scene in _scenes and percent <= _percent:
                             train_file_data.append(line)
@@ -251,6 +263,10 @@ def main():
             p_interval = list(map(int, a.split(',')))
         elif o in ("-k", "--kind"):
             p_kind = a
+
+            if p_kind not in normalization_choices:
+                assert False, "Invalid normalization choice, %s" % normalization_choices
+
         elif o in ("-m", "--metric"):
             p_metric = a
         elif o in ("-s", "--scenes"):
@@ -288,7 +304,7 @@ def main():
 
     # find min max value if necessary to renormalize data
     if p_custom:
-        get_min_max_value_interval(scenes_list, p_filename, p_interval, p_kind, p_metric)
+        get_min_max_value_interval(scenes_list, p_filename, p_interval, p_kind, p_metric, p_custom)
 
         # write new file to save
         if not os.path.exists(custom_min_max_folder):

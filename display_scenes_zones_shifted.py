@@ -14,8 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import processing
-from ipfml import metrics
+from ipfml import processing, metrics, utils
 from skimage import color
 import matplotlib.pyplot as plt
 
@@ -136,7 +135,7 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
                     ##################
 
                     # modify data depending mode
-                    data = processing.normalize_arr(data)
+                    data = utils.normalize_arr(data)
                     images_data.append(data)
 
                 zones_images_data.append(images_data)

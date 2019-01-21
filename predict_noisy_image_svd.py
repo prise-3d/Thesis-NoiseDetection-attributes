@@ -2,7 +2,7 @@ from sklearn.externals import joblib
 
 import numpy as np
 
-from ipfml import processing
+from ipfml import processing, utils
 from PIL import Image
 
 import sys, os, getopt
@@ -68,29 +68,10 @@ def main():
     # get interval values
     begin, end = p_interval
 
-    # check mode to normalize data
-    if p_mode == 'svdne':
-
-        # set min_max_filename if custom use
-        min_max_file_path = path + '/' + p_metric + min_max_ext
-
-        # need to read min_max_file
-        file_path = os.path.join(os.path.dirname(__file__), min_max_file_path)
-        with open(file_path, 'r') as f:
-            min_val = float(f.readline().replace('\n', ''))
-            max_val = float(f.readline().replace('\n', ''))
-
-        l_values = processing.normalize_arr_with_range(data, min_val, max_val)
-
-    elif p_mode == 'svdn':
-        l_values = processing.normalize_arr(data)
-    else:
-        l_values = data
-
-    test_data = l_values[begin:end]
-
     # check if custom min max file is used
     if p_custom:
+
+        test_data = data[begin:end]
 
         if p_mode == 'svdne':
 
@@ -103,10 +84,33 @@ def main():
                 min_val = float(f.readline().replace('\n', ''))
                 max_val = float(f.readline().replace('\n', ''))
 
-            test_data = processing.normalize_arr_with_range(test_data, min_val, max_val)
+            test_data = utils.normalize_arr_with_range(test_data, min_val, max_val)
 
         if p_mode == 'svdn':
-            test_data = processing.normalize_arr(test_data)
+            test_data = utils.normalize_arr(test_data)
+
+    else:
+
+        # check mode to normalize data
+        if p_mode == 'svdne':
+
+            # set min_max_filename if custom use
+            min_max_file_path = path + '/' + p_metric + min_max_ext
+
+            # need to read min_max_file
+            file_path = os.path.join(os.path.dirname(__file__), min_max_file_path)
+            with open(file_path, 'r') as f:
+                min_val = float(f.readline().replace('\n', ''))
+                max_val = float(f.readline().replace('\n', ''))
+
+            l_values = utils.normalize_arr_with_range(data, min_val, max_val)
+
+        elif p_mode == 'svdn':
+            l_values = utils.normalize_arr(data)
+        else:
+            l_values = data
+
+        test_data = l_values[begin:end]
 
 
     # get prediction of model
