@@ -58,7 +58,6 @@ def get_error_distance(p_error, y_true, y_test):
     return error_method(y_true, y_test)
 
 
-
 def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim):
     """
     @brief Method which gives information about svd curves from zone of picture
@@ -310,7 +309,6 @@ def main():
         else:
             assert False, "unhandled option"
 
-    # TODO: if p_norm find custom min max values
     display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim)
 
 if __name__== "__main__":

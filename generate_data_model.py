@@ -73,7 +73,7 @@ def construct_new_line(path_seuil, interval, line, choice, each, norm):
 
     return line
 
-def get_min_max_value_interval(_scenes_list, _filename, _interval, _metric):
+def get_min_max_value_interval(_scenes_list, _interval, _metric):
 
     global min_value_interval, max_value_interval
 
@@ -97,19 +97,15 @@ def get_min_max_value_interval(_scenes_list, _filename, _interval, _metric):
                     index_str = "0" + index_str
                 zones_folder.append("zone"+index_str)
 
-            # shuffle list of zones (=> randomly choose zones)
-            random.shuffle(zones_folder)
-
             for id_zone, zone_folder in enumerate(zones_folder):
                 zone_path = os.path.join(scene_path, zone_folder)
-                data_filename = _metric + "_svd"+ generic_output_file_svd
+                data_filename = _metric + "_svd" + generic_output_file_svd
                 data_file_path = os.path.join(zone_path, data_filename)
 
                 # getting number of line and read randomly lines
                 f = open(data_file_path)
                 lines = f.readlines()
 
-                counter = 0
                 # check if user select current scene and zone to be part of training data set
                 for line in lines:
 
@@ -127,8 +123,6 @@ def get_min_max_value_interval(_scenes_list, _filename, _interval, _metric):
 
                     if max_value > max_value_interval:
                         max_value_interval = max_value
-
-                    counter += 1
 
 
 def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _zones = zones_indices, _percent = 1, _step=1, _each=1, _norm=False, _custom=False):
@@ -273,7 +267,7 @@ def main():
 
     # find min max value if necessary to renormalize data
     if p_custom:
-        get_min_max_value_interval(scenes_list, p_filename, p_interval, p_kind, p_metric, p_custom)
+        get_min_max_value_interval(scenes_list, p_interval, p_metric)
 
         # write new file to save
         if not os.path.exists(custom_min_max_folder):

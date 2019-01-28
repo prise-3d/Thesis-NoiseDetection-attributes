@@ -38,7 +38,63 @@ seuil_expe_filename = cfg.seuil_expe_filename
 
 metric_choices      = cfg.metric_choices_labels
 
+generic_output_file_svd = '_random.csv'
+
 max_nb_bits = 8
+min_value_interval = sys.maxsize
+max_value_interval = 0
+
+def get_min_max_value_interval(_scene, _interval, _metric):
+
+    global min_value_interval, max_value_interval
+
+    scenes = os.listdir(path)
+
+    # remove min max file from scenes folder
+    scenes = [s for s in scenes if min_max_filename not in s]
+
+    for id_scene, folder_scene in enumerate(scenes):
+
+        # only take care of current scene
+        if folder_scene == _scene:
+
+            scene_path = os.path.join(path, folder_scene)
+
+            zones_folder = []
+            # create zones list
+            for index in zones:
+                index_str = str(index)
+                if len(index_str) < 2:
+                    index_str = "0" + index_str
+                zones_folder.append("zone"+index_str)
+
+            for id_zone, zone_folder in enumerate(zones_folder):
+                zone_path = os.path.join(scene_path, zone_folder)
+                data_filename = _metric + "_svd" + generic_output_file_svd
+                data_file_path = os.path.join(zone_path, data_filename)
+
+                # getting number of line and read randomly lines
+                f = open(data_file_path)
+                lines = f.readlines()
+
+                # check if user select current scene and zone to be part of training data set
+                for line in lines:
+
+                    begin, end = _interval
+
+                    line_data = line.split(';')
+                    metrics = line_data[begin+1:end+1]
+                    metrics = [float(m) for m in metrics]
+
+                    min_value = min(metrics)
+                    max_value = max(metrics)
+
+                    if min_value < min_value_interval:
+                        min_value_interval = min_value
+
+                    if max_value > max_value_interval:
+                        max_value_interval = max_value
+
 
 def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_metric, p_mode, p_step, p_norm, p_ylim):
     """
@@ -155,9 +211,13 @@ def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_metric, p_mode,
                 if p_mode == 'svdne':
 
                     # getting max and min information from min_max_filename
-                    with open(data_min_max_filename, 'r') as f:
-                        min_val = float(f.readline())
-                        max_val = float(f.readline())
+                    if not p_norm:
+                        with open(data_min_max_filename, 'r') as f:
+                            min_val = float(f.readline())
+                            max_val = float(f.readline())
+                    else:
+                        min_val = min_value_interval
+                        max_val = max_value_interval
 
                     data = utils.normalize_arr_with_range(data, min_val, max_val)
 
@@ -251,7 +311,9 @@ def main():
         else:
             assert False, "unhandled option"
 
-    # TODO: if p_norm find custom min max values
+    if p_norm:
+        get_min_max_value_interval(p_scene, p_interval, p_metric)
+
     display_svd_values(p_scene, p_interval, p_indices, p_zone, p_metric, p_mode, p_step, p_norm, p_ylim)
 
 if __name__== "__main__":
