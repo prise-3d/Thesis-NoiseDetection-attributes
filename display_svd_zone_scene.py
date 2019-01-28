@@ -251,6 +251,7 @@ def main():
         else:
             assert False, "unhandled option"
 
+    # TODO: if p_norm find custom min max values
     display_svd_values(p_scene, p_interval, p_indices, p_zone, p_metric, p_mode, p_step, p_norm, p_ylim)
 
 if __name__== "__main__":

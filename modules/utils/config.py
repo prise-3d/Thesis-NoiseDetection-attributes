@@ -16,7 +16,7 @@ config_filename                 = "config"
 models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2"]
 
 # define all scenes values
-renderer_choices                = ['maxwell', 'igloo', 'cycle']
+renderer_choices                = ['all', 'maxwell', 'igloo', 'cycle']
 
 scenes_names                    = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
 scenes_indices                  = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']

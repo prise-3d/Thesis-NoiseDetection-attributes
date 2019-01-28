@@ -17,6 +17,7 @@ from PIL import Image
 from ipfml import processing, metrics, utils
 
 from modules.utils import config as cfg
+from modules.utils import data as dt
 
 # getting configuration information
 config_filename         = cfg.config_filename
@@ -42,18 +43,20 @@ generic_output_file_svd = '_random.csv'
 min_value_interval = sys.maxsize
 max_value_interval = 0
 
-def construct_new_line(path_seuil, interval, line, norm, sep, index):
+def construct_new_line(path_seuil, interval, line, choice, each, norm):
     begin, end = interval
 
     line_data = line.split(';')
     seuil = line_data[0]
     metrics = line_data[begin+1:end+1]
 
-    metrics = [float(m) for m in metrics]
+    metrics = [float(m) for id, m in enumerate(metrics) if id % each == 0 ]
 
-    # TODO : check if it's always necessary to do that (loss of information for svd)
     if norm:
-        metrics = utils.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
+        if choice == 'svdne':
+            metrics = utils.normalize_arr_with_range(metrics, min_value_interval, max_value_interval)
+        if choice == 'svdn':
+            metrics = utils.normalize_arr(metrics)
 
     with open(path_seuil, "r") as seuil_file:
         seuil_learned = int(seuil_file.readline().strip())
@@ -64,15 +67,13 @@ def construct_new_line(path_seuil, interval, line, norm, sep, index):
         line = '0'
 
     for idx, val in enumerate(metrics):
-        if index:
-            line += " " + str(idx + 1)
-        line += sep
+        line += ';'
         line += str(val)
     line += '\n'
 
     return line
 
-def get_min_max_value_interval(_filename, _interval, _choice, _metric):
+def get_min_max_value_interval(_scenes_list, _filename, _interval, _metric):
 
     global min_value_interval, max_value_interval
 
@@ -84,7 +85,7 @@ def get_min_max_value_interval(_filename, _interval, _choice, _metric):
     for id_scene, folder_scene in enumerate(scenes):
 
         # only take care of maxwell scenes
-        if folder_scene in scenes_list:
+        if folder_scene in _scenes_list:
 
             scene_path = os.path.join(path, folder_scene)
 
@@ -101,7 +102,7 @@ def get_min_max_value_interval(_filename, _interval, _choice, _metric):
 
             for id_zone, zone_folder in enumerate(zones_folder):
                 zone_path = os.path.join(scene_path, zone_folder)
-                data_filename = _metric + "_" + _choice + generic_output_file_svd
+                data_filename = _metric + "_svd"+ generic_output_file_svd
                 data_file_path = os.path.join(zone_path, data_filename)
 
                 # getting number of line and read randomly lines
@@ -130,7 +131,7 @@ def get_min_max_value_interval(_filename, _interval, _choice, _metric):
                     counter += 1
 
 
-def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _zones = zones_indices, _percent = 1, _norm = False, _sep=':', _index=True):
+def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes_list, _zones = zones_indices, _percent = 1, _step=1, _each=1, _norm=False, _custom=False):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"
@@ -167,7 +168,13 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
 
             for id_zone, zone_folder in enumerate(zones_folder):
                 zone_path = os.path.join(scene_path, zone_folder)
-                data_filename = _metric + "_" + _choice + generic_output_file_svd
+
+                # if custom normalization choices then we use svd values not already normalized
+                if _custom:
+                    data_filename = _metric + "_svd" + generic_output_file_svd
+                else:
+                    data_filename = _metric + "_" + _choice + generic_output_file_svd
+
                 data_file_path = os.path.join(zone_path, data_filename)
 
                 # getting number of line and read randomly lines
@@ -184,14 +191,17 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
                 counter = 0
                 # check if user select current scene and zone to be part of training data set
                 for index in lines_indexes:
-                    line = construct_new_line(path_seuil, _interval, lines[index], _norm, _sep, _index)
 
+                    image_index = int(lines[index].split(';')[0])
                     percent = counter / num_lines
 
-                    if id_zone in _zones and folder_scene in _scenes and percent <= _percent:
-                        train_file.write(line)
-                    else:
-                        test_file.write(line)
+                    if image_index % _step == 0:
+                        line = construct_new_line(path_seuil, _interval, lines[index], _choice, _each, _norm)
+
+                        if id_zone in _zones and folder_scene in _scenes and percent <= _percent:
+                            train_file.write(line)
+                        else:
+                            test_file.write(line)
 
                     counter += 1
 
@@ -206,17 +216,17 @@ def main():
     p_custom = False
 
     if len(sys.argv) <= 1:
-        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:z:p:r:c", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "zones=", "percent=", "sep=", "rowindex=", "custom="])
+        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:z:p:r:c", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "zones=", "percent=", "renderer=", "step=", "each=", "custom="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --sep : --rowindex 1 --custom min_max_filename')
+            print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')
 
             sys.exit()
         elif o in ("-o", "--output"):
@@ -236,17 +246,23 @@ def main():
                 p_zones = [a.strip()]
         elif o in ("-p", "--percent"):
             p_percent = float(a)
-        elif o in ("-s", "--sep"):
-            p_sep = a
-        elif o in ("-r", "--rowindex"):
-            if int(a) == 1:
-                p_rowindex = True
-            else:
-                p_rowindex = False
+        elif o in ("-s", "--step"):
+            p_step = int(a)
+        elif o in ("-e", "--each"):
+            p_each = int(a)
+        elif o in ("-r", "--renderer"):
+            p_renderer = a
+
+            if p_renderer not in cfg.renderer_choices:
+                assert False, "Unknown renderer choice, %s" % cfg.renderer_choices
         elif o in ("-c", "--custom"):
             p_custom = a
         else:
             assert False, "unhandled option"
+
+    # list all possibles choices of renderer
+    scenes_list = dt.get_renderer_scenes_names(p_renderer)
+    scenes_indices = dt.get_renderer_scenes_indices(p_renderer)
 
     # getting scenes from indexes user selection
     scenes_selected = []
@@ -257,7 +273,7 @@ def main():
 
     # find min max value if necessary to renormalize data
     if p_custom:
-        get_min_max_value_interval(p_filename, p_interval, p_kind, p_metric)
+        get_min_max_value_interval(scenes_list, p_filename, p_interval, p_kind, p_metric, p_custom)
 
         # write new file to save
         if not os.path.exists(custom_min_max_folder):
@@ -271,7 +287,7 @@ def main():
             f.write(str(max_value_interval) + '\n')
 
     # create database using img folder (generate first time only)
-    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_zones, p_percent, p_custom, p_sep, p_rowindex)
+    generate_data_model(p_filename, p_interval, p_kind, p_metric, scenes_selected, p_zones, p_percent, p_step, p_each, p_custom)
 
 if __name__== "__main__":
     main()

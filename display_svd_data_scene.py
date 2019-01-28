@@ -148,15 +148,6 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
                 while len(start_index_image) > len(current_counter_index_str):
                     current_counter_index_str = "0" + current_counter_index_str
 
-                if current_counter_index % p_step == 0:
-                    if current_counter_index >= begin_index and current_counter_index <= end_index:
-                        images_indices.append(current_counter_index_str)
-
-                    if threshold_mean < int(current_counter_index) and not threshold_image_found:
-
-                        threshold_image_found = True
-                        threshold_image_zone = current_counter_index_str
-
                 image_path = file_path.format(str(current_counter_index_str))
                 img = Image.open(image_path)
 
@@ -244,7 +235,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
                 else:
                     ax1.plot(data, label=p_label)
 
-            ax1.legend(bbox_to_anchor=(0.8, 1), loc=2, borderaxespad=0.2, fontsize=14)
+            ax1.legend(bbox_to_anchor=(0.7, 1), loc=2, borderaxespad=0.2, fontsize=14)
 
             start_ylim, end_ylim = p_ylim
             ax1.set_ylim(start_ylim, end_ylim)
@@ -319,6 +310,7 @@ def main():
         else:
             assert False, "unhandled option"
 
+    # TODO: if p_norm find custom min max values
     display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim)
 
 if __name__== "__main__":
