@@ -201,6 +201,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_metric, p_mode,
                 # Here you can add the way you compute data
                 data = get_svd_data(p_metric, block)
 
+                # TODO : improve part of this code to get correct min / max values
                 if p_norm:
                     data = data[begin_data:end_data]
 

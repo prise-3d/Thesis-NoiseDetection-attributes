@@ -42,23 +42,22 @@ metric_choices      = cfg.metric_choices_labels
 
 max_nb_bits = 8
 
-error_data_choices  = ['mae', 'mse', 'ssim', 'psnr']
+integral_area_choices = ['trapz', 'simps']
 
-
-def get_error_distance(p_error, y_true, y_test):
+def get_area_under_curve(p_area, p_data):
 
     noise_method = None
-    function_name = p_error
+    function_name = 'integral_area_' + p_area
 
     try:
-        error_method = getattr(fr_iqa, function_name)
+        area_method = getattr(utils, function_name)
     except AttributeError:
-        raise NotImplementedError("Error `{}` not implement `{}`".format(fr_iqa.__name__, function_name))
+        raise NotImplementedError("Error `{}` not implement `{}`".format(utils.__name__, function_name))
 
-    return error_method(y_true, y_test)
+    return area_method(p_data, dx=800)
 
 
-def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim):
+def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_area, p_ylim):
     """
     @brief Method which gives information about svd curves from zone of picture
     @param p_scene, scene expected to show svd values
@@ -67,7 +66,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
     @param p_metric, metric computed to show
     @param p_mode, normalization's mode
     @param p_norm, normalization or not of selected svd data
-    @param p_error, error metric used to display
+    @param p_area, area method name to compute area under curve
     @param p_ylim, ylim choice to better display of data
     @return nothing
     """
@@ -121,7 +120,6 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             for id, zone_folder in enumerate(zones_folder):
 
                 # get threshold information
-
                 zone_path = os.path.join(scene_path, zone_folder)
                 path_seuil = os.path.join(zone_path, seuil_expe_filename)
 
@@ -185,7 +183,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             print(images_indices)
 
             previous_data = []
-            error_data = [0.]
+            area_data = []
 
             for id, data in enumerate(svd_data):
 
@@ -202,18 +200,9 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
                 images_data.append(current_data)
 
-                # use of whole image data for computation of ssim or psnr
-                if p_error == 'ssim' or p_error == 'psnr':
-                    image_path = file_path.format(str(current_id))
-                    current_data = np.asarray(Image.open(image_path))
-
-                if len(previous_data) > 0:
-
-                    current_error = get_error_distance(p_error, previous_data, current_data)
-                    error_data.append(current_error)
-
-                if len(previous_data) == 0:
-                    previous_data = current_data
+                # not use this script for 'sub_blocks_stats'
+                current_area = get_area_under_curve(p_area, current_data)
+                area_data.append(current_area)
 
             # display all data using matplotlib (configure plt)
             gridsize = (3, 2)
@@ -230,7 +219,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
             for id, data in enumerate(images_data):
 
-                p_label = p_scene + '_' + str(images_indices[id]) + " | " + p_error + ": " + str(error_data[id])
+                p_label = p_scene + '_' + str(images_indices[id]) + " | " + p_area + ": " + str(area_data[id])
 
                 if images_indices[id] == threshold_image_zone:
                     ax1.plot(data, label=p_label, lw=4, color='red')
@@ -242,12 +231,12 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             start_ylim, end_ylim = p_ylim
             ax1.set_ylim(start_ylim, end_ylim)
 
-            ax2.set_title(p_error + " information for whole step images")
-            ax2.set_ylabel(p_error + ' error')
+            ax2.set_title(p_area + " information for whole step images")
+            ax2.set_ylabel(p_area + ' area values')
             ax2.set_xlabel('Number of samples per pixels or times')
             ax2.set_xticks(range(len(images_indices)))
             ax2.set_xticklabels(list(map(int, images_indices)))
-            ax2.plot(error_data)
+            ax2.plot(area_data)
 
             plt.show()
 
@@ -260,17 +249,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
+        print('python display_svd_area_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --area simps --ylim "0, 0.1"')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:i:i:z:l:m:s:n:e:y", ["help=", "scene=", "interval=", "indices=", "metric=", "mode=", "step=", "norm=", "error=", "ylim="])
+        opts, args = getopt.getopt(sys.argv[1:], "hs:i:i:z:l:m:s:n:a:y", ["help=", "scene=", "interval=", "indices=", "metric=", "mode=", "step=", "norm=", "area=", "ylim="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
+        print('python display_svd_area_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --area simps --ylim "0, 0.1"')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
+            print('python display_svd_area_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --area simps --ylim "0, 0.1"')
             sys.exit()
         elif o in ("-s", "--scene"):
             p_scene = a
@@ -303,8 +292,11 @@ def main():
         elif o in ("-n", "--norm"):
             p_norm = int(a)
 
-        elif o in ("-e", "--error"):
-            p_error = a
+        elif o in ("-a", "--area"):
+            p_area = a
+
+            if p_area not in integral_area_choices:
+                assert False, "Invalid area computation choices : %s " % integral_area_choices
 
         elif o in ("-y", "--ylim"):
             p_ylim = list(map(float, a.split(',')))
@@ -312,7 +304,7 @@ def main():
         else:
             assert False, "unhandled option"
 
-    display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim)
+    display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_area, p_ylim)
 
 if __name__== "__main__":
     main()

@@ -26,7 +26,6 @@ def display_curves(folder_path):
 
         df = pd.read_csv(path_file, header=None, sep=";")
 
-
         fig=plt.figure(figsize=(35, 22))
         fig.suptitle("Detection simulation for " + scene_names[id] + " scene", fontsize=20)
 

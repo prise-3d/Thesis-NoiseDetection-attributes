@@ -21,6 +21,7 @@ def get_svd_mean_and_image_rotations(img_path):
     for i in range(4):
         rotations.append(processing.rotate_image(img, (i+1)*90, pil=False))
         svd_data_rotation.append(processing.get_LAB_L_SVD_s(rotations[i]))
+        Image.fromarray(rotations[i]).show()
 
     mean_image = processing.fusion_images(rotations, pil=False)
     mean_data = processing.get_LAB_L_SVD_s(mean_image)
