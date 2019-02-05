@@ -14,8 +14,7 @@ import time
 import json
 
 from PIL import Image
-from ipfml import processing
-from ipfml import metrics
+from ipfml import processing, metrics, utils
 from skimage import color
 import matplotlib.pyplot as plt
 
@@ -150,7 +149,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
                         img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
                         img_mscn = processing.calculate_mscn_coefficients(img_gray, 7)
-                        img_mscn_norm = processing.normalize_2D_arr(img_mscn)
+                        img_mscn_norm = utils.normalize_2D_arr(img_mscn)
 
                         img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
 
@@ -200,7 +199,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                     # modify data depending mode
 
                     if p_kind == 'svdn':
-                        data = processing.normalize_arr(data)
+                        data = utils.normalize_arr(data)
 
                     if p_kind == 'svdne':
                         path_min_max = os.path.join(path, data_type + min_max_filename)
@@ -209,7 +208,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                             min_val = float(f.readline())
                             max_val = float(f.readline())
 
-                        data = processing.normalize_arr_with_range(data, min_val, max_val)
+                        data = utils.normalize_arr_with_range(data, min_val, max_val)
 
                     # append of data
                     images_data.append(data)

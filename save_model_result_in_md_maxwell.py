@@ -1,6 +1,6 @@
 from sklearn.utils import shuffle
 from sklearn.externals import joblib
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, recall_score, roc_auc_score
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
 
@@ -194,9 +194,18 @@ def main():
     test_accuracy = accuracy_score(y_test, y_test_model)
 
     y_train_model = model.predict(x_dataset_train)
+
     train_f1 = f1_score(y_dataset_train, y_train_model)
+    train_recall = recall_score(y_dataset_train, y_train_model)
+    train_roc_auc = roc_auc_score(y_dataset_train, y_train_model)
+
     val_f1 = f1_score(y_val, y_val_model)
+    val_recall = recall_score(y_val, y_val_model)
+    val_roc_auc = roc_auc_score(y_val, y_val_model)
+
     test_f1 = f1_score(y_test, y_test_model)
+    test_recall = recall_score(y_test, y_test_model)
+    test_roc_auc = roc_auc_score(y_test, y_test_model)
 
     # stats of all dataset
     all_x_data = pd.concat([x_dataset_train, X_test, X_val])
@@ -205,6 +214,8 @@ def main():
     all_y_model = model.predict(all_x_data)
     all_accuracy = accuracy_score(all_y_data, all_y_model)
     all_f1_score = f1_score(all_y_data, all_y_model)
+    all_recall_score = recall_score(all_y_data, all_y_model)
+    all_roc_auc_score = roc_auc_score(all_y_data, all_y_model)
 
     # stats of dataset sizes
     total_samples = final_df_train_size + val_set_size + test_set_size
@@ -224,9 +235,20 @@ def main():
     model_scores.append(all_accuracy)
 
     model_scores.append(train_f1)
+    model_scores.append(train_recall)
+    model_scores.append(train_roc_auc)
+
     model_scores.append(val_f1)
+    model_scores.append(val_recall)
+    model_scores.append(val_roc_auc)
+
     model_scores.append(test_f1)
+    model_scores.append(test_recall)
+    model_scores.append(test_roc_auc)
+
     model_scores.append(all_f1_score)
+    model_scores.append(all_recall_score)
+    model_scores.append(all_roc_auc_score)
 
     # TODO : improve...
     # check if it's always the case...

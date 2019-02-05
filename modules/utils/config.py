@@ -16,13 +16,21 @@ config_filename                 = "config"
 models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2"]
 
 # define all scenes values
+renderer_choices                = ['all', 'maxwell', 'igloo', 'cycle']
+
 scenes_names                    = ['Appart1opt02', 'Bureau1', 'Cendrier', 'Cuisine01', 'EchecsBas', 'PNDVuePlongeante', 'SdbCentre', 'SdbDroite', 'Selles']
 scenes_indices                  = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
 
 maxwell_scenes_names            = ['Appart1opt02', 'Cuisine01', 'SdbCentre', 'SdbDroite']
 maxwell_scenes_indices          = ['A', 'D', 'G', 'H']
 
+igloo_scenes_names              = ['Bureau1', 'PNDVuePlongeante']
+igloo_scenes_indices            = ['B', 'F']
+
+cycle_scenes_names              = ['EchecBas', 'Selles']
+cycle_scenes_indices            = ['E', 'I']
+
 normalization_choices           = ['svd', 'svdn', 'svdne']
 zones_indices                   = np.arange(16)
 
-metric_choices_labels           = ['lab', 'mscn', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2']
+metric_choices_labels           = ['lab', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2', 'sub_blocks_stats', 'sub_blocks_area', 'sub_blocks_stats_reduced']

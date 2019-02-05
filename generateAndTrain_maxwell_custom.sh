@@ -37,7 +37,7 @@ for counter in {0..4}; do
         end=$(($size))
     fi
 
-    for nb_zones in {4,6,8,10,12,14}; do
+    for nb_zones in {4,6,8,10,12}; do
 
         echo $start $end
 
@@ -55,7 +55,7 @@ for counter in {0..4}; do
 
                     echo "${MODEL_NAME} results already generated..."
                 else
-                    python generate_data_model_random_maxwell.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --sep ';' --rowindex '0' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                    python generate_data_model_random.py --output ${FILENAME} --interval "${start},${end}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 40 --random 1 --custom ${CUSTOM_MIN_MAX_FILENAME}
                     python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
                     #python predict_seuil_expe_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}

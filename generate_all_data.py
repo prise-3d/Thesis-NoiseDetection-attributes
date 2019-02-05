@@ -13,10 +13,9 @@ import random
 import time
 import json
 
-from modules.utils.data_type import get_svd_data
+from modules.utils.data import get_svd_data
 from PIL import Image
-from ipfml import processing
-from ipfml import metrics
+from ipfml import processing, metrics, utils
 from skimage import color
 
 from modules.utils import config as cfg
@@ -38,7 +37,6 @@ metric_choices          = cfg.metric_choices_labels
 output_data_folder      = cfg.output_data_folder
 
 generic_output_file_svd = '_random.csv'
-picture_step            = 10
 
 def generate_data_svd(data_type, mode):
     """
@@ -102,64 +100,63 @@ def generate_data_svd(data_type, mode):
 
         while(current_counter_index <= end_counter_index):
 
-            if current_counter_index % picture_step == 0:
-                current_counter_index_str = str(current_counter_index)
+            current_counter_index_str = str(current_counter_index)
 
-                while len(start_index_image) > len(current_counter_index_str):
-                    current_counter_index_str = "0" + current_counter_index_str
+            while len(start_index_image) > len(current_counter_index_str):
+                current_counter_index_str = "0" + current_counter_index_str
 
-                img_path = os.path.join(scene_path, prefix_image_name + current_counter_index_str + ".png")
+            img_path = os.path.join(scene_path, prefix_image_name + current_counter_index_str + ".png")
 
-                current_img = Image.open(img_path)
-                img_blocks = processing.divide_in_blocks(current_img, (200, 200))
+            current_img = Image.open(img_path)
+            img_blocks = processing.divide_in_blocks(current_img, (200, 200))
 
-                for id_block, block in enumerate(img_blocks):
+            for id_block, block in enumerate(img_blocks):
 
-                    ###########################
-                    # Metric computation part #
-                    ###########################
+                ###########################
+                # Metric computation part #
+                ###########################
 
-                    data = get_svd_data(data_type, block)
+                data = get_svd_data(data_type, block)
 
-                    ##################
-                    # Data mode part #
-                    ##################
+                ##################
+                # Data mode part #
+                ##################
 
-                    # modify data depending mode
-                    if mode == 'svdne':
+                # modify data depending mode
+                if mode == 'svdne':
 
-                        # getting max and min information from min_max_filename
-                        with open(data_min_max_filename, 'r') as f:
-                            min_val = float(f.readline())
-                            max_val = float(f.readline())
+                    # getting max and min information from min_max_filename
+                    with open(data_min_max_filename, 'r') as f:
+                        min_val = float(f.readline())
+                        max_val = float(f.readline())
 
-                        data = processing.normalize_arr_with_range(data, min_val, max_val)
+                    data = utils.normalize_arr_with_range(data, min_val, max_val)
 
-                    if mode == 'svdn':
-                        data = processing.normalize_arr(data)
+                if mode == 'svdn':
+                    data = utils.normalize_arr(data)
 
-                    # save min and max found from dataset in order to normalize data using whole data known
-                    if mode == 'svd':
+                # save min and max found from dataset in order to normalize data using whole data known
+                if mode == 'svd':
 
-                        current_min = data.min()
-                        current_max = data.max()
+                    current_min = data.min()
+                    current_max = data.max()
 
-                        if current_min < min_val_found:
-                            min_val_found = current_min
+                    if current_min < min_val_found:
+                        min_val_found = current_min
 
-                        if current_max > max_val_found:
-                            max_val_found = current_max
+                    if current_max > max_val_found:
+                        max_val_found = current_max
 
-                    # now write data into current writer
-                    current_file = svd_output_files[id_block]
+                # now write data into current writer
+                current_file = svd_output_files[id_block]
 
-                    # add of index
-                    current_file.write(current_counter_index_str + ';')
+                # add of index
+                current_file.write(current_counter_index_str + ';')
 
-                    for val in data:
-                        current_file.write(str(val) + ";")
+                for val in data:
+                    current_file.write(str(val) + ";")
 
-                    current_file.write('\n')
+                current_file.write('\n')
 
             start_index_image_int = int(start_index_image)
             print(data_type + "_" + mode + "_" + folder_scene + " - " + "{0:.2f}".format((current_counter_index - start_index_image_int) / (end_counter_index - start_index_image_int)* 100.) + "%")
@@ -178,32 +175,30 @@ def generate_data_svd(data_type, mode):
             f.write(str(min_val_found) + '\n')
             f.write(str(max_val_found) + '\n')
 
-    print("%s : end of data generation\n" % mode)
+    print("%s_%s : end of data generation\n" % (data_type, mode))
 
 
 def main():
 
     # default value of p_step
-    p_step = 10
+    p_step = 1
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
         print('python generate_all_data.py --metric all')
         print('python generate_all_data.py --metric lab')
-        print('python generate_all_data.py --metric lab --step 10')
+        print('python generate_all_data.py --metric lab')
         sys.exit(2)
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hms", ["help=", "metric=", "step="])
+        opts, args = getopt.getopt(sys.argv[1:], "hms", ["help=", "metric="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python generate_all_data.py --metric all --step 10')
+        print('python generate_all_data.py --metric all')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python generate_all_data.py --metric all --step 10')
+            print('python generate_all_data.py --metric all')
             sys.exit()
-        elif o in ("-s", "--step"):
-            p_step = int(a)
         elif o in ("-m", "--metric"):
             p_metric = a
 
@@ -211,12 +206,6 @@ def main():
                 assert False, "Invalid metric choice"
         else:
             assert False, "unhandled option"
-
-    global picture_step
-    picture_step = p_step
-
-    if picture_step % 10 != 0:
-        assert False, "Picture step variable needs to be divided by ten"
 
     # generate all or specific metric data
     if p_metric == 'all':

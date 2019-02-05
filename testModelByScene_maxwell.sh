@@ -63,7 +63,7 @@ for scene in {"A","D","G","H"}; do
 
   FILENAME="data/data_${INPUT_MODE}_${INPUT_METRIC}_B${INPUT_BEGIN}_E${INPUT_END}_scene${scene}"
 
-  python generate_data_model.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --metric ${INPUT_METRIC} --scenes "${scene}" --zones "${zones}" --percent 1 --sep ";" --rowindex "0"
+  python generate_data_model.py --output ${FILENAME} --interval "${INPUT_BEGIN},${INPUT_END}" --kind ${INPUT_MODE} --metric ${INPUT_METRIC} --scenes "${scene}" --zones "${zones}" --percent 1
 
   python prediction_scene.py --data "$FILENAME.train" --model ${INPUT_MODEL} --output "${INPUT_MODEL}_Scene${scene}_mode_${INPUT_MODE}_metric_${INPUT_METRIC}.prediction" --scene ${scene}
 
