@@ -208,6 +208,9 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
 def main():
 
     p_custom = False
+    p_step      = 1
+    p_renderer  = 'all'
+    p_each      = 1
 
     if len(sys.argv) <= 1:
         print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')

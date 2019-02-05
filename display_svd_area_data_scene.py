@@ -223,6 +223,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
                 if images_indices[id] == threshold_image_zone:
                     ax1.plot(data, label=p_label, lw=4, color='red')
+                    threshold_id = id
                 else:
                     ax1.plot(data, label=p_label)
 
@@ -236,6 +237,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             ax2.set_xlabel('Number of samples per pixels or times')
             ax2.set_xticks(range(len(images_indices)))
             ax2.set_xticklabels(list(map(int, images_indices)))
+            ax2.plot([threshold_id, threshold_id], [np.min(area_data), np.max(area_data)], 'k-', lw=2, color='red')
             ax2.plot(area_data)
 
             plt.show()
