@@ -151,6 +151,27 @@ def get_svd_data(data_type, block):
         # convert into numpy array after computing all stats
         data = np.asarray(data)
 
+    if data_type == 'sub_blocks_area_normed':
+
+        block = np.asarray(block)
+        width, height, _= block.shape
+        sub_width, sub_height = int(width / 8), int(height / 8)
+
+        sub_blocks = processing.divide_in_blocks(block, (sub_width, sub_height))
+
+        data = []
+
+        for sub_b in sub_blocks:
+
+            # by default use the whole lab L canal
+            l_svd_data = np.array(processing.get_LAB_L_SVD_s(sub_b))
+            l_svd_data = utils.normalize_arr(l_svd_data)
+
+            area_under_curve = utils.integral_area_trapz(l_svd_data, dx=50)
+            data.append(area_under_curve)
+
+        # convert into numpy array after computing all stats
+        data = np.asarray(data)
 
     return data
 
