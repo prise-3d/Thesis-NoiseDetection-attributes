@@ -5,7 +5,7 @@ threshold_map/*
 models_info/*
 custom_norm/*
 
-simulate_models.csv
+# simulate_models.csv
 
 fichiersSVD_light/*/*/*.csv
 fichiersSVD_light/*_min_max_values

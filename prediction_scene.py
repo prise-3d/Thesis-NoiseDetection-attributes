@@ -4,8 +4,14 @@ import numpy as np
 
 import pandas as pd
 from sklearn.metrics import accuracy_score
+from keras.models import Sequential
+from keras.layers import Conv1D, MaxPooling1D
+from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
+from keras import backend as K
+from keras.models import model_from_json
 
 import sys, os, getopt
+import json
 
 from modules.utils import config as cfg
 
@@ -76,7 +82,6 @@ def main():
             f.write("Not noisy accuracy found %s " % str(accuracy_not_noisy))
             for prediction in y_pred:
                 f.write(str(prediction) + '\n')
-
 
 if __name__== "__main__":
     main()

@@ -13,7 +13,7 @@ seuil_expe_filename             = 'seuilExpe'
 min_max_filename_extension      = "_min_max_values"
 config_filename                 = "config"
 
-models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2"]
+models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2","deep_keras"]
 
 # define all scenes values
 renderer_choices                = ['all', 'maxwell', 'igloo', 'cycle']
@@ -34,3 +34,6 @@ normalization_choices           = ['svd', 'svdn', 'svdne']
 zones_indices                   = np.arange(16)
 
 metric_choices_labels           = ['lab', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2', 'sub_blocks_stats', 'sub_blocks_area', 'sub_blocks_stats_reduced', 'sub_blocks_area_normed']
+
+keras_epochs                    = 10
+keras_batch                     = 32

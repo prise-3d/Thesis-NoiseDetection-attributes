@@ -2,7 +2,14 @@ from sklearn.utils import shuffle
 from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score, f1_score, recall_score, roc_auc_score
 from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
+
+from keras.models import Sequential
+from keras.layers import Conv1D, MaxPooling1D
+from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
+from keras import backend as K
+from keras.models import model_from_json
 
 import numpy as np
 import pandas as pd
@@ -13,6 +20,7 @@ from PIL import Image
 import sys, os, getopt
 import subprocess
 import time
+import json
 
 from modules.utils import config as cfg
 
@@ -29,6 +37,8 @@ current_dirpath = os.getcwd()
 
 
 def main():
+
+    kind_model = 'keras'
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
@@ -68,18 +78,25 @@ def main():
     print(bash_cmd)
 
     ## call command ##
-    p = subprocess.Popen(bash_cmd, stdout=subprocess.PIPE, shell=True)
+    #p = subprocess.Popen(bash_cmd, stdout=subprocess.PIPE, shell=True)
 
-    (output, err) = p.communicate()
+    #(output, err) = p.communicate()
 
     ## Wait for result ##
-    p_status = p.wait()
+    #p_status = p.wait()
 
     if not os.path.exists(markdowns_folder):
         os.makedirs(markdowns_folder)
 
     # get model name to construct model
-    md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace('.joblib', '.md'))
+
+    if '.joblib' in p_model_file:
+        kind_model = 'sklearn'
+        md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace('.joblib', '.md'))
+
+    if '.json' in p_model_file:
+        kind_model = 'keras'
+        md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace('.json', '.md'))
 
     with open(md_model_path, 'w') as f:
         f.write(output.decode("utf-8"))
@@ -108,8 +125,9 @@ def main():
 
         f.close()
 
+
     # Keep model information to compare
-    current_model_name = p_model_file.split('/')[-1].replace('.joblib', '')
+    current_model_name = p_model_file.split('/')[-1].replace('.json', '')
 
     # Prepare writing in .csv file
     output_final_file_path = os.path.join(markdowns_folder, final_csv_model_comparisons)
@@ -121,6 +139,8 @@ def main():
         if name in current_model_name:
             current_data_file_path = os.path.join('data', current_model_name.replace(name, 'data_maxwell'))
 
+    print("Current data file ")
+    print(current_data_file_path)
     model_scores = []
 
     ########################
@@ -169,6 +189,7 @@ def main():
     # 3. Fit model : use of cross validation to fit model
     #######################
     model.fit(x_dataset_train, y_dataset_train)
+
     val_scores = cross_val_score(model, x_dataset_train, y_dataset_train, cv=5)
 
     ######################
@@ -229,7 +250,7 @@ def main():
     model_scores.append(test_set_size / total_samples)
 
     # add of scores
-    model_scores.append(val_scores.mean())
+    #model_scores.append(val_scores.mean())
     model_scores.append(val_accuracy)
     model_scores.append(test_accuracy)
     model_scores.append(all_accuracy)
