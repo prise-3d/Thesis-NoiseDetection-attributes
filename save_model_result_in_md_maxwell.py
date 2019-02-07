@@ -78,12 +78,12 @@ def main():
     print(bash_cmd)
 
     ## call command ##
-    #p = subprocess.Popen(bash_cmd, stdout=subprocess.PIPE, shell=True)
+    p = subprocess.Popen(bash_cmd, stdout=subprocess.PIPE, shell=True)
 
-    #(output, err) = p.communicate()
+    (output, err) = p.communicate()
 
     ## Wait for result ##
-    #p_status = p.wait()
+    p_status = p.wait()
 
     if not os.path.exists(markdowns_folder):
         os.makedirs(markdowns_folder)
