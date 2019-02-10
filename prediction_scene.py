@@ -9,6 +9,7 @@ from keras.layers import Conv1D, MaxPooling1D
 from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
 from keras import backend as K
 from keras.models import model_from_json
+from keras.wrappers.scikit_learn import KerasClassifier
 
 import sys, os, getopt
 import json
@@ -44,6 +45,14 @@ def main():
         else:
             assert False, "unhandled option"
 
+    if '.joblib' in p_model_file:
+        kind_model = 'sklearn'
+        model_ext = '.joblib'
+
+    if '.json' in p_model_file:
+        kind_model = 'keras'
+        model_ext = '.json'
+
     if not os.path.exists(output_model_folder):
         os.makedirs(output_model_folder)
 
@@ -61,11 +70,41 @@ def main():
     y_not_noisy_dataset = not_noisy_dataset.ix[:, 0]
     x_not_noisy_dataset = not_noisy_dataset.ix[:, 1:]
 
-    model = joblib.load(p_model_file)
+    if kind_model == 'keras':
+        with open(p_model_file, 'r') as f:
+            json_model = json.load(f)
+            model = model_from_json(json_model)
+            model.load_weights(p_model_file.replace('.json', '.h5'))
 
-    y_pred = model.predict(x_dataset)
-    y_noisy_pred = model.predict(x_noisy_dataset)
-    y_not_noisy_pred = model.predict(x_not_noisy_dataset)
+            model.compile(loss='binary_crossentropy',
+                  optimizer='adam',
+                  metrics=['accuracy'])
+
+        _, vector_size = np.array(x_dataset).shape
+
+        # reshape all data
+        x_dataset = np.array(x_dataset).reshape(len(x_dataset), vector_size, 1)
+        x_noisy_dataset = np.array(x_noisy_dataset).reshape(len(x_noisy_dataset), vector_size, 1)
+        x_not_noisy_dataset = np.array(x_not_noisy_dataset).reshape(len(x_not_noisy_dataset), vector_size, 1)
+
+
+    if kind_model == 'sklearn':
+        model = joblib.load(p_model_file)
+
+    if kind_model == 'keras':
+        y_pred = model.predict_classes(x_dataset)
+        y_noisy_pred = model.predict_classes(x_noisy_dataset)
+        y_not_noisy_pred = model.predict_classes(x_not_noisy_dataset)
+
+    if kind_model == 'sklean':
+        y_pred = model.predict(x_dataset)
+        y_noisy_pred = model.predict(x_noisy_dataset)
+        y_not_noisy_pred = model.predict(x_not_noisy_dataset)
+
+    print("Prediction done")
+
+    with open('test_result.txt', 'w') as f:
+        f.write(str(y_pred))
 
     accuracy_global = accuracy_score(y_dataset, y_pred)
     accuracy_noisy = accuracy_score(y_noisy_dataset, y_noisy_pred)

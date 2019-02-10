@@ -190,7 +190,7 @@ def main():
 
     model = generate_model(input_shape)
     model.summary()
-    model = KerasClassifier(build_fn=model, epochs=cfg.keras_epochs, batch_size=cfg.keras_batch, verbose=0)
+    #model = KerasClassifier(build_fn=model, epochs=cfg.keras_epochs, batch_size=cfg.keras_batch, verbose=0)
 
     #######################
     # 3. Fit model : use of cross validation to fit model
@@ -200,7 +200,7 @@ def main():
     x_dataset_train = np.array(x_dataset_train).reshape(len(x_dataset_train), p_vector_size, 1)
     x_dataset_test = np.array(x_dataset_test).reshape(len(x_dataset_test), p_vector_size, 1)
 
-    model.fit(x_dataset_train, y_dataset_train, validation_split=0.20)
+    model.fit(x_dataset_train, y_dataset_train, validation_split=0.20, epochs=cfg.keras_epochs, batch_size=cfg.keras_batch)
 
     score = model.evaluate(x_dataset_test, y_dataset_test, batch_size=batch_size)
 
