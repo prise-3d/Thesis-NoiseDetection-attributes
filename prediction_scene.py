@@ -101,11 +101,6 @@ def main():
         y_noisy_pred = model.predict(x_noisy_dataset)
         y_not_noisy_pred = model.predict(x_not_noisy_dataset)
 
-    print("Prediction done")
-
-    with open('test_result.txt', 'w') as f:
-        f.write(str(y_pred))
-
     accuracy_global = accuracy_score(y_dataset, y_pred)
     accuracy_noisy = accuracy_score(y_noisy_dataset, y_noisy_pred)
     accuracy_not_noisy = accuracy_score(y_not_noisy_dataset, y_not_noisy_pred)

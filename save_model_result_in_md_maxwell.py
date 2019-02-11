@@ -259,14 +259,10 @@ def main():
     test_recall = recall_score(y_test, y_test_model)
     test_roc_auc = roc_auc_score(y_test, y_test_model)
 
-    # stats of all dataset
-    all_x_data = pd.concat([x_dataset_train, X_test, X_val])
-    all_y_data = pd.concat([y_dataset_train, y_test, y_val])
-
     if kind_model == 'keras':
         # stats of all dataset
-        all_x_data = pd.concat([pd.DataFrame.from_records(x_dataset_train), X_test, X_val])
-        all_y_data = pd.concat([y_dataset_train, y_test, y_val])
+        all_x_data = np.concatenate([x_dataset_train, X_test, X_val])
+        all_y_data = np.concatenate([y_dataset_train, y_test, y_val])
         all_y_model = model.predict_classes(all_x_data)
 
     if kind_model == 'sklearn':
