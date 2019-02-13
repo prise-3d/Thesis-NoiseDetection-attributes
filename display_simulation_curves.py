@@ -2,27 +2,47 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-import os, sys, getopt
+import os, sys, argparse
 
 from modules.utils.data import get_svd_data
 
-label_freq = 6
+from modules.utils import config as cfg
 
-def display_curves(folder_path):
+learned_zones_folder = cfg.learned_zones_folder
+models_name          = cfg.models_names_list
+label_freq           = 6
+
+def display_curves(folder_path, model_name):
     """
     @brief Method used to display simulation given .csv files
     @param folder_path, folder which contains all .csv files obtained during simulation
+    @param model_name, current name of model
     @return nothing
     """
 
-    data_files = os.listdir(folder_path)
+    for name in models_name:
+        if name in model_name:
+            data_filename = model_name
+            learned_zones_folder_path = os.path.join(learned_zones_folder, data_filename)
+
+    data_files = [x for x in os.listdir(folder_path) if '.png' not in x]
 
     scene_names = [f.split('_')[3] for f in data_files]
 
+    print(scene_names)
     for id, f in enumerate(data_files):
 
         print(scene_names[id])
         path_file = os.path.join(folder_path, f)
+
+        scenes_zones_used_file_path = os.path.join(learned_zones_folder_path, scene_names[id] + '.csv')
+
+        zones_used = []
+
+        with open(scenes_zones_used_file_path, 'r') as f:
+            zones_used = [int(x) for x in f.readline().split(';') if x != '']
+
+        print(zones_used)
 
         df = pd.read_csv(path_file, header=None, sep=";")
 
@@ -48,6 +68,10 @@ def display_curves(folder_path):
             fig.add_subplot(4, 4, (index + 1))
             plt.plot(row[5:])
 
+            if index in zones_used:
+                ax = plt.gca()
+                ax.set_facecolor((0.9, 0.95, 0.95))
+
             # draw vertical line from (70,100) to (70, 250)
             plt.plot([counter_index, counter_index], [-2, 2], 'k-', lw=2, color='red')
             plt.ylabel('Not noisy / Noisy', fontsize=18)
@@ -65,28 +89,17 @@ def display_curves(folder_path):
 
 def main():
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python display_simulation_curves.py --folder "path"')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:s:k", ["help=", "folder="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python display_simulation_curves.py --folder "path"')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python display_simulation_curves.py --folder "path"')
-            sys.exit()
-        elif o in ("-f", "--folder"):
-            p_folder = a
+    parser = argparse.ArgumentParser(description="Display simulations curves from simulation data")
 
-        else:
-            assert False, "unhandled option"
+    parser.add_argument('--folder', type=str, help='Folder which contains simulations data for scenes')
+    parser.add_argument('--model', type=str, help='Name of the model used for simulations')
 
+    args = parser.parse_args()
 
-    display_curves(p_folder)
+    p_folder = args.folder
+    p_model = args.model
+
+    display_curves(p_folder, p_model)
 
 if __name__== "__main__":
     main()

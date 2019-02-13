@@ -7,7 +7,7 @@ Created on Fri Sep 14 21:02:42 2018
 """
 
 from __future__ import print_function
-import sys, os, getopt
+import sys, os, argparse
 import numpy as np
 import random
 import time
@@ -21,7 +21,7 @@ from modules.utils import data as dt
 
 # getting configuration information
 config_filename         = cfg.config_filename
-zone_folder             = cfg.zone_folder
+learned_folder          = cfg.learned_zones_folder
 min_max_filename        = cfg.min_max_filename_extension
 
 # define all scenes values
@@ -32,6 +32,8 @@ path                    = cfg.dataset_path
 zones                   = cfg.zones_indices
 seuil_expe_filename     = cfg.seuil_expe_filename
 
+renderer_choices        = cfg.renderer_choices
+normalization_choices   = cfg.normalization_choices
 metric_choices          = cfg.metric_choices_labels
 output_data_folder      = cfg.output_data_folder
 custom_min_max_folder   = cfg.min_max_custom_folder
@@ -140,66 +142,71 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
     train_file = open(output_train_filename, 'w')
     test_file = open(output_test_filename, 'w')
 
-    scenes = os.listdir(path)
-
-    # remove min max file from scenes folder
-    scenes = [s for s in scenes if min_max_filename not in s]
-
-    for id_scene, folder_scene in enumerate(scenes):
+    for id_scene, folder_scene in enumerate(scenes_list):
 
         # only take care of maxwell scenes
-        if folder_scene in scenes_list:
+        scene_path = os.path.join(path, folder_scene)
 
-            scene_path = os.path.join(path, folder_scene)
+        zones_indices = zones
 
-            zones_folder = []
-            # create zones list
-            for index in zones:
-                index_str = str(index)
-                if len(index_str) < 2:
-                    index_str = "0" + index_str
-                zones_folder.append("zone"+index_str)
+        # write into file
+        folder_learned_path = os.path.join(learned_folder, _filename.split('/')[1])
 
-            for id_zone, zone_folder in enumerate(zones_folder):
-                zone_path = os.path.join(scene_path, zone_folder)
+        if not os.path.exists(folder_learned_path):
+            os.makedirs(folder_learned_path)
 
-                # if custom normalization choices then we use svd values not already normalized
-                if _custom:
-                    data_filename = _metric + "_svd" + generic_output_file_svd
-                else:
-                    data_filename = _metric + "_" + _choice + generic_output_file_svd
+        file_learned_path = os.path.join(folder_learned_path, folder_scene + '.csv')
 
-                data_file_path = os.path.join(zone_path, data_filename)
+        with open(file_learned_path, 'w') as f:
+            for i in _zones:
+                f.write(str(i) + ';')
 
-                # getting number of line and read randomly lines
-                f = open(data_file_path)
-                lines = f.readlines()
+        for id_zone, index_folder in enumerate(zones_indices):
 
-                num_lines = len(lines)
+            index_str = str(index_folder)
+            if len(index_str) < 2:
+                index_str = "0" + index_str
+            current_zone_folder = "zone" + index_str
 
-                lines_indexes = np.arange(num_lines)
-                random.shuffle(lines_indexes)
+            zone_path = os.path.join(scene_path, current_zone_folder)
 
-                path_seuil = os.path.join(zone_path, seuil_expe_filename)
+            # if custom normalization choices then we use svd values not already normalized
+            if _custom:
+                data_filename = _metric + "_svd" + generic_output_file_svd
+            else:
+                data_filename = _metric + "_" + _choice + generic_output_file_svd
 
-                counter = 0
-                # check if user select current scene and zone to be part of training data set
-                for index in lines_indexes:
+            data_file_path = os.path.join(zone_path, data_filename)
 
-                    image_index = int(lines[index].split(';')[0])
-                    percent = counter / num_lines
+            # getting number of line and read randomly lines
+            f = open(data_file_path)
+            lines = f.readlines()
 
-                    if image_index % _step == 0:
-                        line = construct_new_line(path_seuil, _interval, lines[index], _choice, _each, _norm)
+            num_lines = len(lines)
 
-                        if id_zone in _zones and folder_scene in _scenes and percent <= _percent:
-                            train_file.write(line)
-                        else:
-                            test_file.write(line)
+            lines_indexes = np.arange(num_lines)
+            random.shuffle(lines_indexes)
 
-                    counter += 1
+            path_seuil = os.path.join(zone_path, seuil_expe_filename)
 
-                f.close()
+            counter = 0
+            # check if user select current scene and zone to be part of training data set
+            for index in lines_indexes:
+
+                image_index = int(lines[index].split(';')[0])
+                percent = counter / num_lines
+
+                if image_index % _step == 0:
+                    line = construct_new_line(path_seuil, _interval, lines[index], _choice, _each, _norm)
+
+                    if id_zone in _zones and folder_scene in _scenes and percent <= _percent:
+                        train_file.write(line)
+                    else:
+                        test_file.write(line)
+
+                counter += 1
+
+            f.close()
 
     train_file.close()
     test_file.close()
@@ -207,55 +214,34 @@ def generate_data_model(_filename, _interval, _choice, _metric, _scenes = scenes
 
 def main():
 
-    p_custom = False
-    p_step      = 1
-    p_renderer  = 'all'
-    p_each      = 1
+    # getting all params
+    parser = argparse.ArgumentParser(description="Generate data for model using correlation matrix information from data")
 
-    if len(sys.argv) <= 1:
-        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:i:k:s:z:p:r:c", ["help=", "output=", "interval=", "kind=", "metric=","scenes=", "zones=", "percent=", "renderer=", "step=", "each=", "custom="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --metric lab --scenes "A, B, D" --zones "1, 2, 3, 4" --percent 0.7 --renderer all --step 10 --each 1 --custom min_max_filename')
+    parser.add_argument('--output', type=str, help='output file name desired (.train and .test)')
+    parser.add_argument('--interval', type=str, help='Interval value to keep from svd', default='"0, 200"')
+    parser.add_argument('--kind', type=str, help='Kind of normalization level wished', choices=normalization_choices)
+    parser.add_argument('--metric', type=str, help='Metric data choice', choices=metric_choices)
+    parser.add_argument('--scenes', type=str, help='List of scenes to use for training data')
+    parser.add_argument('--zones', type=str, help='Zones indices to use for training data set')
+    parser.add_argument('--percent', type=float, help='Percent of data use for train and test dataset (by default 1)', default=1.0)
+    parser.add_argument('--step', type=int, help='Photo step to keep for build datasets', default=1)
+    parser.add_argument('--each', type=int, help='Each features to keep from interval', default=1)
+    parser.add_argument('--renderer', type=str, help='Renderer choice in order to limit scenes used', choices=renderer_choices, default='all')
+    parser.add_argument('--custom', type=str, help='Name of custom min max file if use of renormalization of data', default=False)
 
-            sys.exit()
-        elif o in ("-o", "--output"):
-            p_filename = a
-        elif o in ("-i", "--interval"):
-            p_interval = list(map(int, a.split(',')))
-        elif o in ("-k", "--kind"):
-            p_kind = a
-        elif o in ("-m", "--metric"):
-            p_metric = a
-        elif o in ("-s", "--scenes"):
-            p_scenes = a.split(',')
-        elif o in ("-z", "--zones"):
-            if ',' in a:
-                p_zones = list(map(int, a.split(',')))
-            else:
-                p_zones = [a.strip()]
-        elif o in ("-p", "--percent"):
-            p_percent = float(a)
-        elif o in ("-s", "--step"):
-            p_step = int(a)
-        elif o in ("-e", "--each"):
-            p_each = int(a)
-        elif o in ("-r", "--renderer"):
-            p_renderer = a
+    args = parser.parse_args()
 
-            if p_renderer not in cfg.renderer_choices:
-                assert False, "Unknown renderer choice, %s" % cfg.renderer_choices
-        elif o in ("-c", "--custom"):
-            p_custom = a
-        else:
-            assert False, "unhandled option"
+    p_filename = args.output
+    p_interval = list(map(int, args.interval.split(',')))
+    p_kind     = args.kind
+    p_metric   = args.metric
+    p_scenes   = args.scenes.split(',')
+    p_zones    = list(map(int, args.zones.split(',')))
+    p_percent  = args.percent
+    p_step     = args.step
+    p_each     = args.each
+    p_renderer = args.renderer
+    p_custom   = args.custom
 
     # list all possibles choices of renderer
     scenes_list = dt.get_renderer_scenes_names(p_renderer)

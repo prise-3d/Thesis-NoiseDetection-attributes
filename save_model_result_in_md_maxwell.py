@@ -138,7 +138,8 @@ def main():
     # reconstruct data filename
     for name in models_name:
         if name in current_model_name:
-            current_data_file_path = os.path.join('data', current_model_name.replace(name, 'data_maxwell'))
+            data_filename = current_model_name
+            current_data_file_path = os.path.join('data', data_filename)
 
     print("Current data file ")
     print(current_data_file_path)

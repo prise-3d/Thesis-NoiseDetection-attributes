@@ -7,6 +7,8 @@ threshold_map_folder            = 'threshold_map'
 models_information_folder       = 'models_info'
 saved_models_folder             = 'saved_models'
 min_max_custom_folder           = 'custom_norm'
+learned_zones_folder            = 'learned_zones'
+correlation_indices_folder      = 'corr_indices'
 
 csv_model_comparisons_filename  = "models_comparisons.csv"
 seuil_expe_filename             = 'seuilExpe'

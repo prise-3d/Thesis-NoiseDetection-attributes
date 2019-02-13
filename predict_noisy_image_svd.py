@@ -5,7 +5,7 @@ import numpy as np
 from ipfml import processing, utils
 from PIL import Image
 
-import sys, os, getopt
+import sys, os, argparse
 
 from modules.utils import config as cfg
 from modules.utils import data as dt
@@ -19,46 +19,55 @@ custom_min_max_folder = cfg.min_max_custom_folder
 
 def main():
 
-    p_custom = False
+    # getting all params
+    parser = argparse.ArgumentParser(description="Script which detects if an image is noisy or not using specific model")
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python predict_noisy_image_svd.py --image path/to/xxxx --interval "0,20" --model path/to/xxxx.joblib --metric lab --mode ["svdn", "svdne"] --custom min_max_file')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:t:m:m:o:c", ["help=", "image=", "interval=", "model=", "metric=", "mode=", "custom="])
-    except getopt.GetoptError:
-        # print help information and exit
-        print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --metric lab --mode ["svdn", "svdne"] --custom min_max_file')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python predict_noisy_image_svd_lab.py --image path/to/xxxx --interval "xx,xx" --model path/to/xxxx.joblib --metric lab --mode ["svdn", "svdne"] --custom min_max_file')
-            sys.exit()
-        elif o in ("-i", "--image"):
-            p_img_file = os.path.join(os.path.dirname(__file__), a)
-        elif o in ("-t", "--interval"):
-            p_interval = list(map(int, a.split(',')))
-        elif o in ("-m", "--model"):
-            p_model_file = os.path.join(os.path.dirname(__file__), a)
-        elif o in ("-m", "--metric"):
-            p_metric = a
+    parser.add_argument('--image', type=str, help='Image path')
+    parser.add_argument('--interval', type=str, help='Interval value to keep from svd', default='"0, 200"')
+    parser.add_argument('--model', type=str, help='.joblib or .json file (sklearn or keras model)')
+    parser.add_argument('--mode', type=str, help='Kind of normalization level wished', choices=normalization_choices)
+    parser.add_argument('--metric', type=str, help='Metric data choice', choices=metric_choices)
+    parser.add_argument('--custom', type=str, help='Name of custom min max file if use of renormalization of data', default=False)
 
-            if not p_metric in metric_choices:
-                assert False, "Unknow metric choice"
-        elif o in ("-o", "--mode"):
-            p_mode = a
+    args = parser.parse_args()
 
-            if not p_mode in normalization_choices:
-                assert False, "Mode of normalization not recognized"
-        elif o in ("-c", "--custom"):
-            p_custom = a
+    p_img_file   = args.image
+    p_model_file = args.model
+    p_interval   = list(map(int, args.interval.split(',')))
+    p_mode       = args.mode
+    p_metric     = args.metric
+    p_custom     = args.custom
 
-        else:
-            assert False, "unhandled option"
+    if '.joblib' in p_model_file:
+        kind_model = 'sklearn'
 
-    # load of model file
-    model = joblib.load(p_model_file)
+    if '.json' in p_model_file:
+        kind_model = 'keras'
+
+    if 'corr' in p_model_file:
+        corr_model = True
+
+        indices_corr_path = os.path.join(cfg.correlation_indices_folder, p_model_file.split('.')[0] + '.csv')
+
+        with open(indices_corr_path, 'r') as f:
+            data_corr_indices = [int(x) for x in f.readline().split(';') if x != '']
+    else:
+        corr_model = False
+
+
+    if kind_model == 'sklearn':
+        # load of model file
+        model = joblib.load(p_model_file)
+
+    if kind_model == 'keras':
+        with open(p_model_file, 'r') as f:
+            json_model = json.load(f)
+            model = model_from_json(json_model)
+            model.load_weights(p_model_file.replace('.json', '.h5'))
+
+            model.compile(loss='binary_crossentropy',
+                        optimizer='adam',
+                        metrics=['accuracy'])
 
     # load image
     img = Image.open(p_img_file)
@@ -71,7 +80,10 @@ def main():
     # check if custom min max file is used
     if p_custom:
 
-        test_data = data[begin:end]
+        if corr_model:
+            test_data = data[data_corr_indices]
+        else:
+            test_data = data[begin:end]
 
         if p_mode == 'svdne':
 
@@ -110,11 +122,19 @@ def main():
         else:
             l_values = data
 
-        test_data = l_values[begin:end]
+        if corr_model:
+            test_data = data[data_corr_indices]
+        else:
+            test_data = data[begin:end]
 
 
     # get prediction of model
-    prediction = model.predict([test_data])[0]
+    if kind_model == 'sklearn':
+        prediction = model.predict([test_data])[0]
+
+    if kind_model == 'keras':
+        test_data = test_data.reshape(len(test_data), 1)
+        prediction = model.predict_classes([test_data])[0]
 
     # output expected from others scripts
     print(prediction)

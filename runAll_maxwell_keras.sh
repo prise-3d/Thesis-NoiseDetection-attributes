@@ -31,7 +31,7 @@ for metric in {"sub_blocks_stats","sub_blocks_stats_reduced","sub_blocks_area","
         for mode in {"svd","svdn","svdne"}; do
 
             end_index=${metrics_size[${metric}]}
-            FILENAME="data/data_maxwell_N${end_index}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
+            FILENAME="data/deep_keras_N${end_index}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
             MODEL_NAME="deep_keras_N${end_index}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
 
             echo $FILENAME

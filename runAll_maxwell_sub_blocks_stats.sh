@@ -30,7 +30,7 @@ for nb_zones in {4,6,8,10,12}; do
     for mode in {"svd","svdn","svdne"}; do
         for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
 
-            FILENAME="data/data_maxwell_N${number}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
+            FILENAME="data/${model}_N${number}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
             MODEL_NAME="${model}_N${number}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
 
             echo $FILENAME

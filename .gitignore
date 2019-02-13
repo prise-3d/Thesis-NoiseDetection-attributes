@@ -4,6 +4,9 @@ saved_models/*
 threshold_map/*
 models_info/*
 custom_norm/*
+learned_zones/*
+corr_indices/*
+.ipynb_checkpoints
 
 # simulate_models.csv
 

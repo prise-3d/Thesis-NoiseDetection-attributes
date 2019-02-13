@@ -96,7 +96,7 @@ def main():
         y_noisy_pred = model.predict_classes(x_noisy_dataset)
         y_not_noisy_pred = model.predict_classes(x_not_noisy_dataset)
 
-    if kind_model == 'sklean':
+    if kind_model == 'sklearn':
         y_pred = model.predict(x_dataset)
         y_noisy_pred = model.predict(x_noisy_dataset)
         y_not_noisy_pred = model.predict(x_not_noisy_dataset)
