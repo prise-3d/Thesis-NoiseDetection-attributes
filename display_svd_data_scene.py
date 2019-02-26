@@ -40,7 +40,8 @@ seuil_expe_filename = cfg.seuil_expe_filename
 
 metric_choices      = cfg.metric_choices_labels
 
-max_nb_bits = 8
+max_nb_bits         = 8
+display_error       = False
 
 error_data_choices  = ['mae', 'mse', 'ssim', 'psnr']
 
@@ -224,16 +225,19 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             ax2 = plt.subplot2grid(gridsize, (2, 0), colspan=2)
 
 
-            ax1.set_title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + ']' + p_metric + ' metric, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=20)
+            ax1.set_title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_metric + ' metric, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=20)
             ax1.set_ylabel('Image samples or time (minutes) generation', fontsize=14)
             ax1.set_xlabel('Vector features', fontsize=16)
 
             for id, data in enumerate(images_data):
 
-                p_label = p_scene + '_' + str(images_indices[id]) + " | " + p_error + ": " + str(error_data[id])
+                if display_error:
+                    p_label = p_scene + '_' + str(images_indices[id]) + " | " + p_error + ": " + str(error_data[id])
+                else:
+                    p_label = p_scene + '_' + str(images_indices[id])
 
                 if images_indices[id] == threshold_image_zone:
-                    ax1.plot(data, label=p_label, lw=4, color='red')
+                    ax1.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
                 else:
                     ax1.plot(data, label=p_label)
 
@@ -249,7 +253,8 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             ax2.set_xticklabels(list(map(int, images_indices)))
             ax2.plot(error_data)
 
-            plt.show()
+            plot_name = p_scene + '_' + p_metric + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
+            plt.savefig(plot_name)
 
 def main():
 
