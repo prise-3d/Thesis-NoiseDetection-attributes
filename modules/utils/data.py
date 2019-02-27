@@ -173,7 +173,33 @@ def get_svd_data(data_type, block):
         # convert into numpy array after computing all stats
         data = np.asarray(data)
 
+    if data_type == 'mscn_var_4':
+
+        data = _get_mscn_variance(block, (100, 100))
+
+    if data_type == 'mscn_var_16':
+
+        data = _get_mscn_variance(block, (50, 50))
+
+    if data_type == 'mscn_var_64':
+
+        data = _get_mscn_variance(block, (25, 25))
+
     return data
+
+def _get_mscn_variance(block, sub_block_size=(50, 50)):
+
+    blocks = processing.divide_in_blocks(block, sub_block_size)
+
+    data = []
+
+    for block in blocks:
+        mscn_coefficients = processing.get_mscn_coefficients(block)
+        flat_coeff = mscn_coefficients.flatten()
+        data.append(np.var(flat_coeff))
+
+    return np.sort(data)
+
 
 def get_renderer_scenes_indices(renderer_name):
 

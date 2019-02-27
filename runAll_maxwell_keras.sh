@@ -23,7 +23,8 @@ end_index=24
 # selection of four scenes (only maxwell)
 scenes="A, D, G, H"
 
-metrics_size=( ["sub_blocks_stats"]=24 ["sub_blocks_stats_reduced"]=20 ["sub_blocks_area"]=16 ["sub_blocks_area_normed"]=20)
+declare -A metrics_size
+metrics_size=( ["sub_blocks_stats"]="24" ["sub_blocks_stats_reduced"]="20" ["sub_blocks_area"]="16" ["sub_blocks_area_normed"]="20")
 
 for metric in {"sub_blocks_stats","sub_blocks_stats_reduced","sub_blocks_area","sub_blocks_area_normed"}; do
     for nb_zones in {4,6,8,10,12}; do
@@ -31,6 +32,7 @@ for metric in {"sub_blocks_stats","sub_blocks_stats_reduced","sub_blocks_area","
         for mode in {"svd","svdn","svdne"}; do
 
             end_index=${metrics_size[${metric}]}
+
             FILENAME="data/deep_keras_N${end_index}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
             MODEL_NAME="deep_keras_N${end_index}_B${start_index}_E${end_index}_nb_zones_${nb_zones}_${metric}_${mode}"
 
@@ -41,10 +43,11 @@ for metric in {"sub_blocks_stats","sub_blocks_stats_reduced","sub_blocks_area","
 
                 echo "${MODEL_NAME} results already generated..."
             else
-                python generate_data_model_random.py --output ${FILENAME} --interval "${start_index},${end_index}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
-                python deep_network_keras_svd.py --data ${FILENAME} --output ${MODEL_NAME} --size ${end_index}
+                echo "test"
+                #python generate_data_model_random.py --output ${FILENAME} --interval "${start_index},${end_index}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
+                #python deep_network_keras_svd.py --data ${FILENAME} --output ${MODEL_NAME} --size ${end_index}
 
-                python save_model_result_in_md_maxwell.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --metric ${metric}
+                #python save_model_result_in_md_maxwell.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --metric ${metric}
             fi
         done
     done
