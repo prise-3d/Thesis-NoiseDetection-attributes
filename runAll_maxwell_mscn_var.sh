@@ -23,12 +23,12 @@ end_index=4
 scenes="A, D, G, H"
 
 declare -A metrics_size
-metrics_size=( ["mscn_var_4"]=4 ["mscn_var_16"]=16 ["mscn_var_64"]=64)
+metrics_size=( ["mscn_var_4"]=4 ["mscn_var_16"]=16 ["mscn_var_64"]=64 ["mscn_var_16_max"]=4 ["mscn_var_64_max"]=16)
 
 for nb_zones in {4,6,8,10,12}; do
 
     for mode in {"svd","svdn","svdne"}; do
-        for metric in {"mscn_var_4","mscn_var_16","mscn_var_64"}; do
+        for metric in {"mscn_var_4","mscn_var_16","mscn_var_64","mscn_var_16_max","mscn_var_64_max"}; do
             for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
 
                 end_index=${metrics_size[${metric}]}

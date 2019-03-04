@@ -5,7 +5,9 @@ import numpy as np
 from ipfml import processing, utils
 from PIL import Image
 
-import sys, os, argparse
+import sys, os, argparse, json
+
+from keras.models import model_from_json
 
 from modules.utils import config as cfg
 from modules.utils import data as dt
@@ -47,7 +49,7 @@ def main():
     if 'corr' in p_model_file:
         corr_model = True
 
-        indices_corr_path = os.path.join(cfg.correlation_indices_folder, p_model_file.split('.')[0] + '.csv')
+        indices_corr_path = os.path.join(cfg.correlation_indices_folder, p_model_file.split('/')[1].replace('.json', '') + '.csv')
 
         with open(indices_corr_path, 'r') as f:
             data_corr_indices = [int(x) for x in f.readline().split(';') if x != '']
@@ -133,8 +135,8 @@ def main():
         prediction = model.predict([test_data])[0]
 
     if kind_model == 'keras':
-        test_data = test_data.reshape(len(test_data), 1)
-        prediction = model.predict_classes([test_data])[0]
+        test_data = np.asarray(test_data).reshape(1, len(test_data), 1)
+        prediction = model.predict_classes([test_data])[0][0]
 
     # output expected from others scripts
     print(prediction)

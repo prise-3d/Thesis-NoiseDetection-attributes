@@ -185,6 +185,22 @@ def get_svd_data(data_type, block):
 
         data = _get_mscn_variance(block, (25, 25))
 
+    if data_type == 'mscn_var_16_max':
+
+        data = _get_mscn_variance(block, (50, 50))
+        data = np.asarray(data)
+        size = int(len(data) / 4)
+        indices = data.argsort()[-size:][::-1]
+        data = data[indices]
+
+    if data_type == 'mscn_var_64_max':
+
+        data = _get_mscn_variance(block, (25, 25))
+        data = np.asarray(data)
+        size = int(len(data) / 4)
+        indices = data.argsort()[-size:][::-1]
+        data = data[indices]
+
     return data
 
 def _get_mscn_variance(block, sub_block_size=(50, 50)):
