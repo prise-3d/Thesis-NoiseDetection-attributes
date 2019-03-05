@@ -56,6 +56,7 @@ def construct_new_line(path_seuil, indices, line, choice, norm):
     line_data = np.array(line.split(';'))
     seuil = line_data[0]
     metrics = line_data[indices]
+    metrics = metrics.astype('float32')
 
     # TODO : check if it's always necessary to do that (loss of information for svd)
     if norm:
@@ -368,8 +369,11 @@ def main():
             os.makedirs(custom_min_max_folder)
 
         min_max_folder_path = os.path.join(os.path.dirname(__file__), custom_min_max_folder)
-        min_max_filename_path = os.path.join(min_max_folder_path, p_custom)
 
+        min_max_current_filename = p_filename.replace(cfg.output_data_folder + '/', '').replace('deep_keras_', '') + min_max_filename
+        min_max_filename_path = os.path.join(min_max_folder_path, min_max_current_filename)
+
+        print(min_max_filename_path)
         with open(min_max_filename_path, 'w') as f:
             f.write(str(min_value_interval) + '\n')
             f.write(str(max_value_interval) + '\n')
