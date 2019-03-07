@@ -219,6 +219,7 @@ def main():
 
     # Save results obtained from model
     y_test_prediction = model.predict(x_dataset_test)
+    print("Metrics : ", model.metrics_names)
     print("Prediction : ", score)
     print("ROC AUC : ", roc_auc_score(y_dataset_test, y_test_prediction))
 

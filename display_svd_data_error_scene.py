@@ -43,8 +43,23 @@ metric_choices      = cfg.metric_choices_labels
 max_nb_bits         = 8
 display_error       = False
 
+error_data_choices  = ['mae', 'mse', 'ssim', 'psnr']
 
-def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_ylim):
+
+def get_error_distance(p_error, y_true, y_test):
+
+    noise_method = None
+    function_name = p_error
+
+    try:
+        error_method = getattr(fr_iqa, function_name)
+    except AttributeError:
+        raise NotImplementedError("Error `{}` not implement `{}`".format(fr_iqa.__name__, function_name))
+
+    return error_method(y_true, y_test)
+
+
+def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim):
     """
     @brief Method which gives information about svd curves from zone of picture
     @param p_scene, scene expected to show svd values
@@ -53,6 +68,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
     @param p_metric, metric computed to show
     @param p_mode, normalization's mode
     @param p_norm, normalization or not of selected svd data
+    @param p_error, error metric used to display
     @param p_ylim, ylim choice to better display of data
     @return nothing
     """
@@ -169,6 +185,9 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
             # all indices of picture to plot
             print(images_indices)
 
+            previous_data = []
+            error_data = [0.]
+
             for id, data in enumerate(svd_data):
 
                 current_data = data
@@ -184,30 +203,55 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
                 images_data.append(current_data)
 
+                # use of whole image data for computation of ssim or psnr
+                if p_error == 'ssim' or p_error == 'psnr':
+                    image_path = file_path.format(str(current_id))
+                    current_data = np.asarray(Image.open(image_path))
+
+                if len(previous_data) > 0:
+
+                    current_error = get_error_distance(p_error, previous_data, current_data)
+                    error_data.append(current_error)
+
+                if len(previous_data) == 0:
+                    previous_data = current_data
 
             # display all data using matplotlib (configure plt)
+            gridsize = (3, 2)
+
+            # fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(30, 22))
             fig = plt.figure(figsize=(30, 22))
+            ax1 = plt.subplot2grid(gridsize, (0, 0), colspan=2, rowspan=2)
+            ax2 = plt.subplot2grid(gridsize, (2, 0), colspan=2)
 
-            plt.rc('xtick', labelsize=22)
-            plt.rc('ytick', labelsize=22)
 
-            plt.title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_metric + ' metric, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=24)
-            plt.ylabel('Component values', fontsize=24)
-            plt.xlabel('Vector features', fontsize=24)
+            ax1.set_title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_metric + ' metric, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=20)
+            ax1.set_ylabel('Image samples or time (minutes) generation', fontsize=14)
+            ax1.set_xlabel('Vector features', fontsize=16)
 
             for id, data in enumerate(images_data):
 
-                p_label = p_scene + '_' + str(images_indices[id])
+                if display_error:
+                    p_label = p_scene + '_' + str(images_indices[id]) + " | " + p_error + ": " + str(error_data[id])
+                else:
+                    p_label = p_scene + '_' + str(images_indices[id])
 
                 if images_indices[id] == threshold_image_zone:
-                    plt.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
+                    ax1.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
                 else:
-                    plt.plot(data, label=p_label)
+                    ax1.plot(data, label=p_label)
 
-            plt.legend(bbox_to_anchor=(0.65, 0.98), loc=2, borderaxespad=0.2, fontsize=22)
+            ax1.legend(bbox_to_anchor=(0.7, 1), loc=2, borderaxespad=0.2, fontsize=14)
 
             start_ylim, end_ylim = p_ylim
-            plt.ylim(start_ylim, end_ylim)
+            ax1.set_ylim(start_ylim, end_ylim)
+
+            ax2.set_title(p_error + " information for whole step images")
+            ax2.set_ylabel(p_error + ' error')
+            ax2.set_xlabel('Number of samples per pixels or times')
+            ax2.set_xticks(range(len(images_indices)))
+            ax2.set_xticklabels(list(map(int, images_indices)))
+            ax2.plot(error_data)
 
             plot_name = p_scene + '_' + p_metric + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
             plt.savefig(plot_name)
@@ -221,17 +265,17 @@ def main():
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
-        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --ylim "0, 0.1"')
+        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
         sys.exit(2)
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hs:i:i:z:l:m:s:n:e:y", ["help=", "scene=", "interval=", "indices=", "metric=", "mode=", "step=", "norm=", "error=", "ylim="])
     except getopt.GetoptError:
         # print help information and exit:
-        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --ylim "0, 0.1"')
+        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
         sys.exit(2)
     for o, a in opts:
         if o == "-h":
-            print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --ylim "0, 0.1"')
+            print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
             sys.exit()
         elif o in ("-s", "--scene"):
             p_scene = a
@@ -264,13 +308,16 @@ def main():
         elif o in ("-n", "--norm"):
             p_norm = int(a)
 
+        elif o in ("-e", "--error"):
+            p_error = a
+
         elif o in ("-y", "--ylim"):
             p_ylim = list(map(float, a.split(',')))
 
         else:
             assert False, "unhandled option"
 
-    display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_ylim)
+    display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim)
 
 if __name__== "__main__":
     main()

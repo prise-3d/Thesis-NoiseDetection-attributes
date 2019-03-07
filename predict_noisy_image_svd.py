@@ -49,7 +49,7 @@ def main():
     if 'corr' in p_model_file:
         corr_model = True
 
-        indices_corr_path = os.path.join(cfg.correlation_indices_folder, p_model_file.split('/')[1].replace('.json', '') + '.csv')
+        indices_corr_path = os.path.join(cfg.correlation_indices_folder, p_model_file.split('/')[1].replace('.json', '').replace('.joblib', '') + '.csv')
 
         with open(indices_corr_path, 'r') as f:
             data_corr_indices = [int(x) for x in f.readline().split(';') if x != '']

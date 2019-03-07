@@ -25,7 +25,7 @@ def get_svd_data(data_type, block):
         block.save(block_file_path)
         data = processing.get_LAB_L_SVD_s(Image.open(block_file_path))
 
-    if data_type == 'mscn_revisited':
+    if data_type == 'mscn':
 
         img_mscn_revisited = processing.rgb_to_mscn(block)
 
@@ -38,7 +38,7 @@ def get_svd_data(data_type, block):
         # extract from temp image
         data = metrics.get_SVD_s(img_block)
 
-    if data_type == 'mscn':
+    """if data_type == 'mscn':
 
         img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
         img_mscn = processing.calculate_mscn_coefficients(img_gray, 7)
@@ -47,6 +47,7 @@ def get_svd_data(data_type, block):
         img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
 
         data = metrics.get_SVD_s(img_mscn_gray)
+    """
 
     if data_type == 'low_bits_6':
 
