@@ -40,7 +40,7 @@ for label in {"0","1"}; do
 
                         echo "${MODEL_NAME} results already generated..."
                     else
-                        python generate_data_model_corr_random.py --output ${FILENAME} --n ${size} --highest ${highest} --label ${label} --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
+                        python generate_data_model_corr_random.py --output ${FILENAME} --n ${size} --highest ${highest} --label ${label} --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1 --custom 1
                         python deep_network_keras_svd.py --data ${FILENAME} --output ${MODEL_NAME} --size ${size}
 
                         # use of interval but it is not really an interval..

@@ -21,17 +21,14 @@ def display_curves(folder_path, model_name):
     """
 
     for name in models_name:
-        print(name in model_name)
         if name in model_name:
             data_filename = model_name
             learned_zones_folder_path = os.path.join(learned_zones_folder, data_filename)
 
-    print(learned_zones_folder_path)
     data_files = [x for x in os.listdir(folder_path) if '.png' not in x]
 
     scene_names = [f.split('_')[3] for f in data_files]
 
-    print(scene_names)
     for id, f in enumerate(data_files):
 
         print(scene_names[id])
@@ -102,6 +99,8 @@ def main():
     p_model = args.model
 
     display_curves(p_folder, p_model)
+
+    print(p_folder)
 
 if __name__== "__main__":
     main()
