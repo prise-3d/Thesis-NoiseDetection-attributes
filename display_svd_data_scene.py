@@ -13,6 +13,7 @@ import numpy as np
 import random
 import time
 import json
+import math
 
 from PIL import Image
 from ipfml import processing, metrics, utils
@@ -20,9 +21,10 @@ import ipfml.iqa.fr as fr_iqa
 
 from skimage import color
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-from modules.utils.data import get_svd_data
 
+from modules.utils.data import get_svd_data
 from modules.utils import config as cfg
 
 # getting configuration information
@@ -140,6 +142,8 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
                 if p_norm:
                     svd_values = svd_values[begin_data:end_data]
 
+                #svd_values = np.asarray([math.log(x) for x in svd_values])
+
                 # update min max values
                 min_value = svd_values.min()
                 max_value = svd_values.max()
@@ -186,31 +190,35 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
 
             # display all data using matplotlib (configure plt)
-            fig = plt.figure(figsize=(30, 22))
+            #fig = plt.figure(figsize=(30, 22))
+            fig, ax = plt.subplots(figsize=(30, 22))
+            ax.set_facecolor('#F9F9F9')
+            #fig.patch.set_facecolor('#F9F9F9')
 
-            plt.rc('xtick', labelsize=22)
-            plt.rc('ytick', labelsize=22)
+            ax.tick_params(labelsize=22)
+            #plt.rc('xtick', labelsize=22)
+            #plt.rc('ytick', labelsize=22)
 
-            plt.title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_metric + ' metric, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=24)
-            plt.ylabel('Component values', fontsize=24)
-            plt.xlabel('Vector features', fontsize=24)
+            #plt.title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_metric + ' metric, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=24)
+            ax.set_ylabel('Component values', fontsize=30)
+            ax.set_xlabel('Vector features', fontsize=30)
 
             for id, data in enumerate(images_data):
 
                 p_label = p_scene + '_' + str(images_indices[id])
 
                 if images_indices[id] == threshold_image_zone:
-                    plt.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
+                    ax.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
                 else:
-                    plt.plot(data, label=p_label)
+                    ax.plot(data, label=p_label)
 
-            plt.legend(bbox_to_anchor=(0.65, 0.98), loc=2, borderaxespad=0.2, fontsize=22)
+            plt.legend(bbox_to_anchor=(0.65, 0.98), loc=2, borderaxespad=0.2, fontsize=24)
 
             start_ylim, end_ylim = p_ylim
-            plt.ylim(start_ylim, end_ylim)
+            #ax.set_ylim(start_ylim, end_ylim)
 
             plot_name = p_scene + '_' + p_metric + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
-            plt.savefig(plot_name)
+            plt.savefig(plot_name, facecolor=ax.get_facecolor())
 
 def main():
 

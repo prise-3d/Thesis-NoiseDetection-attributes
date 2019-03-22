@@ -73,8 +73,12 @@ def display_curves(folder_path, model_name):
 
             # draw vertical line from (70,100) to (70, 250)
             plt.plot([counter_index, counter_index], [-2, 2], 'k-', lw=2, color='red')
-            plt.ylabel('Not noisy / Noisy', fontsize=18)
-            plt.xlabel('Time in minutes / Samples per pixel', fontsize=16)
+
+            if index % 4 == 0:
+                plt.ylabel('Not noisy / Noisy', fontsize=20)
+
+            if index >= 12:
+                plt.xlabel('Samples per pixel', fontsize=20)
 
             x_labels = [id * step_value + start_index for id, val in enumerate(row[5:]) if id % label_freq == 0]
 
