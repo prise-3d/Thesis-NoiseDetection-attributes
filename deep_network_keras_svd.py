@@ -4,7 +4,6 @@ from keras.layers import Conv1D, MaxPooling1D
 from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras import backend as K
-import matplotlib.pyplot as plt
 
 from sklearn.utils import shuffle
 from sklearn.metrics import roc_auc_score
