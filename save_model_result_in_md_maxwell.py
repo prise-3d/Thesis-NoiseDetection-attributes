@@ -2,7 +2,15 @@ from sklearn.utils import shuffle
 from sklearn.externals import joblib
 from sklearn.metrics import accuracy_score, f1_score, recall_score, roc_auc_score
 from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
+
+from keras.models import Sequential
+from keras.layers import Conv1D, MaxPooling1D
+from keras.layers import Activation, Dropout, Flatten, Dense, BatchNormalization
+from keras.wrappers.scikit_learn import KerasClassifier
+from keras import backend as K
+from keras.models import model_from_json
 
 import numpy as np
 import pandas as pd
@@ -13,6 +21,7 @@ from PIL import Image
 import sys, os, getopt
 import subprocess
 import time
+import json
 
 from modules.utils import config as cfg
 
@@ -29,6 +38,9 @@ current_dirpath = os.getcwd()
 
 
 def main():
+
+    kind_model = 'keras'
+    model_ext = ''
 
     if len(sys.argv) <= 1:
         print('Run with default parameters...')
@@ -58,9 +70,7 @@ def main():
         else:
             assert False, "unhandled option"
 
-
     # call model and get global result in scenes
-
     begin, end = p_interval
 
     bash_cmd = "bash testModelByScene_maxwell.sh '" + str(begin) + "' '" + str(end) + "' '" + p_model_file + "' '" + p_mode + "' '" + p_metric + "'"
@@ -79,7 +89,16 @@ def main():
         os.makedirs(markdowns_folder)
 
     # get model name to construct model
-    md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace('.joblib', '.md'))
+
+    if '.joblib' in p_model_file:
+        kind_model = 'sklearn'
+        model_ext = '.joblib'
+
+    if '.json' in p_model_file:
+        kind_model = 'keras'
+        model_ext = '.json'
+
+    md_model_path = os.path.join(markdowns_folder, p_model_file.split('/')[-1].replace(model_ext, '.md'))
 
     with open(md_model_path, 'w') as f:
         f.write(output.decode("utf-8"))
@@ -109,7 +128,7 @@ def main():
         f.close()
 
     # Keep model information to compare
-    current_model_name = p_model_file.split('/')[-1].replace('.joblib', '')
+    current_model_name = p_model_file.split('/')[-1].replace(model_ext, '')
 
     # Prepare writing in .csv file
     output_final_file_path = os.path.join(markdowns_folder, final_csv_model_comparisons)
@@ -119,8 +138,11 @@ def main():
     # reconstruct data filename
     for name in models_name:
         if name in current_model_name:
-            current_data_file_path = os.path.join('data', current_model_name.replace(name, 'data_maxwell'))
+            data_filename = current_model_name
+            current_data_file_path = os.path.join('data', data_filename)
 
+    print("Current data file ")
+    print(current_data_file_path)
     model_scores = []
 
     ########################
@@ -163,13 +185,35 @@ def main():
     # 2. Getting model
     #######################
 
-    model = joblib.load(p_model_file)
+    if kind_model == 'keras':
+        with open(p_model_file, 'r') as f:
+            json_model = json.load(f)
+            model = model_from_json(json_model)
+            model.load_weights(p_model_file.replace('.json', '.h5'))
+
+            model.compile(loss='binary_crossentropy',
+                        optimizer='adam',
+                        metrics=['accuracy'])
+
+        # reshape all input data
+        x_dataset_train = np.array(x_dataset_train).reshape(len(x_dataset_train), end, 1)
+        x_dataset_test = np.array(x_dataset_test).reshape(len(x_dataset_test), end, 1)
+
+
+    if kind_model == 'sklearn':
+        model = joblib.load(p_model_file)
 
     #######################
     # 3. Fit model : use of cross validation to fit model
     #######################
-    model.fit(x_dataset_train, y_dataset_train)
-    val_scores = cross_val_score(model, x_dataset_train, y_dataset_train, cv=5)
+
+    if kind_model == 'keras':
+        model.fit(x_dataset_train, y_dataset_train, validation_split=0.20, epochs=cfg.keras_epochs, batch_size=cfg.keras_batch)
+
+    if kind_model == 'sklearn':
+        model.fit(x_dataset_train, y_dataset_train)
+
+        train_accuracy = cross_val_score(model, x_dataset_train, y_dataset_train, cv=5)
 
     ######################
     # 4. Test : Validation and test dataset from .test dataset
@@ -187,13 +231,22 @@ def main():
 
     X_test, X_val, y_test, y_val = train_test_split(x_dataset_test, y_dataset_test, test_size=0.5, random_state=1)
 
-    y_test_model = model.predict(X_test)
-    y_val_model = model.predict(X_val)
+    if kind_model == 'keras':
+        y_test_model = model.predict_classes(X_test)
+        y_val_model = model.predict_classes(X_val)
+
+        y_train_model = model.predict_classes(x_dataset_train)
+
+        train_accuracy = accuracy_score(y_dataset_train, y_train_model)
+
+    if kind_model == 'sklearn':
+        y_test_model = model.predict(X_test)
+        y_val_model = model.predict(X_val)
+
+        y_train_model = model.predict(x_dataset_train)
 
     val_accuracy = accuracy_score(y_val, y_val_model)
     test_accuracy = accuracy_score(y_test, y_test_model)
-
-    y_train_model = model.predict(x_dataset_train)
 
     train_f1 = f1_score(y_dataset_train, y_train_model)
     train_recall = recall_score(y_dataset_train, y_train_model)
@@ -207,11 +260,18 @@ def main():
     test_recall = recall_score(y_test, y_test_model)
     test_roc_auc = roc_auc_score(y_test, y_test_model)
 
-    # stats of all dataset
-    all_x_data = pd.concat([x_dataset_train, X_test, X_val])
-    all_y_data = pd.concat([y_dataset_train, y_test, y_val])
+    if kind_model == 'keras':
+        # stats of all dataset
+        all_x_data = np.concatenate([x_dataset_train, X_test, X_val])
+        all_y_data = np.concatenate([y_dataset_train, y_test, y_val])
+        all_y_model = model.predict_classes(all_x_data)
 
-    all_y_model = model.predict(all_x_data)
+    if kind_model == 'sklearn':
+        # stats of all dataset
+        all_x_data = pd.concat([x_dataset_train, X_test, X_val])
+        all_y_data = pd.concat([y_dataset_train, y_test, y_val])
+        all_y_model = model.predict(all_x_data)
+
     all_accuracy = accuracy_score(all_y_data, all_y_model)
     all_f1_score = f1_score(all_y_data, all_y_model)
     all_recall_score = recall_score(all_y_data, all_y_model)
@@ -229,7 +289,7 @@ def main():
     model_scores.append(test_set_size / total_samples)
 
     # add of scores
-    model_scores.append(val_scores.mean())
+    model_scores.append(train_accuracy)
     model_scores.append(val_accuracy)
     model_scores.append(test_accuracy)
     model_scores.append(all_accuracy)

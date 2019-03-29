@@ -7,13 +7,15 @@ threshold_map_folder            = 'threshold_map'
 models_information_folder       = 'models_info'
 saved_models_folder             = 'saved_models'
 min_max_custom_folder           = 'custom_norm'
+learned_zones_folder            = 'learned_zones'
+correlation_indices_folder      = 'corr_indices'
 
 csv_model_comparisons_filename  = "models_comparisons.csv"
 seuil_expe_filename             = 'seuilExpe'
 min_max_filename_extension      = "_min_max_values"
 config_filename                 = "config"
 
-models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2"]
+models_names_list               = ["svm_model","ensemble_model","ensemble_model_v2","deep_keras"]
 
 # define all scenes values
 renderer_choices                = ['all', 'maxwell', 'igloo', 'cycle']
@@ -33,4 +35,7 @@ cycle_scenes_indices            = ['E', 'I']
 normalization_choices           = ['svd', 'svdn', 'svdne']
 zones_indices                   = np.arange(16)
 
-metric_choices_labels           = ['lab', 'mscn_revisited', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2', 'sub_blocks_stats', 'sub_blocks_area', 'sub_blocks_stats_reduced']
+metric_choices_labels           = ['lab', 'mscn', 'low_bits_2', 'low_bits_3', 'low_bits_4', 'low_bits_5', 'low_bits_6','low_bits_4_shifted_2', 'sub_blocks_stats', 'sub_blocks_area', 'sub_blocks_stats_reduced', 'sub_blocks_area_normed', 'mscn_var_4', 'mscn_var_16', 'mscn_var_64', 'mscn_var_16_max', 'mscn_var_64_max']
+
+keras_epochs                    = 500
+keras_batch                     = 32

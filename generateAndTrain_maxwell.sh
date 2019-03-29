@@ -44,7 +44,7 @@ for counter in {0..4}; do
         for mode in {"svd","svdn","svdne"}; do
             for model in {"svm_model","ensemble_model","ensemble_model_v2"}; do
 
-                FILENAME="data/data_maxwell_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
+                FILENAME="data/${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
                 MODEL_NAME="${model}_N${size}_B${start}_E${end}_nb_zones_${nb_zones}_${metric}_${mode}"
 
                 echo $FILENAME
