@@ -3,6 +3,7 @@ from modules.utils.config import *
 
 from PIL import Image
 from skimage import color
+from sklearn.decomposition import FastICA
 
 import numpy as np
 
@@ -201,6 +202,23 @@ def get_svd_data(data_type, block):
         size = int(len(data) / 4)
         indices = data.argsort()[-size:][::-1]
         data = data[indices]
+
+    if data_type == 'ica_diff':
+        current_image = metrics.get_LAB_L(block)
+
+        ica = FastICA(n_components=50)
+        ica.fit(current_image)
+
+        image_ica = ica.fit_transform(current_image)
+        image_restored = ica.inverse_transform(image_ica)
+
+        final_image = utils.normalize_2D_arr(image_restored)
+        final_image = np.array(final_image * 255, 'uint8')
+
+        sv_values = utils.normalize_arr(metrics.get_SVD_s(current_image))
+        ica_sv_values = utils.normalize_arr(metrics.get_SVD_s(final_image))
+
+        data = abs(np.arrat(sv_values) - np.array(ica_sv_values))
 
     return data
 
