@@ -218,7 +218,7 @@ def get_svd_data(data_type, block):
         sv_values = utils.normalize_arr(metrics.get_SVD_s(current_image))
         ica_sv_values = utils.normalize_arr(metrics.get_SVD_s(final_image))
 
-        data = abs(np.arrat(sv_values) - np.array(ica_sv_values))
+        data = abs(np.array(sv_values) - np.array(ica_sv_values))
 
     return data
 
