@@ -4,6 +4,7 @@ from modules.utils.config import *
 from PIL import Image
 from skimage import color
 from sklearn.decomposition import FastICA
+from sklearn.decomposition import TruncatedSVD
 
 import numpy as np
 
@@ -219,6 +220,19 @@ def get_svd_data(data_type, block):
         ica_sv_values = utils.normalize_arr(metrics.get_SVD_s(final_image))
 
         data = abs(np.array(sv_values) - np.array(ica_sv_values))
+
+    if data_type == 'svd_trunc_diff':
+
+        current_image = metrics.get_LAB_L(block)
+
+        svd = TruncatedSVD(n_components=30, n_iter=100, random_state=42)
+        transformed_image = svd.fit_transform(current_image)
+        restored_image = svd.inverse_transform(transformed_image)
+
+        reduced_image = (current_image - restored_image)
+
+        U, s, V = metrics.get_SVD(reduced_image)
+        data = s
 
     return data
 
