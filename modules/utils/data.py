@@ -6,6 +6,7 @@ from skimage import color
 from sklearn.decomposition import FastICA
 from sklearn.decomposition import IncrementalPCA
 from sklearn.decomposition import TruncatedSVD
+from numpy.linalg import svd as lin_svd
 
 import numpy as np
 
@@ -247,6 +248,24 @@ def get_svd_data(data_type, block):
 
         U, s, V = metrics.get_SVD(reduced_image)
         data = s
+
+    if data_type == 'svd_reconstruct':
+
+        reconstructed_interval = (90, 200)
+        begin, end = reconstructed_interval
+
+        lab_img = metrics.get_LAB_L(block)
+        lab_img = np.array(lab_img, 'uint8')
+
+        U, s, V = lin_svd(lab_img, full_matrices=True)
+
+        smat = np.zeros((end-begin, end-begin), dtype=complex)
+        smat[:, :] = np.diag(s[begin:end])
+        output_img = np.dot(U[:, begin:end],  np.dot(smat, V[begin:end, :]))
+
+        output_img = np.array(output_img, 'uint8')
+
+        data = metrics.get_SVD_s(output_img)
 
     return data
 
