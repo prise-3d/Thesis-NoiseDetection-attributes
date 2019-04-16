@@ -3,6 +3,9 @@ from modules.utils.config import *
 
 from PIL import Image
 from skimage import color
+from sklearn.decomposition import FastICA
+from sklearn.decomposition import IncrementalPCA
+from sklearn.decomposition import TruncatedSVD
 
 import numpy as np
 
@@ -201,6 +204,49 @@ def get_svd_data(data_type, block):
         size = int(len(data) / 4)
         indices = data.argsort()[-size:][::-1]
         data = data[indices]
+
+    if data_type == 'ica_diff':
+        current_image = metrics.get_LAB_L(block)
+
+        ica = FastICA(n_components=50)
+        ica.fit(current_image)
+
+        image_ica = ica.fit_transform(current_image)
+        image_restored = ica.inverse_transform(image_ica)
+
+        final_image = utils.normalize_2D_arr(image_restored)
+        final_image = np.array(final_image * 255, 'uint8')
+
+        sv_values = utils.normalize_arr(metrics.get_SVD_s(current_image))
+        ica_sv_values = utils.normalize_arr(metrics.get_SVD_s(final_image))
+
+        data = abs(np.array(sv_values) - np.array(ica_sv_values))
+
+    if data_type == 'svd_trunc_diff':
+
+        current_image = metrics.get_LAB_L(block)
+
+        svd = TruncatedSVD(n_components=30, n_iter=100, random_state=42)
+        transformed_image = svd.fit_transform(current_image)
+        restored_image = svd.inverse_transform(transformed_image)
+
+        reduced_image = (current_image - restored_image)
+
+        U, s, V = metrics.get_SVD(reduced_image)
+        data = s
+
+    if data_type == 'ipca_diff':
+
+        current_image = metrics.get_LAB_L(block)
+
+        transformer = IncrementalPCA(n_components=20, batch_size=25)
+        transformed_image = transformer.fit_transform(current_image)
+        restored_image = transformer.inverse_transform(transformed_image)
+
+        reduced_image = (current_image - restored_image)
+
+        U, s, V = metrics.get_SVD(reduced_image)
+        data = s
 
     return data
 

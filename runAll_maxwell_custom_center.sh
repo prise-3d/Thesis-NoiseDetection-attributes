@@ -18,7 +18,7 @@ fi
 
 for size in {"4","8","16","26","32","40"}; do
 
-    for metric in {"lab","mscn","low_bits_2","low_bits_3","low_bits_4","low_bits_5","low_bits_6","low_bits_4_shifted_2"}; do
+    for metric in {"lab","mscn","low_bits_2","low_bits_3","low_bits_4","low_bits_5","low_bits_6","low_bits_4_shifted_2","ica_diff","svd_trunc_diff","ipca_diff"}; do
         bash generateAndTrain_maxwell_custom_center.sh ${size} ${metric}
     done
 done
