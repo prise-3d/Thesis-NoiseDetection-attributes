@@ -100,7 +100,17 @@ def main():
     args = parser.parse_args()
 
     p_folder = args.folder
-    p_model = args.model
+
+    if args.model:
+        p_model = args.model
+    else:
+        # find p_model from folder if model arg not given (folder path need to have model name)
+        if p_folder.split('/')[-1]:
+            p_model = p_folder.split('/')[-1]
+        else:
+            p_model = p_folder.split('/')[-2]
+    
+    print(p_model)
 
     display_curves(p_folder, p_model)
 

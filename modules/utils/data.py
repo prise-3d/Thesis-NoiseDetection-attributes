@@ -6,6 +6,9 @@ from skimage import color
 from sklearn.decomposition import FastICA
 from sklearn.decomposition import IncrementalPCA
 from sklearn.decomposition import TruncatedSVD
+from numpy.linalg import svd as lin_svd
+
+from scipy.signal import medfilt2d, wiener, cwt
 
 import numpy as np
 
@@ -248,7 +251,78 @@ def get_svd_data(data_type, block):
         U, s, V = metrics.get_SVD(reduced_image)
         data = s
 
+    if data_type == 'svd_reconstruct':
+
+        reconstructed_interval = (90, 200)
+        begin, end = reconstructed_interval
+
+        lab_img = metrics.get_LAB_L(block)
+        lab_img = np.array(lab_img, 'uint8')
+
+        U, s, V = lin_svd(lab_img, full_matrices=True)
+
+        smat = np.zeros((end-begin, end-begin), dtype=complex)
+        smat[:, :] = np.diag(s[begin:end])
+        output_img = np.dot(U[:, begin:end],  np.dot(smat, V[begin:end, :]))
+
+        output_img = np.array(output_img, 'uint8')
+
+        data = metrics.get_SVD_s(output_img)
+
+    if 'sv_std_filters' in data_type:
+
+        # convert into lab by default to apply filters
+        lab_img = metrics.get_LAB_L(block)
+        arr = np.array(lab_img)
+        images = []
+        
+        # Apply list of filter on arr
+        images.append(medfilt2d(arr, [3, 3]))
+        images.append(medfilt2d(arr, [5, 5]))
+        images.append(wiener(arr, [3, 3]))
+        images.append(wiener(arr, [5, 5]))
+        
+        # By default computation of current block image
+        s_arr = metrics.get_SVD_s(arr)
+        sv_vector = [s_arr]
+
+        # for each new image apply SVD and get SV 
+        for img in images:
+            s = metrics.get_SVD_s(img)
+            sv_vector.append(s)
+            
+        sv_array = np.array(sv_vector)
+        
+        _, len = sv_array.shape
+        
+        sv_std = []
+        
+        # normalize each SV vectors and compute standard deviation for each sub vectors
+        for i in range(len):
+            sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
+            sv_std.append(np.std(sv_array[:, i]))
+        
+        indices = []
+
+        if 'lowest' in data_type:
+            indices = get_lowest_values(sv_std, 200)
+
+        if 'highest' in data_type:
+            indices = get_highest_values(sv_std, 200)
+
+        # data are arranged following std trend computed
+        data = s_arr[indices]
+
     return data
+
+
+def get_highest_values(arr, n):
+    return np.array(arr).argsort()[-n:][::-1]
+
+
+def get_lowest_values(arr, n):
+    return np.array(arr).argsort()[::-1][-n:][::-1]
+
 
 def _get_mscn_variance(block, sub_block_size=(50, 50)):
 

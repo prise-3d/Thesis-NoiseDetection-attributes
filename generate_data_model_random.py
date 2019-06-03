@@ -44,7 +44,6 @@ generic_output_file_svd = '_random.csv'
 min_value_interval      = sys.maxsize
 max_value_interval      = 0
 
-
 def construct_new_line(path_seuil, interval, line, choice, each, norm):
     begin, end = interval
 
