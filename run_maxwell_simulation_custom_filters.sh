@@ -23,7 +23,7 @@ for size in {"4","8","16","26","32","40"}; do
                     MODEL_NAME="${model}_N${size}_B0_E${size}_nb_zones_${nb_zones}_${metric}_${mode}"
                     CUSTOM_MIN_MAX_FILENAME="N${size}_B0_E${size}_nb_zones_${nb_zones}_${metric}_${mode}_min_max"
 
-                    echo $FILENAME
+                    echo $MODEL_NAME
 
                     # only compute if necessary (perhaps server will fall.. Just in case)
                     if grep -q "${MODEL_NAME}" "${simulate_models}"; then
@@ -34,7 +34,7 @@ for size in {"4","8","16","26","32","40"}; do
                         # python generate_data_model_random.py --output ${FILENAME} --interval "0,${size}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 40 --random 1 --custom ${CUSTOM_MIN_MAX_FILENAME}
                         # python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
-                        python predict_seuil_expe_maxwell_curve.py --interval "0,${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                        python predict_seuil_expe_maxwell_curve.py --interval "0,${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
 
                         python save_model_result_in_md_maxwell.py --interval "0,${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
                     fi
