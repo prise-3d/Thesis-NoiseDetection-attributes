@@ -6,7 +6,8 @@
 pip install -r requirements.txt
 ```
 
-Generate all needed data for each metrics
+Generate all needed data for each metrics (which equires the the whole dataset. In order to get it, you need to contact us.
+
 ```bash
 python generate_all_data.py --metric all
 ```
@@ -177,4 +178,4 @@ All others bash scripts are used to combine and run multiple model combinations.
 
 ## License
 
-[MIT](https://github.com/prise-3d/Thesis-NoiseDetection-metrics/blob/master/LICENSE)
+[The MIT license](https://github.com/prise-3d/Thesis-NoiseDetection-metrics/blob/master/LICENSE)
