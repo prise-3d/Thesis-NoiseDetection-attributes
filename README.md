@@ -175,6 +175,6 @@ Markdown file with all information is saved using model name into **models_info*
 
 All others bash scripts are used to combine and run multiple model combinations...
 
-## How to contribute
+## License
 
-This git project uses [git-flow](https://danielkummer.github.io/git-flow-cheatsheet/) implementation. You are free to contribute to it.git
+[MIT](https://github.com/prise-3d/Thesis-NoiseDetection-metrics/blob/master/LICENSE)
