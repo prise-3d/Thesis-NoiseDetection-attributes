@@ -10,8 +10,7 @@ corr_indices/*
 
 # simulate_models.csv
 
-fichiersSVD_light/*/*/*.csv
-fichiersSVD_light/*_min_max_values
+fichiersSVD_light
 
 .python-version
 __pycache__
