@@ -7,7 +7,7 @@ Created on Fri Sep 14 21:02:42 2018
 """
 
 from __future__ import print_function
-import sys, os, getopt
+import sys, os, argparse
 
 import numpy as np
 import random
@@ -181,7 +181,6 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
                 print('%.2f%%' % (current_counter_index / end_counter_index * 100))
                 sys.stdout.write("\033[F")
 
-
             # all indices of picture to plot
             print(images_indices)
 
@@ -205,7 +204,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
                 # use of whole image data for computation of ssim or psnr
                 if p_error == 'ssim' or p_error == 'psnr':
-                    image_path = file_path.format(str(current_id))
+                    image_path = file_path.format(str(images_indices[id]))
                     current_data = np.asarray(Image.open(image_path))
 
                 if len(previous_data) > 0:
@@ -258,64 +257,29 @@ def display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step,
 
 def main():
 
+    parser = argparse.ArgumentParser(description="Display evolution of error on scene")
 
-    # by default p_step value is 10 to enable all photos
-    p_step = 10
-    p_ylim = (0, 1)
+    parser.add_argument('--scene', type=str, help='scene index to use', choices=cfg.scenes_indices)
+    parser.add_argument('--interval', type=str, help='Interval value to keep from svd', default='"0, 200"')
+    parser.add_argument('--indices', type=str, help='Samples interval to display', default='"0, 900"')
+    parser.add_argument('--metric', type=str, help='Metric data choice', choices=metric_choices)
+    parser.add_argument('--mode', type=str, help='Kind of normalization level wished', choices=cfg.normalization_choices)
+    parser.add_argument('--step', type=int, help='Each step samples to display', default=10)
+    parser.add_argument('--norm', type=int, help='If values will be normalized or not', choices=[0, 1])
+    parser.add_argument('--error', type=int, help='Way of computing error', choices=error_data_choices)
+    parser.add_argument('--ylim', type=str, help='ylim interval to use', default='"0, 1"')
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:i:i:z:l:m:s:n:e:y", ["help=", "scene=", "interval=", "indices=", "metric=", "mode=", "step=", "norm=", "error=", "ylim="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python display_svd_data_scene.py --scene A --interval "0,800" --indices "0, 900" --metric lab --mode svdne --step 50 --norm 0 --error mae --ylim "0, 0.1"')
-            sys.exit()
-        elif o in ("-s", "--scene"):
-            p_scene = a
+    args = parser.parse_args()
 
-            if p_scene not in scenes_indices:
-                assert False, "Invalid scene choice"
-            else:
-                p_scene = scenes_list[scenes_indices.index(p_scene)]
-        elif o in ("-i", "--interval"):
-            p_interval = list(map(int, a.split(',')))
-
-        elif o in ("-i", "--indices"):
-            p_indices = list(map(int, a.split(',')))
-
-        elif o in ("-m", "--metric"):
-            p_metric = a
-
-            if p_metric not in metric_choices:
-                assert False, "Invalid metric choice"
-
-        elif o in ("-m", "--mode"):
-            p_mode = a
-
-            if p_mode not in choices:
-                assert False, "Invalid normalization choice, expected ['svd', 'svdn', 'svdne']"
-
-        elif o in ("-s", "--step"):
-            p_step = int(a)
-
-        elif o in ("-n", "--norm"):
-            p_norm = int(a)
-
-        elif o in ("-e", "--error"):
-            p_error = a
-
-        elif o in ("-y", "--ylim"):
-            p_ylim = list(map(float, a.split(',')))
-
-        else:
-            assert False, "unhandled option"
+    p_scene    = scenes_list[scenes_indices.index(args.scene)]
+    p_indices  = list(map(int, args.indices.split(',')))
+    p_interval = list(map(int, args.interval.split(',')))
+    p_metric   = args.metric
+    p_mode     = args.mode
+    p_step     = args.step
+    p_norm     = args.norm
+    p_error    = args.error
+    p_ylim     = list(map(int, args.ylim.split(',')))
 
     display_svd_values(p_scene, p_interval, p_indices, p_metric, p_mode, p_step, p_norm, p_error, p_ylim)
 

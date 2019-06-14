@@ -7,7 +7,7 @@ Created on Fri Sep 14 21:02:42 2018
 """
 
 from __future__ import print_function
-import sys, os, getopt
+import sys, os, argparse
 import numpy as np
 import random
 import time
@@ -26,8 +26,8 @@ min_max_filename    = cfg.min_max_filename_extension
 
 # define all scenes values
 scenes_list         = cfg.scenes_names
-scenes_indexes      = cfg.scenes_indices
-choices             = cfg.normalization_choices
+scenes_indices      = cfg.scenes_indices
+norm_choices        = cfg.normalization_choices
 path                = cfg.dataset_path
 zones               = cfg.zones_indices
 seuil_expe_filename = cfg.seuil_expe_filename
@@ -145,7 +145,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                         # extract from temp image
                         data = metrics.get_SVD_s(img_block)
 
-                    if data_type == 'mscn':
+                    '''if data_type == 'mscn':
 
                         img_gray = np.array(color.rgb2gray(np.asarray(block))*255, 'uint8')
                         img_mscn = processing.calculate_mscn_coefficients(img_gray, 7)
@@ -153,7 +153,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
                         img_mscn_gray = np.array(img_mscn_norm*255, 'uint8')
 
-                        data = metrics.get_SVD_s(img_mscn_gray)
+                        data = metrics.get_SVD_s(img_mscn_gray)'''
 
                     if data_type == 'low_bits_6':
 
@@ -231,40 +231,17 @@ def display_data_scenes(data_type, p_scene, p_kind):
 
 def main():
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python generate_all_data.py --metric all --scene A --kind svdn')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:s:k", ["help=", "metric=", "scene=", "kind="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python generate_all_data.py --metric all --scene A --kind svdn')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python generate_all_data.py --metric all --scene A --kind svdn')
-            sys.exit()
-        elif o in ("-m", "--metric"):
-            p_metric = a
+    parser = argparse.ArgumentParser(description="Display zones curves of metric on scene ")
 
-            if p_metric != 'all' and p_metric not in metric_choices:
-                assert False, "Invalid metric choice"
-        elif o in ("-s", "--scene"):
-            p_scene = a
+    parser.add_argument('--metric', type=str, help='Metric data choice', choices=metric_choices)
+    parser.add_argument('--scene', type=str, help='scene index to use', choices=scenes_indices)
+    parser.add_argument('--kind', type=str, help='Kind of normalization level wished', choices=norm_choices)
 
-            if p_scene not in scenes_indexes:
-                assert False, "Invalid metric choice"
-            else:
-                p_scene = scenes_list[scenes_indexes.index(p_scene)]
-        elif o in ("-k", "--kind"):
-            p_kind = a
+    args = parser.parse_args()
 
-            if p_kind not in choices:
-                assert False, "Invalid metric choice"
-        else:
-            assert False, "unhandled option"
-
+    p_metric = args.metric
+    p_kind   = args.kind
+    p_scene  = scenes_list[scenes_indices.index(args.scene)]
 
     display_data_scenes(p_metric, p_scene, p_kind)
 
