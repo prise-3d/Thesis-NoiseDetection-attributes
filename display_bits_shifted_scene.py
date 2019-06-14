@@ -7,7 +7,7 @@ Created on Fri Sep 14 21:02:42 2018
 """
 
 from __future__ import print_function
-import sys, os, getopt
+import sys, os, argparse
 import numpy as np
 import random
 import time
@@ -28,7 +28,7 @@ min_max_filename    = cfg.min_max_filename_extension
 
 # define all scenes values
 scenes_list         = cfg.scenes_names
-scenes_indexes      = cfg.scenes_indices
+scenes_indices      = cfg.scenes_indices
 choices             = cfg.normalization_choices
 path                = cfg.dataset_path
 zones               = cfg.zones_indices
@@ -157,33 +157,15 @@ def display_data_scenes(nb_bits, p_scene):
 
 def main():
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python generate_all_data.py --bits 3 --scene A')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hb:s", ["help=", "bits=", "scene="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python generate_all_data.py --bits 4 --scene A')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python generate_all_data.py --bits 4 --scene A')
-            sys.exit()
-        elif o in ("-b", "--bits"):
-            p_bits = int(a)
+    parser = argparse.ArgumentParser(description="Display curves of shifted bits influence of L canal on specific scene")
 
-        elif o in ("-s", "--scene"):
-            p_scene = a
+    parser.add_argument('--bits', type=str, help='Number of bits to display')
+    parser.add_argument('--scene', type=str, help="scene index to use", choices=scenes_indices)
 
-            if p_scene not in scenes_indexes:
-                assert False, "Invalid metric choice"
-            else:
-                    p_scene = scenes_list[scenes_indexes.index(p_scene)]
-        else:
-            assert False, "unhandled option"
+    args = parser.parse_args()
 
+    p_bits  = args.bits
+    p_scene = scenes_list[scenes_indices.index(args.scene)]
 
     display_data_scenes(p_bits, p_scene)
 

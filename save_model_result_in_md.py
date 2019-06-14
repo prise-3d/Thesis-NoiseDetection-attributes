@@ -5,7 +5,7 @@ import numpy as np
 from ipfml import processing
 from PIL import Image
 
-import sys, os, getopt
+import sys, os, argparse
 import subprocess
 import time
 
@@ -22,33 +22,19 @@ current_dirpath = os.getcwd()
 
 def main():
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python save_model_result_in_md.py --interval "0,20" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ["lab", "mscn"]')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "ht:m:o:l", ["help=", "interval=", "model=", "mode=", "metric="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ["lab", "mscn"]')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python save_model_result_in_md.py --interval "xx,xx" --model path/to/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ["lab", "mscn"]')
-            sys.exit()
-        elif o in ("-t", "--interval"):
-            p_interval = list(map(int, a.split(',')))
-        elif o in ("-m", "--model"):
-            p_model_file = a
-        elif o in ("-o", "--mode"):
-            p_mode = a
+    parser = argparse.ArgumentParser(description="Display SVD data of scene zone")
 
-            if p_mode != 'svdn' and p_mode != 'svdne' and p_mode != 'svd':
-                assert False, "Mode not recognized"
-        elif o in ("-me", "--metric"):
-            p_metric = a
-        else:
-            assert False, "unhandled option"
+    parser.add_argument('--interval', type=str, help='Interval value to keep from svd', default='"0, 200"')
+    parser.add_argument('--model', type=str, help='.joblib or .json file (sklearn or keras model)')
+    parser.add_argument('--metric', type=str, help='Metric data choice', choices=cfg.metric_choices)
+    parser.add_argument('--mode', type=str, help='Kind of normalization level wished', choices=cfg.normalization_choices)
+
+    args = parser.parse_args()
+    
+    p_interval   = list(map(int, args.interval.split(',')))
+    p_model_file = args.model
+    p_metric     = args.metric
+    p_mode       = args.mode
 
 
     # call model and get global result in scenes

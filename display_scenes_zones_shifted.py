@@ -7,7 +7,7 @@ Created on Fri Sep 14 21:02:42 2018
 """
 
 from __future__ import print_function
-import sys, os, getopt
+import sys, os, argparse
 import numpy as np
 import random
 import time
@@ -26,7 +26,7 @@ min_max_filename    = cfg.min_max_filename_extension
 
 # define all scenes values
 scenes_list         = cfg.scenes_names
-scenes_indexes      = cfg.scenes_indices
+scenes_indices      = cfg.scenes_indices
 choices             = cfg.normalization_choices
 path                = cfg.dataset_path
 zones               = cfg.zones_indices
@@ -155,35 +155,18 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
             plt.show()
 
 def main():
+    
+    parser = argparse.ArgumentParser(description="Display curves of shifted bits influence of L canal on specific scene by zone")
 
-    if len(sys.argv) <= 1:
-        print('Run with default parameters...')
-        print('python generate_all_data.py --scene A --bits 3 --shifted 3')
-        sys.exit(2)
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hs:b:s", ["help=", "scene=", "bits=", "shifted="])
-    except getopt.GetoptError:
-        # print help information and exit:
-        print('python generate_all_data.py --scene A --bits 3 --shifted 3')
-        sys.exit(2)
-    for o, a in opts:
-        if o == "-h":
-            print('python generate_all_data.py --scene A --bits 3 --shifted 3')
-            sys.exit()
-        elif o in ("-b", "--bits"):
-            p_bits = int(a)
+    parser.add_argument('--scene', type=str, help='scene index to use', choices=scenes_indices)
+    parser.add_argument('--bits', type=str, help='Number of bits to used')
+    parser.add_argument('--shifted', type=str, help='Number of bits shifted')    
 
-        elif o in ("-s", "--scene"):
-            p_scene = a
+    args = parser.parse_args()
 
-            if p_scene not in scenes_indexes:
-                assert False, "Invalid metric choice"
-            else:
-                p_scene = scenes_list[scenes_indexes.index(p_scene)]
-        elif o in ("-f", "--shifted"):
-            p_shifted = int(a)
-        else:
-            assert False, "unhandled option"
+    p_scene   = scenes_list[scenes_indices.index(args.scene)]
+    p_bits    = args.bits
+    p_shifted = args.shifted
 
     if p_bits + p_shifted > max_nb_bits:
         assert False, "Invalid parameters, cannot have bits greater than 8 after shift move"
