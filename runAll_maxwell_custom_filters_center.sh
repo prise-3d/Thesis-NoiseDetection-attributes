@@ -16,7 +16,7 @@ if [ "${erased}" == "Y" ]; then
 
 fi
 
-for size in {"4","8","16","26","32","40"}; do
+for size in {"4","8","16","26","32","40","60","80"}; do
 
     # for metric in {"lab","mscn","low_bits_2","low_bits_3","low_bits_4","low_bits_5","low_bits_6","low_bits_4_shifted_2","ica_diff","svd_trunc_diff","ipca_diff","svd_reconstruct"}; do
     for metric in {"highest_sv_std_filters","lowest_sv_std_filters","highest_wave_sv_std_filters","lowest_sv_std_filters"}; do
