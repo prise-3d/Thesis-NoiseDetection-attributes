@@ -9,6 +9,7 @@ from sklearn.decomposition import TruncatedSVD
 from numpy.linalg import svd as lin_svd
 
 from scipy.signal import medfilt2d, wiener, cwt
+import pywt
 
 import numpy as np
 
@@ -313,6 +314,56 @@ def get_svd_data(data_type, block):
         # data are arranged following std trend computed
         data = s_arr[indices]
 
+    # with the use of wavelet
+    if 'wave_sv_std_filters' in data_type:
+
+        # convert into lab by default to apply filters
+        lab_img = metrics.get_LAB_L(block)
+        arr = np.array(lab_img)
+        images = []
+        
+        # Apply list of filter on arr
+        images.append(medfilt2d(arr, [3, 3]))
+        images.append(medfilt2d(arr, [5, 5]))
+        images.append(medfilt2d(arr, [7, 7]))
+        images.append(wiener(arr, [3, 3]))
+        images.append(wiener(arr, [4, 4]))
+        images.append(wiener(arr, [5, 5]))
+        images.append(w2d(arr, 'haar', 2))
+        images.append(w2d(arr, 'haar', 3))
+        images.append(w2d(arr, 'haar', 4))
+        
+        # By default computation of current block image
+        s_arr = metrics.get_SVD_s(arr)
+        sv_vector = [s_arr]
+
+        # for each new image apply SVD and get SV 
+        for img in images:
+            s = metrics.get_SVD_s(img)
+            sv_vector.append(s)
+            
+        sv_array = np.array(sv_vector)
+        
+        _, len = sv_array.shape
+        
+        sv_std = []
+        
+        # normalize each SV vectors and compute standard deviation for each sub vectors
+        for i in range(len):
+            sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
+            sv_std.append(np.std(sv_array[:, i]))
+        
+        indices = []
+
+        if 'lowest' in data_type:
+            indices = get_lowest_values(sv_std, 200)
+
+        if 'highest' in data_type:
+            indices = get_highest_values(sv_std, 200)
+
+        # data are arranged following std trend computed
+        data = s_arr[indices]
+
     return data
 
 
@@ -323,6 +374,25 @@ def get_highest_values(arr, n):
 def get_lowest_values(arr, n):
     return np.array(arr).argsort()[::-1][-n:][::-1]
 
+
+def w2d(arr, mode='haar', level=1):
+    #convert to float   
+    imArray = arr
+    imArray /= 255
+
+    # compute coefficients 
+    coeffs=pywt.wavedec2(imArray, mode, level=level)
+
+    #Process Coefficients
+    coeffs_H=list(coeffs)  
+    coeffs_H[0] *= 0
+
+    # reconstruction
+    imArray_H = pywt.waverec2(coeffs_H, mode);
+    imArray_H *= 255
+    imArray_H = np.uint8(imArray_H)
+
+    return imArray_H
 
 def _get_mscn_variance(block, sub_block_size=(50, 50)):
 
