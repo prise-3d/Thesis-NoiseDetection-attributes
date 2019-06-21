@@ -11,6 +11,7 @@ from numpy.linalg import svd as lin_svd
 from scipy.signal import medfilt2d, wiener, cwt
 import pywt
 
+import cv2
 import numpy as np
 
 
@@ -364,6 +365,67 @@ def get_svd_data(data_type, block):
         # data are arranged following std trend computed
         data = s_arr[indices]
 
+    if 'filters_statistics' in data_type:
+
+        img_width, img_height = 200, 200
+
+        lab_img = metrics.get_LAB_L(block)
+        arr = np.array(lab_img)
+
+        # compute all filters statistics
+        def get_stats(arr, I_filter):
+
+            e1       = np.abs(arr - I_filter)
+            L        = np.array(e1)
+            mu0      = np.mean(L)
+            A        = L - mu0
+            H        = A * A
+            E        = np.sum(H) / (img_width * img_height)
+            P        = np.sqrt(E)
+
+            return mu0, P
+
+        stats = []
+
+        kernel = np.ones((3,3),np.float32)/9
+        stats.append(get_stats(arr, cv2.filter2D(arr,-1,kernel)))
+
+        kernel = np.ones((5,5),np.float32)/25
+        stats.append(get_stats(arr, cv2.filter2D(arr,-1,kernel)))
+
+        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (3, 3), 0.5)))
+
+        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (3, 3), 1)))
+
+        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (3, 3), 1.5)))
+
+        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (5, 5), 0.5)))
+
+        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (5, 5), 1)))
+
+        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (5, 5), 1.5)))
+
+        stats.append(get_stats(arr, medfilt2d(arr, [3, 3])))
+
+        stats.append(get_stats(arr, medfilt2d(arr, [5, 5])))
+
+        stats.append(get_stats(arr, wiener(arr, [3, 3])))
+
+        stats.append(get_stats(arr, wiener(arr, [5, 5])))
+
+        wave = w2d(arr, 'db1', 2)
+        stats.append(get_stats(arr, np.array(wave, 'float64')))
+
+        data = []
+
+        for stat in stats:
+            data.append(stat[0])
+
+        for stat in stats:
+            data.append(stat[1])
+        
+        data = np.array(data)
+
     return data
 
 
@@ -378,7 +440,7 @@ def get_lowest_values(arr, n):
 def w2d(arr, mode='haar', level=1):
     #convert to float   
     imArray = arr
-    imArray /= 255
+    np.divide(imArray, 255)
 
     # compute coefficients 
     coeffs=pywt.wavedec2(imArray, mode, level=level)
@@ -388,7 +450,7 @@ def w2d(arr, mode='haar', level=1):
     coeffs_H[0] *= 0
 
     # reconstruction
-    imArray_H = pywt.waverec2(coeffs_H, mode);
+    imArray_H = pywt.waverec2(coeffs_H, mode)
     imArray_H *= 255
     imArray_H = np.uint8(imArray_H)
 
