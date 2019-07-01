@@ -1,3 +1,11 @@
+# main imports
+import sys, os
+import argparse
+import json
+import numpy as np
+import pandas as pd
+
+# models imports
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Conv1D, MaxPooling1D
@@ -8,20 +16,9 @@ from keras import backend as K
 from sklearn.utils import shuffle
 from sklearn.metrics import roc_auc_score
 
-import numpy as np
-import pandas as pd
+# modules and config imports
+import custom_config as cfg
 
-from ipfml import processing
-import modules.utils.config as cfg
-
-from PIL import Image
-
-import sys, os
-import argparse
-import json
-
-import subprocess
-import time
 
 def f1(y_true, y_pred):
     def recall(y_true, y_pred):

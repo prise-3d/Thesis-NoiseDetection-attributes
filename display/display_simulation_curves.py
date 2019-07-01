@@ -1,13 +1,19 @@
+# main imports
 import numpy as np
 import pandas as pd
-
-import matplotlib.pyplot as plt
 import os, sys, argparse
 
-from modules.utils.data import get_svd_data
+# image processing imports
+import matplotlib.pyplot as plt
+from data_attributes import get_svd_data
 
-from modules.utils import config as cfg
+# modules and config imports
+sys.path.insert(0, '') # trick to enable import of main folder module
 
+import custom_config as cfg
+
+
+# variables and parameters
 learned_zones_folder = cfg.learned_zones_folder
 models_name          = cfg.models_names_list
 label_freq           = 6
@@ -25,7 +31,7 @@ def display_curves(folder_path, model_name):
             data_filename = model_name
             learned_zones_folder_path = os.path.join(learned_zones_folder, data_filename)
 
-    data_files = [x for x in os.listdir(folder_path) if '.png' not in x]
+    data_files = [x for x in os.listdir(folder_path) if cfg.scene_image_extension not in x]
 
     scene_names = [f.split('_')[3] for f in data_files]
 

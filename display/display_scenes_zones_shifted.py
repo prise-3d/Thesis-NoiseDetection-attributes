@@ -1,38 +1,35 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Sep 14 21:02:42 2018
-
-@author: jbuisine
-"""
-
-from __future__ import print_function
+# main imports
 import sys, os, argparse
 import numpy as np
 import random
 import time
 import json
 
+# image processing imports
 from PIL import Image
-from ipfml import processing, metrics, utils
 from skimage import color
 import matplotlib.pyplot as plt
 
-from modules.utils import config as cfg
+from ipfml.processing import segmentation, transform, compression
+from ipfml import utils
 
-config_filename     = cfg.config_filename
+# modules and config imports
+sys.path.insert(0, '') # trick to enable import of main folder module
+
+import custom_config as cfg
+from modules.utils import data as dt
+
+
+# variables and parameters
 zone_folder         = cfg.zone_folder
 min_max_filename    = cfg.min_max_filename_extension
 
 # define all scenes values
 scenes_list         = cfg.scenes_names
 scenes_indices      = cfg.scenes_indices
-choices             = cfg.normalization_choices
 path                = cfg.dataset_path
 zones               = cfg.zones_indices
 seuil_expe_filename = cfg.seuil_expe_filename
-
-metric_choices      = cfg.metric_choices_labels
 
 max_nb_bits = 8
 
@@ -50,20 +47,11 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
     scenes = [s for s in scenes if min_max_filename not in s]
 
     # go ahead each scenes
-    for id_scene, folder_scene in enumerate(scenes):
+    for folder_scene in scenes:
 
         if p_scene == folder_scene:
             print(folder_scene)
             scene_path = os.path.join(path, folder_scene)
-
-            config_file_path = os.path.join(scene_path, config_filename)
-
-            with open(config_file_path, "r") as config_file:
-                last_image_name = config_file.readline().strip()
-                prefix_image_name = config_file.readline().strip()
-                start_index_image = config_file.readline().strip()
-                end_index_image = config_file.readline().strip()
-                step_counter = int(config_file.readline().strip())
 
             # construct each zones folder name
             zones_folder = []
@@ -80,55 +68,56 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
             zones_images_data = []
             threshold_info = []
 
+            # get all images of folder
+            scene_images = sorted([os.path.join(scene_path, img) for img in os.listdir(scene_path) if cfg.scene_image_extension in img])
+
+            start_image_path = scene_images[0]
+            end_image_path   = scene_images[-1]
+
+            start_quality_image = dt.get_scene_image_quality(scene_images[0])
+            end_quality_image   = dt.get_scene_image_quality(scene_images[-1])
+
             for id_zone, zone_folder in enumerate(zones_folder):
 
                 zone_path = os.path.join(scene_path, zone_folder)
-
-                current_counter_index = int(start_index_image)
-                end_counter_index = int(end_index_image)
 
                 # get threshold information
                 path_seuil = os.path.join(zone_path, seuil_expe_filename)
 
                 # open treshold path and get this information
                 with open(path_seuil, "r") as seuil_file:
-                    seuil_learned = int(seuil_file.readline().strip())
+                    threshold_learned = int(seuil_file.readline().strip())
 
                 threshold_image_found = False
-                while(current_counter_index <= end_counter_index and not threshold_image_found):
 
-                    if seuil_learned < int(current_counter_index):
-                        current_counter_index_str = str(current_counter_index)
+                # for each images
+                for img_path in scene_images:
+                    current_quality_image = dt.get_scene_image_quality(img_path)
 
-                        while len(start_index_image) > len(current_counter_index_str):
-                            current_counter_index_str = "0" + current_counter_index_str
+                    if threshold_learned < int(current_quality_image) and not threshold_image_found:
 
                         threshold_image_found = True
-                        threshold_image_zone = current_counter_index_str
-                        threshold_info.append(threshold_image_zone)
+                        threshold_image_path = img_path
 
-                    current_counter_index += step_counter
+                        threshold_image = dt.get_scene_image_postfix(img_path)
+                        threshold_info.append(threshold_image)
 
                 # all indexes of picture to plot
-                images_indexes = [start_index_image, threshold_image_zone, end_index_image]
+                images_path = [start_image_path, threshold_image_path, end_image_path]
                 images_data = []
 
-                print(images_indexes)
-
-                for index in images_indexes:
-
-                    img_path = os.path.join(scene_path, prefix_image_name + index + ".png")
+                for img_path in images_path:
 
                     current_img = Image.open(img_path)
-                    img_blocks = processing.divide_in_blocks(current_img, (200, 200))
+                    img_blocks = segmentation.divide_in_blocks(current_img, (200, 200))
 
                     # getting expected block id
                     block = img_blocks[id_zone]
 
                     # get data from mode
                     # Here you can add the way you compute data
-                    low_bits_block = processing.rgb_to_LAB_L_bits(block, (p_shifted + 1, p_shifted + p_bits + 1))
-                    data = metrics.get_SVD_s(low_bits_block)
+                    low_bits_block = transform.rgb_to_LAB_L_bits(block, (p_shifted + 1, p_shifted + p_bits + 1))
+                    data = compression.get_SVD_s(low_bits_block)
 
                     ##################
                     # Data mode part #
@@ -145,9 +134,9 @@ def display_data_scenes(p_scene, p_bits, p_shifted):
 
             for id, data in enumerate(zones_images_data):
                 fig.add_subplot(4, 4, (id + 1))
-                plt.plot(data[0], label='Noisy_' + start_index_image)
+                plt.plot(data[0], label='Noisy_' + start_quality_image)
                 plt.plot(data[1], label='Threshold_' + threshold_info[id])
-                plt.plot(data[2], label='Reference_' + end_index_image)
+                plt.plot(data[2], label='Reference_' + end_quality_image)
                 plt.ylabel('Lab SVD ' + str(p_bits) + ' bits shifted by ' + str(p_shifted) + ', ZONE_' + str(id + 1), fontsize=14)
                 plt.xlabel('Vector features', fontsize=16)
                 plt.legend(bbox_to_anchor=(0.5, 1), loc=2, borderaxespad=0.2, fontsize=14)

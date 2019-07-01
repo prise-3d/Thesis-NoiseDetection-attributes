@@ -124,9 +124,8 @@ def main():
                         tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                         block.save(tmp_file_path)
 
-                        python_cmd = """python predict_noisy_image_svd.py --image {0} --interval '{1}' --model {2} --mode {3} --metric {4}""".format(tmp_file_path, p_interval, p_model_file, p_mode, p_metric)
-
-                        print(python_cmd)
+                        python_cmd_line = "python predict_noisy_image_svd.py --image {0} --interval '{1}' --model {2} --mode {3} --metric {4}"
+                        python_cmd = python_cmd_line.format(tmp_file_path, p_interval, p_model_file, p_mode, p_metric) 
 
                         # specify use of custom file for min max normalization
                         if p_custom:

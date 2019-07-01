@@ -178,4 +178,4 @@ All others bash scripts are used to combine and run multiple model combinations.
 
 ## License
 
-[The MIT license](https://github.com/prise-3d/Thesis-NoiseDetection-metrics/blob/master/LICENSE)
+[The MIT license](https://github.com/prise-3d/Thesis-NoiseDetection-attributes/blob/master/LICENSE)
