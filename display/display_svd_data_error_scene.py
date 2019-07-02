@@ -7,8 +7,6 @@ from PIL import Image
 from skimage import color
 import matplotlib.pyplot as plt
 
-from data_attributes import get_svd_data
-
 import ipfml.iqa.fr as fr_iqa
 from ipfml import utils
 
@@ -17,6 +15,7 @@ sys.path.insert(0, '') # trick to enable import of main folder module
 
 import custom_config as cfg
 from modules.utils import data as dt
+from data_attributes import get_svd_data
 
 # getting configuration information
 zone_folder         = cfg.zone_folder

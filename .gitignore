@@ -10,18 +10,16 @@ results
 metric_curves
 .ipynb_checkpoints
 
-# simulate_models.csv
+# dataset and files
+simulate_models*.csv
+dataset
 
-fichiersSVD_light
-
+# python cache
 .python-version
 __pycache__
 
 # by default avoid model files and png files
-saved_models/*.h5
+saved_models
 *.png
 !saved_models/*.png
 .vscode
-
-# simulate models .csv file
-simulate_models*.csv

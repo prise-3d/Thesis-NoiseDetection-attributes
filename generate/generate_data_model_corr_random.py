@@ -8,8 +8,6 @@ import random
 # image processing imports
 from PIL import Image
 
-from data_attributes import get_svd_data
-
 from ipfml import utils
 
 # modules imports
@@ -17,6 +15,7 @@ sys.path.insert(0, '') # trick to enable import of main folder module
 
 import custom_config as cfg
 from modules.utils import data as dt
+from data_attributes import get_svd_data
 
 
 # getting configuration information
