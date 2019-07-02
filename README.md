@@ -9,7 +9,7 @@ pip install -r requirements.txt
 Generate all needed data for each metrics (which requires the the whole dataset. In order to get it, you need to contact us).
 
 ```bash
-python generate_all_data.py --metric all
+python generate/generate_all_data.py --metric all
 ```
 
 For noise detection, many metrics are available:
@@ -24,7 +24,7 @@ For noise detection, many metrics are available:
 
 You can also specify metric you want to compute and image step to avoid some images:
 ```bash
-python generate_all_data.py --metric mscn --step 50
+python generate/generate_all_data.py --metric mscn --step 50
 ```
 
 - **step**: keep only image if image id % 50 == 0 (assumption is that keeping spaced data will let model better fit).
@@ -38,7 +38,8 @@ python generate_all_data.py --metric mscn --step 50
 - **train_model.py**: script which is used to run specific model available.
 - **data/\***: folder which will contain all *.train* & *.test* files in order to train model.
 - **saved_models/*.joblib**: all scikit learn models saved.
-- **models_info/***: all markdown files generated to get quick information about model performance and prediction. This folder contains also **model_comparisons.csv** obtained after running runAll_maxwell.sh script.
+- **models_info/***: all markdown files generated to get quick information about model performance and prediction. 
+- **results**: This folder contains **model_comparisons.csv** obtained after running runAll_maxwell_*.sh script.
 - **modules/\***: contains all modules usefull for the whole project (such as configuration variables)
 
 ### Scripts for generating data files
@@ -52,9 +53,9 @@ Two scripts can be used for generating data in order to fit model:
 **Remark**: Note here that all python script have *--help* command.
 
 ```
-python generate_data_model.py --help
+python generate/generate_data_model.py --help
 
-python generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "0, 1, 2" --percent 0.7 --sep: --rowindex 1 --custom custom_min_max_filename
+python generate/generate_data_model.py --output xxxx --interval 0,20  --kind svdne --scenes "A, B, D" --zones "0, 1, 2" --percent 0.7 --sep: --rowindex 1 --custom custom_min_max_filename
 ```
 
 Parameters explained:
@@ -162,7 +163,7 @@ The content will be divised into two parts:
 The previous script need to already have ran to obtain and display treshold maps on this markdown file.
 
 ```bash
-python save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn']
+python others/save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn']
 ```
 
 Parameters list:
@@ -178,4 +179,4 @@ All others bash scripts are used to combine and run multiple model combinations.
 
 ## License
 
-[The MIT license](https://github.com/prise-3d/Thesis-NoiseDetection-metrics/blob/master/LICENSE)
+[The MIT license](https://github.com/prise-3d/Thesis-NoiseDetection-attributes/blob/master/LICENSE)
