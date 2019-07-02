@@ -34,7 +34,7 @@ for size in {"4","8","16","26","32","40"}; do
                         # python generate/generate_data_model_random.py --output ${FILENAME} --interval "0,${size}" --kind ${mode} --metric ${metric} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 40 --random 1 --custom ${CUSTOM_MIN_MAX_FILENAME}
                         # python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
-                        python predict_seuil_expe_maxwell_curve.py --interval "0,${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                        python prediction/predict_seuil_expe_maxwell_curve.py --interval "0,${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
 
                         python others/save_model_result_in_md_maxwell.py --interval "0,${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
                     fi

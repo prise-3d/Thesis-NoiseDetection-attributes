@@ -121,7 +121,7 @@ def main():
                     tmp_file_path = tmp_filename.replace('__model__',  p_model_file.split('/')[-1].replace('.joblib', '_'))
                     block.save(tmp_file_path)
 
-                    python_cmd = "python predict_noisy_image_svd.py --image " + tmp_file_path + \
+                    python_cmd = "python prediction/predict_noisy_image_svd.py --image " + tmp_file_path + \
                                     " --interval '" + p_interval + \
                                     "' --model " + p_model_file  + \
                                     " --mode " + p_mode + \

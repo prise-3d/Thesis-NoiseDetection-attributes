@@ -28,7 +28,7 @@ for metric in {"sub_blocks_stats","sub_blocks_stats_reduced","sub_blocks_area","
 
                 python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
-                python predict_seuil_expe_maxwell_curve.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                python prediction/predict_seuil_expe_maxwell_curve.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
 
                 python others/save_model_result_in_md_maxwell.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --metric ${metric}
 
