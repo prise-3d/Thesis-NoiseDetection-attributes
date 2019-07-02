@@ -43,7 +43,7 @@ for size in {"4","8","16","26","32","40"}; do
 
                             python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
-                            python predict_seuil_expe_maxwell_curve.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                            python prediction/predict_seuil_expe_maxwell_curve.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
 
                             python others/save_model_result_in_md_maxwell.py --interval "${start},${end}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
 

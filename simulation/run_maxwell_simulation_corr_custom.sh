@@ -30,7 +30,7 @@ for label in {"0","1"}; do
 
                             python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
-                            python prediction/predict_seuil_expe_maxwell_curve.py --interval "${start_index},${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
+                            python prediction/prediction/predict_seuil_expe_maxwell_curve.py --interval "${start_index},${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric} --limit_detection '2' --custom ${CUSTOM_MIN_MAX_FILENAME}
 
                             python others/save_model_result_in_md_maxwell.py --interval "${start_index},${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --metric ${metric}
 

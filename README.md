@@ -84,7 +84,7 @@ Expected values for the **choice** parameter are ['svm_model', 'ensemble_model',
 Now we have a model trained, we can use it with an image as input:
 
 ```bash
-python predict_noisy_image_svd.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --metric 'lab' --mode 'svdn' --custom 'min_max_filename'
+python prediction/predict_noisy_image_svd.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --metric 'lab' --mode 'svdn' --custom 'min_max_filename'
 ```
 
 - **metric**: metric choice need to be one of the listed above.
@@ -103,7 +103,7 @@ All SVD metrics developed need:
 Now we have a model trained, we can use it with an image as input:
 
 ```bash
-python prediction_scene.py --data path/to/xxxx.csv --model saved_model/xxxx.joblib --output xxxxx --scene xxxx
+python prediction/prediction_scene.py --data path/to/xxxx.csv --model saved_model/xxxx.joblib --output xxxxx --scene xxxx
 ```
 **Remark**: *scene* parameter expected need to be the correct name of the Scene.
 
@@ -126,7 +126,7 @@ Once you have simulation done. Checkout your **threshold_map/%MODEL_NAME%/simula
 In order to see if a model well generalized, a bash script is available:
 
 ```bash
-bash testModelByScene.sh '100' '110' 'saved_models/xxxx.joblib' 'svdne' 'lab'
+bash others/testModelByScene.sh '100' '110' 'saved_models/xxxx.joblib' 'svdne' 'lab'
 ```
 
 Parameters list:
@@ -142,7 +142,7 @@ Parameters list:
 Main objective of this project is to predict as well as a human the noise perception on a photo realistic image. Human threshold is available from training data. So a script was developed to give the predicted treshold from model and compare predicted treshold from the expected one.
 
 ```bash
-python predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn', ...] --limit_detection xx --custom 'custom_min_max_filename'
+python prediction/predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn', ...] --limit_detection xx --custom 'custom_min_max_filename'
 ```
 
 Parameters list:
