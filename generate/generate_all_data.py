@@ -7,7 +7,6 @@ import json
 
 # image processing imports
 from PIL import Image
-from skimage import color
 
 from data_attributes import get_svd_data
 
