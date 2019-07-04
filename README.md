@@ -109,7 +109,7 @@ python prediction/prediction_scene.py --data path/to/xxxx.csv --model saved_mode
 
 ### Visualize data
 
-All scripts with names **display_\*.py** are used to display data information or results.
+All scripts with names **display/display_\*.py** are used to display data information or results.
 
 Just use --help option to get more information.
 
