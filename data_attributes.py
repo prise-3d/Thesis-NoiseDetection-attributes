@@ -326,14 +326,75 @@ def get_svd_data(data_type, block):
         
         # Apply list of filter on arr
         images.append(medfilt2d(arr, [3, 3]))
+        
+        # By default computation of current block image
+        s_arr = compression.get_SVD_s(arr)
+        sv_vector = [s_arr]
+
+        # for each new image apply SVD and get SV 
+        for img in images:
+            s = compression.get_SVD_s(img)
+            sv_vector.append(s)
+            
+        sv_array = np.array(sv_vector)
+        
+        _, len = sv_array.shape
+        
+        sv_std = []
+        
+        # normalize each SV vectors and compute standard deviation for each sub vectors
+        for i in range(len):
+            sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
+            sv_std.append(np.std(sv_array[:, i]))
+        
+        indices = []
+
+        if 'lowest' in data_type:
+            indices = utils.get_indices_of_lowest_values(sv_std, 200)
+
+        if 'highest' in data_type:
+            indices = utils.get_indices_of_highest_values(sv_std, 200)
+
+        # data are arranged following std trend computed
+        data = s_arr[indices]
+
+    # with the use of wavelet
+    if 'sv_std_filters_full' in data_type:
+
+        # convert into lab by default to apply filters
+        lab_img = transform.get_LAB_L(block)
+        arr = np.array(lab_img)
+        images = []
+        
+        # Apply list of filter on arr
+        kernel = np.ones((3,3),np.float32)/9
+        images.append(cv2.filter2D(arr,-1,kernel))
+
+        kernel = np.ones((5,5),np.float32)/25
+        images.append(cv2.filter2D(arr,-1,kernel))
+
+        images.append(cv2.GaussianBlur(arr, (3, 3), 0.5))
+
+        images.append(cv2.GaussianBlur(arr, (3, 3), 1))
+
+        images.append(cv2.GaussianBlur(arr, (3, 3), 1.5))
+
+        images.append(cv2.GaussianBlur(arr, (5, 5), 0.5))
+
+        images.append(cv2.GaussianBlur(arr, (5, 5), 1))
+
+        images.append(cv2.GaussianBlur(arr, (5, 5), 1.5))
+
+        images.append(medfilt2d(arr, [3, 3]))
+
         images.append(medfilt2d(arr, [5, 5]))
-        images.append(medfilt2d(arr, [7, 7]))
+
         images.append(wiener(arr, [3, 3]))
-        images.append(wiener(arr, [4, 4]))
+
         images.append(wiener(arr, [5, 5]))
-        images.append(w2d(arr, 'haar', 2))
-        images.append(w2d(arr, 'haar', 3))
-        images.append(w2d(arr, 'haar', 4))
+
+        wave = w2d(arr, 'db1', 2)
+        images.append(np.array(wave, 'float64'))
         
         # By default computation of current block image
         s_arr = compression.get_SVD_s(arr)
