@@ -13,7 +13,7 @@ scenes="A, D, G, H"
 for size in {"4","8","16","26","32","40"}; do
 
     # for metric in {"lab","mscn","low_bits_2","low_bits_3","low_bits_4","low_bits_5","low_bits_6","low_bits_4_shifted_2","ica_diff","svd_trunc_diff","ipca_diff","svd_reconstruct"}; do
-    for metric in {"highest_sv_std_filters","lowest_sv_std_filters"}; do
+    for metric in {"highest_sv_std_filters_full","lowest_sv_std_filters_full"}; do
 
         for nb_zones in {4,6,8,10,12}; do
             for mode in {"svd","svdn","svdne"}; do
