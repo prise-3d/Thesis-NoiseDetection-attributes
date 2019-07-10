@@ -364,10 +364,8 @@ def main():
         if not os.path.exists(custom_min_max_folder):
             os.makedirs(custom_min_max_folder)
 
-        min_max_folder_path = os.path.join(os.path.dirname(__file__), custom_min_max_folder)
-
         min_max_current_filename = p_filename.replace(cfg.output_data_folder + '/', '').replace('deep_keras_', '') + min_max_filename
-        min_max_filename_path = os.path.join(min_max_folder_path, min_max_current_filename)
+        min_max_filename_path = os.path.join(custom_min_max_folder, min_max_current_filename)
 
         print(min_max_filename_path)
         with open(min_max_filename_path, 'w') as f:

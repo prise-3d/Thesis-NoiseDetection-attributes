@@ -6,13 +6,13 @@
 pip install -r requirements.txt
 ```
 
-Generate all needed data for each metrics (which requires the the whole dataset. In order to get it, you need to contact us).
+Generate all needed data for each features (which requires the the whole dataset. In order to get it, you need to contact us).
 
 ```bash
-python generate/generate_all_data.py --metric all
+python generate/generate_all_data.py --feature all
 ```
 
-For noise detection, many metrics are available:
+For noise detection, many features are available:
 - lab
 - mscn
 - mscn_revisited
@@ -22,9 +22,9 @@ For noise detection, many metrics are available:
 - low_bits_6
 - low_bits_4_shifted_2
 
-You can also specify metric you want to compute and image step to avoid some images:
+You can also specify feature you want to compute and image step to avoid some images:
 ```bash
-python generate/generate_all_data.py --metric mscn --step 50
+python generate/generate_all_data.py --feature mscn --step 50
 ```
 
 - **step**: keep only image if image id % 50 == 0 (assumption is that keeping spaced data will let model better fit).
@@ -84,19 +84,19 @@ Expected values for the **choice** parameter are ['svm_model', 'ensemble_model',
 Now we have a model trained, we can use it with an image as input:
 
 ```bash
-python prediction/predict_noisy_image_svd.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --metric 'lab' --mode 'svdn' --custom 'min_max_filename'
+python prediction/predict_noisy_image_svd.py --image path/to/image.png --interval "x,x" --model saved_models/xxxxxx.joblib --feature 'lab' --mode 'svdn' --custom 'min_max_filename'
 ```
 
-- **metric**: metric choice need to be one of the listed above.
+- **feature**: feature choice need to be one of the listed above.
 - **custom**: specify filename with custom min and max from your data interval. This file was generated using **custom** parameter of one of the **generate_data_model\*.py** script (optional parameter).
 
 The model will return only 0 or 1:
 - 1 means noisy image is detected.
 - 0 means image seem to be not noisy.
 
-All SVD metrics developed need:
-- Name added into *metric_choices_labels* global array variable of **modules/utils/config.py** file.
-- A specification of how you compute the metric into *get_svd_data* method of **modules/utils/data_type.py** file.
+All SVD features developed need:
+- Name added into *feature_choices_labels* global array variable of **modules/utils/config.py** file.
+- A specification of how you compute the feature into *get_svd_data* method of **modules/utils/data_type.py** file.
 
 ### Predict scene using model
 
@@ -134,7 +134,7 @@ Parameters list:
 - 2: End of interval of data from SVD to use
 - 3: Model we want to test
 - 4: Kind of data input used by trained model
-- 5: Metric used by model
+- 5: feature used by model
 
 
 ### Get treshold map
@@ -142,7 +142,7 @@ Parameters list:
 Main objective of this project is to predict as well as a human the noise perception on a photo realistic image. Human threshold is available from training data. So a script was developed to give the predicted treshold from model and compare predicted treshold from the expected one.
 
 ```bash
-python prediction/predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn', ...] --limit_detection xx --custom 'custom_min_max_filename'
+python prediction/predict_seuil_expe.py --interval "x,x" --model 'saved_models/xxxx.joblib' --mode ["svd", "svdn", "svdne"] --feature ['lab', 'mscn', ...] --limit_detection xx --custom 'custom_min_max_filename'
 ```
 
 Parameters list:
@@ -163,7 +163,7 @@ The content will be divised into two parts:
 The previous script need to already have ran to obtain and display treshold maps on this markdown file.
 
 ```bash
-python others/save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --metric ['lab', 'mscn']
+python others/save_model_result_in_md.py --interval "xx,xx" --model saved_models/xxxx.joblib --mode ["svd", "svdn", "svdne"] --feature ['lab', 'mscn']
 ```
 
 Parameters list:
