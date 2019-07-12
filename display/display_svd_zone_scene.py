@@ -15,7 +15,7 @@ sys.path.insert(0, '') # trick to enable import of main folder module
 
 import custom_config as cfg
 from modules.utils import data as dt
-from data_attributes import get_svd_data
+from data_attributes import get_image_features
 
 # getting configuration information
 zone_folder         = cfg.zone_folder
@@ -175,7 +175,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_feature, p_mode
 
                 # get data from mode
                 # Here you can add the way you compute data
-                data = get_svd_data(p_feature, block)
+                data = get_image_features(p_feature, block)
 
                 # TODO : improve part of this code to get correct min / max values
                 if p_norm:

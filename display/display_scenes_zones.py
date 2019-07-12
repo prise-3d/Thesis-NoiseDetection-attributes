@@ -19,7 +19,7 @@ sys.path.insert(0, '') # trick to enable import of main folder module
 
 import custom_config as cfg
 from modules.utils import data as dt
-from data_attributes import get_svd_data
+from data_attributes import get_image_features
 
 
 # variables and parameters
@@ -117,7 +117,7 @@ def display_data_scenes(data_type, p_scene, p_kind):
                     # getting expected block id
                     block = img_blocks[id_zone]
 
-                    data = get_svd_data(data_type, block)
+                    data = get_image_features(data_type, block)
 
                     ##################
                     # Data mode part #
