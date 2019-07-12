@@ -23,7 +23,7 @@ import custom_config as cfg
 from modules.utils import data as dt
 
 
-def get_svd_data(data_type, block):
+def get_image_features(data_type, block):
     """
     Method which returns the data type expected
     """
@@ -407,12 +407,12 @@ def get_svd_data(data_type, block):
             
         sv_array = np.array(sv_vector)
         
-        _, len = sv_array.shape
+        _, length = sv_array.shape
         
         sv_std = []
         
         # normalize each SV vectors and compute standard deviation for each sub vectors
-        for i in range(len):
+        for i in range(length):
             sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
             sv_std.append(np.std(sv_array[:, i]))
         
@@ -427,66 +427,74 @@ def get_svd_data(data_type, block):
         # data are arranged following std trend computed
         data = s_arr[indices]
 
-    if 'filters_statistics' in data_type:
-
-        img_width, img_height = 200, 200
+    if 'sv_entropy_std_filters' in data_type:
 
         lab_img = transform.get_LAB_L(block)
         arr = np.array(lab_img)
 
-        # compute all filters statistics
-        def get_stats(arr, I_filter):
-
-            e1       = np.abs(arr - I_filter)
-            L        = np.array(e1)
-            mu0      = np.mean(L)
-            A        = L - mu0
-            H        = A * A
-            E        = np.sum(H) / (img_width * img_height)
-            P        = np.sqrt(E)
-
-            return mu0, P
-
-        stats = []
+        images = []
 
         kernel = np.ones((3,3),np.float32)/9
-        stats.append(get_stats(arr, cv2.filter2D(arr,-1,kernel)))
+        images.append(cv2.filter2D(arr,-1,kernel))
 
         kernel = np.ones((5,5),np.float32)/25
-        stats.append(get_stats(arr, cv2.filter2D(arr,-1,kernel)))
+        images.append(cv2.filter2D(arr,-1,kernel))
 
-        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (3, 3), 0.5)))
+        images.append(cv2.GaussianBlur(arr, (3, 3), 0.5))
 
-        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (3, 3), 1)))
+        images.append(cv2.GaussianBlur(arr, (3, 3), 1))
 
-        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (3, 3), 1.5)))
+        images.append(cv2.GaussianBlur(arr, (3, 3), 1.5))
 
-        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (5, 5), 0.5)))
+        images.append(cv2.GaussianBlur(arr, (5, 5), 0.5))
 
-        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (5, 5), 1)))
+        images.append(cv2.GaussianBlur(arr, (5, 5), 1))
 
-        stats.append(get_stats(arr, cv2.GaussianBlur(arr, (5, 5), 1.5)))
+        images.append(cv2.GaussianBlur(arr, (5, 5), 1.5))
 
-        stats.append(get_stats(arr, medfilt2d(arr, [3, 3])))
+        images.append(medfilt2d(arr, [3, 3]))
 
-        stats.append(get_stats(arr, medfilt2d(arr, [5, 5])))
+        images.append(medfilt2d(arr, [5, 5]))
 
-        stats.append(get_stats(arr, wiener(arr, [3, 3])))
+        images.append(wiener(arr, [3, 3]))
 
-        stats.append(get_stats(arr, wiener(arr, [5, 5])))
+        images.append(wiener(arr, [5, 5]))
 
         wave = w2d(arr, 'db1', 2)
-        stats.append(get_stats(arr, np.array(wave, 'float64')))
+        images.append(np.array(wave, 'float64'))
 
-        data = []
-
-        for stat in stats:
-            data.append(stat[0])
-
-        for stat in stats:
-            data.append(stat[1])
+        sv_vector = []
+        sv_entropy_list = []
         
-        data = np.array(data)
+        # for each new image apply SVD and get SV 
+        for img in images:
+            s = compression.get_SVD_s(img)
+            sv_vector.append(s)
+
+            sv_entropy = [utils.get_entropy_contribution_of_i(s, id_sv) for id_sv, sv in enumerate(s)]
+            sv_entropy_list.append(sv_entropy)
+        
+        sv_std = []
+        
+        sv_array = np.array(sv_vector)
+        _, length = sv_array.shape
+        
+        # normalize each SV vectors and compute standard deviation for each sub vectors
+        for i in range(length):
+            sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
+            sv_std.append(np.std(sv_array[:, i]))
+        
+        indices = []
+
+        if 'lowest' in data_type:
+            indices = utils.get_indices_of_lowest_values(sv_std, 200)
+
+        if 'highest' in data_type:
+            indices = utils.get_indices_of_highest_values(sv_std, 200)
+
+        # data are arranged following std trend computed
+        s_arr = compression.get_SVD_s(arr)
+        data = s_arr[indices]
 
     return data
 

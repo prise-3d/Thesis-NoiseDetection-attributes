@@ -14,7 +14,7 @@ sys.path.insert(0, '') # trick to enable import of main folder module
 
 import custom_config as cfg
 from modules.utils import data as dt
-from data_attributes import get_svd_data
+from data_attributes import get_image_features
 
 # getting configuration information
 zone_folder         = cfg.zone_folder
@@ -126,7 +126,7 @@ def display_svd_values(p_interval, p_indices, p_metric, p_mode, p_step, p_norm, 
 
             img = Image.open(img_path)
 
-            svd_values = get_svd_data(p_metric, img)
+            svd_values = get_image_features(p_metric, img)
 
             if p_norm:
                 svd_values = svd_values[begin_data:end_data]
