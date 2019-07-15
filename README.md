@@ -8,12 +8,6 @@ Project developed during thesis in order to detect noise (perceptual noise) gene
 pip install -r requirements.txt
 ```
 
-Generate all needed data for each features (which requires the the whole dataset. In order to get it, you need to contact us).
-
-```bash
-python generate/generate_all_data.py --feature all
-```
-
 For noise detection, many features are available:
 - lab
 - mscn
@@ -45,18 +39,18 @@ For noise detection, many features are available:
 - highest_sv_entropy_std_filters
 - lowest_sv_entropy_std_filters
 
+Generate all needed data for each features (which requires the whole dataset. In order to get it, you need to contact us).
+
+```bash
+python generate/generate_all_data.py --feature all
+```
+
 You can also specify feature you want to compute and image step to avoid some images:
 ```bash
 python generate/generate_all_data.py --feature mscn --step 50
 ```
 
 - **step**: keep only image if image id % 50 == 0 (assumption is that keeping spaced data will let model better fit).
-
-Or generate all data:
-
-```bash
-python generate/generate_all_data.py --feature all
-```
 
 ## Requirements
 
