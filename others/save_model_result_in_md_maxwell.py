@@ -10,7 +10,7 @@ import json
 # models imports
 from sklearn.utils import shuffle
 from sklearn.externals import joblib
-from sklearn.features import accuracy_score, f1_score, recall_score, roc_auc_score
+from sklearn.metrics import accuracy_score, f1_score, recall_score, roc_auc_score
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split

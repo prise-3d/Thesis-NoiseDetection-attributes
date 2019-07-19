@@ -18,7 +18,8 @@ fi
 
 for size in {"4","8","16","26","32","40","60","80"}; do
 
-    for metric in {"highest_sv_std_filters","lowest_sv_std_filters","highest_wave_sv_std_filters","lowest_sv_std_filters","highest_sv_std_filters_full","lowest_sv_std_filters_full","highest_sv_entropy_std_filters","lowest_sv_entropy_std_filters"}; do
+#     for metric in {"highest_sv_std_filters","lowest_sv_std_filters","highest_wave_sv_std_filters","lowest_sv_std_filters","highest_sv_std_filters_full","lowest_sv_std_filters_full","highest_sv_entropy_std_filters","lowest_sv_entropy_std_filters"}; do
+     for metric in {"highest_sv_entropy_std_filters","lowest_sv_entropy_std_filters"}; do
         bash data_processing/generateAndTrain_maxwell_custom_filters_center.sh ${size} ${metric} &
     done
 done
