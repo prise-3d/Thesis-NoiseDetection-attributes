@@ -111,7 +111,6 @@ ln -s /path/to/your/data dataset
 - **models_info/\***: all markdown files generated to get quick information about model performance and prediction obtained after running `run/runAll_*.sh` script.
 - **results/**:  This folder contains `model_comparisons.csv` file used for store models performance.
 
-
 ## How to use ?
 
 **Remark**: Note here that all python script have *--help* command.
@@ -183,4 +182,4 @@ Once you have simulation done. Checkout your **threshold_map/%MODEL_NAME%/simula
 
 ## License
 
-[The MIT license](https://github.com/prise-3d/Thesis-NoiseDetection-attributes/blob/master/LICENSE)
+[The MIT license](LICENSE)
