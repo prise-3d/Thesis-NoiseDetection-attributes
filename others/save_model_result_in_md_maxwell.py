@@ -53,7 +53,7 @@ def main():
 
     parser.add_argument('--interval', type=str, help='Interval value to keep from svd', default='"0, 200"')
     parser.add_argument('--model', type=str, help='.joblib or .json file (sklearn or keras model)')
-    parser.add_argument('--feature', type=str, help='Metric data choice', choices=cfg.feature_choices_labels)
+    parser.add_argument('--feature', type=str, help='Metric data choice', choices=cfg.features_choices_labels)
     parser.add_argument('--mode', type=str, help='Kind of normalization level wished', choices=cfg.normalization_choices)
 
     args = parser.parse_args()
