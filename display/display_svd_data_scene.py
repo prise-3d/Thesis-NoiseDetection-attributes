@@ -132,10 +132,15 @@ def display_svd_values(p_scene, p_interval, p_indices, p_feature, p_mode, p_step
                         images_indices.append(dt.get_scene_image_postfix(img_path))
                         svd_data.append(svd_values)
 
-                    if threshold_mean < current_quality_image and not threshold_image_found:
+                if threshold_mean < current_quality_image and not threshold_image_found:
 
-                        threshold_image_found = True
-                        threshold_image_zone = current_quality_image
+                    threshold_image_found = True
+                    threshold_image_zone = current_quality_image
+
+                    print("Quality mean : ", current_quality_image, "\n")
+                    
+                    if dt.get_scene_image_postfix(img_path) not in images_indices:
+                        images_indices.append(dt.get_scene_image_postfix(img_path))
 
                 print('%.2f%%' % ((id_img + 1) / number_scene_image * 100))
                 sys.stdout.write("\033[F")
@@ -162,7 +167,7 @@ def display_svd_values(p_scene, p_interval, p_indices, p_feature, p_mode, p_step
 
             # display all data using matplotlib (configure plt)
             fig, ax = plt.subplots(figsize=(30, 22))
-            ax.set_facecolor('#F9F9F9')
+            ax.set_facecolor('#FFFFFF')
             #fig.patch.set_facecolor('#F9F9F9')
 
             ax.tick_params(labelsize=22)
@@ -170,22 +175,22 @@ def display_svd_values(p_scene, p_interval, p_indices, p_feature, p_mode, p_step
             #plt.rc('ytick', labelsize=22)
 
             #plt.title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_feature + ' feature, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=24)
-            ax.set_ylabel('Component values', fontsize=30)
-            ax.set_xlabel('Vector features', fontsize=30)
+            ax.set_ylabel('Component values', fontsize=28)
+            ax.set_xlabel('Vector features', fontsize=28)
 
             for id, data in enumerate(images_data):
 
-                p_label = p_scene + '_' + str(images_indices[id])
+                p_label = p_scene + "_" + images_indices[id]
 
-                if images_indices[id] == threshold_image_zone:
+                if int(images_indices[id]) == int(threshold_image_zone):
                     ax.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
                 else:
                     ax.plot(data, label=p_label)
 
-            plt.legend(bbox_to_anchor=(0.65, 0.98), loc=2, borderaxespad=0.2, fontsize=24)
+            plt.legend(bbox_to_anchor=(0.60, 0.98), loc=2, borderaxespad=0.2, fontsize=26)
 
-            #start_ylim, end_ylim = p_ylim
-            #ax.set_ylim(start_ylim, end_ylim)
+            start_ylim, end_ylim = p_ylim
+            ax.set_ylim(start_ylim, end_ylim)
 
             plot_name = p_scene + '_' + p_feature + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
             plt.savefig(plot_name, facecolor=ax.get_facecolor())
@@ -212,7 +217,7 @@ def main():
     p_mode     = args.mode
     p_step     = args.step
     p_norm     = args.norm
-    p_ylim     = list(map(int, args.ylim.split(',')))
+    p_ylim     = list(map(float, args.ylim.split(',')))
 
     display_svd_values(p_scene, p_interval, p_indices, p_feature, p_mode, p_step, p_norm, p_ylim)
 
