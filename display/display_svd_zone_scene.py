@@ -118,7 +118,6 @@ def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_feature, p_mode
 
         if p_scene == folder_scene:
             scene_path = os.path.join(path, folder_scene)
-
             # construct each zones folder name
             zones_folder = []
 
@@ -152,17 +151,20 @@ def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_feature, p_mode
 
             # for each images
             for img_path in scene_images:
-                    
+
                 current_quality_image = dt.get_scene_image_quality(img_path)
 
                 if current_quality_image % p_step == 0:
                     if current_quality_image >= begin_index and current_quality_image <= end_index:
-                        images_path.append(dt.get_scene_image_postfix(img_path))
+                        images_path.append(img_path)
 
                     if seuil_learned < current_quality_image and not threshold_image_found:
 
                         threshold_image_found = True
                         threshold_image_zone = dt.get_scene_image_postfix(img_path)
+
+                        if img_path not in images_path:
+                            images_path.append(img_path)
 
 
             for img_path in images_path:
@@ -206,25 +208,31 @@ def display_svd_values(p_scene, p_interval, p_indices, p_zone, p_feature, p_mode
                 else:
                     zones_images_data.append(data)
 
-            plt.title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + ']' + p_feature + ' feature, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=20)
-            plt.ylabel('Image samples or time (minutes) generation', fontsize=14)
-            plt.xlabel('Vector features', fontsize=16)
+            fig, ax = plt.subplots(figsize=(30, 22))
+            ax.set_facecolor('#FFFFFF')
+
+            # plt.title(p_scene + ' scene (zone  ' + str(p_zone) + ') interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_feature + ' feature, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=24)
+            ax.set_ylabel('Component values', fontsize=28)
+            ax.set_xlabel('Vector features', fontsize=28)
+
+            ax.tick_params(labelsize=22)
 
             for id, data in enumerate(zones_images_data):
 
-                p_label = p_scene + "_" + images_path[id]
-
-                if images_path[id] == threshold_image_zone:
-                    plt.plot(data, label=p_label, lw=4, color='red')
+                p_label = p_scene + "_" + dt.get_scene_image_postfix(images_path[id])
+                
+                if int(dt.get_scene_image_postfix(images_path[id])) == int(threshold_image_zone):
+                    ax.plot(data, label=p_label + ' (zone ' + str(p_zone) + ' threshold)', lw=4, color='red')
                 else:
-                    plt.plot(data, label=p_label)
+                    ax.plot(data, label=p_label)
 
-            plt.legend(bbox_to_anchor=(0.8, 1), loc=2, borderaxespad=0.2, fontsize=14)
+            plt.legend(bbox_to_anchor=(0.60, 0.98), loc=2, borderaxespad=0.2, fontsize=24)
 
             start_ylim, end_ylim = p_ylim
             plt.ylim(start_ylim, end_ylim)
 
-            plt.show()
+            plot_name = p_scene + '_zone_' + str(p_zone) + '_' + p_feature + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
+            plt.savefig(plot_name, facecolor=ax.get_facecolor())
 
 def main():
 
@@ -250,7 +258,7 @@ def main():
     p_mode     = args.mode
     p_step     = args.step
     p_norm     = args.norm
-    p_ylim     = list(map(int, args.ylim.split(',')))
+    p_ylim     = list(map(float, args.ylim.split(',')))
 
     display_svd_values(p_scene, p_interval, p_indices, p_zone, p_feature, p_mode, p_step, p_norm, p_ylim)
 
