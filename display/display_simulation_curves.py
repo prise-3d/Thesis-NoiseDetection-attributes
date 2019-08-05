@@ -100,27 +100,29 @@ def main():
 
     parser = argparse.ArgumentParser(description="Display simulations curves from simulation data")
 
-    parser.add_argument('--folder', type=str, help='Folder which contains simulations data for scenes')
-    parser.add_argument('--model', type=str, help='Name of the model used for simulations')
+    parser.add_argument('--folder', type=str, help='Folder which contains all threshold map data for scenes')
 
     args = parser.parse_args()
 
     p_folder = args.folder
 
-    if args.model:
-        p_model = args.model
-    else:
+    # get threshold folder path
+    threshold_folder = os.path.join(p_folder, cfg.threshold_map_folder)
+
+    for folder in os.listdir(threshold_folder):
+
+        print(folder)
+        folder_path = os.path.join(threshold_folder, folder)
+
         # find p_model from folder if model arg not given (folder path need to have model name)
-        if p_folder.split('/')[-1]:
-            p_model = p_folder.split('/')[-1]
+        if folder_path.split('/')[-1]:
+            model = folder_path.split('/')[-1]
         else:
-            p_model = p_folder.split('/')[-2]
-    
-    print(p_model)
+            model = folder_path.split('/')[-2]
 
-    display_curves(p_folder, p_model)
+        display_curves(folder_path, model)
 
-    print(p_folder)
+   
 
 if __name__== "__main__":
     main()
