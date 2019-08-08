@@ -14,7 +14,9 @@ import pywt
 import cv2
 
 from ipfml.processing import transform, compression, segmentation
+from ipfml.filters import convolution, kernels
 from ipfml import utils
+
 
 # modules and config imports
 sys.path.insert(0, '') # trick to enable import of main folder module
@@ -496,6 +498,167 @@ def get_image_features(data_type, block):
         s_arr = compression.get_SVD_s(arr)
         data = s_arr[indices]
 
+    if 'convolutional_kernels' in data_type:
+
+        sub_zones = segmentation.divide_in_blocks(block, (20, 20))
+
+        data = []
+
+        diff_std_list_3 = []
+        diff_std_list_5 = []
+        diff_mean_list_3 = []
+        diff_mean_list_5 = []
+
+        plane_std_list_3 = []
+        plane_std_list_5 = []
+        plane_mean_list_3 = []
+        plane_mean_list_5 = []
+
+        plane_max_std_list_3 = []
+        plane_max_std_list_5 = []
+        plane_max_mean_list_3 = []
+        plane_max_mean_list_5 = []
+
+        for sub_zone in sub_zones:
+            l_img = transform.get_LAB_L(sub_zone)
+            normed_l_img = utils.normalize_2D_arr(l_img)
+
+            # bilateral with window of size (3, 3)
+            normed_diff = convolution.convolution2D(normed_l_img, kernels.bilateral_diff, (3, 3))
+            std_diff = np.std(normed_diff)
+            mean_diff = np.mean(normed_diff)
+
+            diff_std_list_3.append(std_diff)
+            diff_mean_list_3.append(mean_diff)
+
+            # bilateral with window of size (5, 5)
+            normed_diff = convolution.convolution2D(normed_l_img, kernels.bilateral_diff, (5, 5))
+            std_diff = np.std(normed_diff)
+            mean_diff = np.mean(normed_diff)
+
+            diff_std_list_5.append(std_diff)
+            diff_mean_list_5.append(mean_diff)
+
+            # plane mean with window of size (3, 3)
+            normed_plane_mean = convolution.convolution2D(normed_l_img, kernels.plane_mean, (3, 3))
+            std_plane_mean = np.std(normed_plane_mean)
+            mean_plane_mean = np.mean(normed_plane_mean)
+
+            plane_std_list_3.append(std_plane_mean)
+            plane_mean_list_3.append(mean_plane_mean)
+
+            # plane mean with window of size (5, 5)
+            normed_plane_mean = convolution.convolution2D(normed_l_img, kernels.plane_mean, (5, 5))
+            std_plane_mean = np.std(normed_plane_mean)
+            mean_plane_mean = np.mean(normed_plane_mean)
+
+            plane_std_list_5.append(std_plane_mean)
+            plane_mean_list_5.append(mean_plane_mean)
+
+            # plane max error with window of size (3, 3)
+            normed_plane_max = convolution.convolution2D(normed_l_img, kernels.plane_max_error, (3, 3))
+            std_plane_max = np.std(normed_plane_max)
+            mean_plane_max = np.mean(normed_plane_max)
+
+            plane_max_std_list_3.append(std_plane_max)
+            plane_max_mean_list_3.append(mean_plane_max)
+
+            # plane max error with window of size (5, 5)
+            normed_plane_max = convolution.convolution2D(normed_l_img, kernels.plane_max_error, (5, 5))
+            std_plane_max = np.std(normed_plane_max)
+            mean_plane_max = np.mean(normed_plane_max)
+
+            plane_max_std_list_5.append(std_plane_max)
+            plane_max_mean_list_5.append(mean_plane_max)
+
+        diff_std_list_3 = np.array(diff_std_list_3)
+        diff_std_list_5 = np.array(diff_std_list_5)
+
+        diff_mean_list_3 = np.array(diff_mean_list_3)
+        diff_mean_list_5 = np.array(diff_mean_list_5)
+
+        plane_std_list_3 = np.array(plane_std_list_3)
+        plane_std_list_5 = np.array(plane_std_list_5)
+
+        plane_mean_list_3 = np.array(plane_mean_list_3)
+        plane_mean_list_5 = np.array(plane_mean_list_5)
+
+        plane_max_std_list_3 = np.array(plane_max_std_list_3)
+        plane_max_std_list_5 = np.array(plane_max_std_list_5)
+
+        plane_max_mean_list_3 = np.array(plane_max_mean_list_3)
+        plane_max_mean_list_5 = np.array(plane_max_mean_list_5)
+
+        if 'std_max_blocks' in data_type:
+
+            data.append(np.std(diff_std_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.std(diff_mean_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.std(diff_std_list_5[0:int(len(sub_zones)/5)]))
+            data.append(np.std(diff_mean_list_5[0:int(len(sub_zones)/5)]))
+
+            data.append(np.std(plane_std_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.std(plane_mean_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.std(plane_std_list_5[0:int(len(sub_zones)/5)]))
+            data.append(np.std(plane_mean_list_5[0:int(len(sub_zones)/5)]))
+
+            data.append(np.std(plane_max_std_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.std(plane_max_mean_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.std(plane_max_std_list_5[0:int(len(sub_zones)/5)]))
+            data.append(np.std(plane_max_mean_list_5[0:int(len(sub_zones)/5)]))
+
+        if 'mean_max_blocks' in data_type:
+
+            data.append(np.mean(diff_std_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(diff_mean_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(diff_std_list_5[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(diff_mean_list_5[0:int(len(sub_zones)/5)]))
+
+            data.append(np.mean(plane_std_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(plane_mean_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(plane_std_list_5[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(plane_mean_list_5[0:int(len(sub_zones)/5)]))
+            
+            data.append(np.mean(plane_max_std_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(plane_max_mean_list_3[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(plane_max_std_list_5[0:int(len(sub_zones)/5)]))
+            data.append(np.mean(plane_max_mean_list_5[0:int(len(sub_zones)/5)]))
+
+        if 'std_normed' in data_type:
+
+            data.append(np.std(diff_std_list_3))
+            data.append(np.std(diff_mean_list_3))
+            data.append(np.std(diff_std_list_5))
+            data.append(np.std(diff_mean_list_5))
+
+            data.append(np.std(plane_std_list_3))
+            data.append(np.std(plane_mean_list_3))
+            data.append(np.std(plane_std_list_5))
+            data.append(np.std(plane_mean_list_5))
+            
+            data.append(np.std(plane_max_std_list_3))
+            data.append(np.std(plane_max_mean_list_3))
+            data.append(np.std(plane_max_std_list_5))
+            data.append(np.std(plane_max_mean_list_5))
+
+        if 'mean_normed' in data_type:
+
+            data.append(np.mean(diff_std_list_3))
+            data.append(np.mean(diff_mean_list_3))
+            data.append(np.mean(diff_std_list_5))
+            data.append(np.mean(diff_mean_list_5))
+
+            data.append(np.mean(plane_std_list_3))
+            data.append(np.mean(plane_mean_list_3))
+            data.append(np.mean(plane_std_list_5))
+            data.append(np.mean(plane_mean_list_5))
+            
+            data.append(np.mean(plane_max_std_list_3))
+            data.append(np.mean(plane_max_mean_list_3))
+            data.append(np.mean(plane_max_std_list_5))
+            data.append(np.mean(plane_max_mean_list_5))
+
+        data = np.array(data)
+        
     return data
 
 
