@@ -2,8 +2,23 @@
 
 # erase "results/models_comparisons.csv" file and write new header
 file_path='results/models_comparisons.csv'
+list="all, center, split"
 
-erased=$1
+if [ -z "$1" ]
+  then
+    echo "No argument supplied"
+    echo "Need argument from [${list}]"
+    exit 1
+fi
+
+if [[ "$1" =~ ^(all|center|split)$ ]]; then
+    echo "$1 is in the list"
+else
+    echo "$1 is not in the list"
+fi
+
+data=$1
+erased=$2
 
 if [ "${erased}" == "Y" ]; then
     echo "Previous data file erased..."
@@ -43,7 +58,7 @@ for nb_zones in {4,6,8,10,12}; do
 
                     echo "${MODEL_NAME} results already generated..."
                 else
-                    python generate/generate_data_model_random.py --output ${FILENAME} --interval "${start_index},${end_index}" --kind ${mode} --feature ${feature} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
+                    python generate/generate_data_model_random_${data}.py --output ${FILENAME} --interval "${start_index},${end_index}" --kind ${mode} --feature ${feature} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
                     python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
                     python others/save_model_result_in_md_maxwell.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --feature ${feature}

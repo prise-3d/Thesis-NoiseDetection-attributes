@@ -2,8 +2,23 @@
 
 # erase "results/models_comparisons.csv" file and write new header
 file_path='results/models_comparisons.csv'
+list="all, center, split"
 
-erased=$1
+if [ -z "$1" ]
+  then
+    echo "No argument supplied"
+    echo "Need argument from [${list}]"
+    exit 1
+fi
+
+if [[ "$1" =~ ^(all|center|split)$ ]]; then
+    echo "$1 is in the list"
+else
+    echo "$1 is not in the list"
+fi
+
+data=$1
+erased=$2
 
 if [ "${erased}" == "Y" ]; then
     echo "Previous data file erased..."
@@ -20,6 +35,6 @@ for size in {"4","8","16","26","32","40","60","80"}; do
 
 #    for metric in {"highest_sv_std_filters","lowest_sv_std_filters","highest_wave_sv_std_filters","lowest_sv_std_filters","highest_sv_std_filters_full","lowest_sv_std_filters_full","highest_sv_entropy_std_filters","lowest_sv_entropy_std_filters"}; do
     for metric in {"highest_sv_entropy_std_filters","lowest_sv_entropy_std_filters"}; do
-        bash data_processing/generateAndTrain_maxwell_custom_filters.sh ${size} ${metric} &
+        bash data_processing/generateAndTrain_maxwell_custom_filters.sh ${size} ${metric} ${data} &
     done
 done

@@ -2,8 +2,23 @@
 
 # erase "results/models_comparisons.csv" file and write new header
 file_path='results/models_comparisons.csv'
+list="all, center, split"
 
-erased=$1
+if [ -z "$1" ]
+  then
+    echo "No argument supplied"
+    echo "Need argument from [${list}]"
+    exit 1
+fi
+
+if [[ "$1" =~ ^(all|center|split)$ ]]; then
+    echo "$1 is in the list"
+else
+    echo "$1 is not in the list"
+fi
+
+data=$1
+erased=$2
 
 if [ "${erased}" == "Y" ]; then
     echo "Previous data file erased..."
@@ -19,6 +34,6 @@ fi
 for size in {"4","8","16","26","32","40"}; do
 
     for metric in {"lab","mscn","low_bits_2","low_bits_3","low_bits_4","low_bits_5","low_bits_6","low_bits_4_shifted_2"}; do
-        bash data_processing/generateAndTrain_maxwell.sh ${size} ${metric}
+        bash data_processing/generateAndTrain_maxwell.sh ${size} ${metric} ${data}
     done
 done

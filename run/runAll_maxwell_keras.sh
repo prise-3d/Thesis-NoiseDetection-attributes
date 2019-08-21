@@ -2,8 +2,23 @@
 
 # erase "results/models_comparisons.csv" file and write new header
 file_path='results/models_comparisons.csv'
+list="all, center, split"
 
-erased=$1
+if [ -z "$1" ]
+  then
+    echo "No argument supplied"
+    echo "Need argument from [${list}]"
+    exit 1
+fi
+
+if [[ "$1" =~ ^(all|center|split)$ ]]; then
+    echo "$1 is in the list"
+else
+    echo "$1 is not in the list"
+fi
+
+data=$1
+erased=$2
 
 if [ "${erased}" == "Y" ]; then
     echo "Previous data file erased..."
@@ -43,11 +58,10 @@ for feature in {"sub_blocks_stats","sub_blocks_stats_reduced","sub_blocks_area",
 
                 echo "${MODEL_NAME} results already generated..."
             else
-                echo "test"
-                #python generate/generate_data_model_random.py --output ${FILENAME} --interval "${start_index},${end_index}" --kind ${mode} --feature ${feature} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
-                #python deep_network_keras_svd.py --data ${FILENAME} --output ${MODEL_NAME} --size ${end_index}
+                python generate/generate_data_model_random_${data}.py --output ${FILENAME} --interval "${start_index},${end_index}" --kind ${mode} --feature ${feature} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 10 --random 1
+                python deep_network_keras_svd.py --data ${FILENAME} --output ${MODEL_NAME} --size ${end_index}
 
-                #python others/save_model_result_in_md_maxwell.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --feature ${feature}
+                python others/save_model_result_in_md_maxwell.py --interval "${start_index},${end_index}" --model "saved_models/${MODEL_NAME}.json" --mode "${mode}" --feature ${feature}
             fi
         done
     done
