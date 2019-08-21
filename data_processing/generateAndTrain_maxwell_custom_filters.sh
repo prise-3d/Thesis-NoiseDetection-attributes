@@ -14,10 +14,19 @@ if [ -z "$2" ]
     exit 1
 fi
 
+if [ -z "$3" ]
+  then
+    echo "No argument supplied"
+    echo "Need of kind of data to use"
+    exit 1
+fi
+
 result_filename="results/models_comparisons.csv"
 VECTOR_SIZE=200
+
 size=$1
 feature=$2
+data=$3
 
 # selection of four scenes (only maxwell)
 scenes="A, D, G, H"
@@ -37,7 +46,7 @@ for nb_zones in {4,6,8,10,12}; do
 
                 echo "${MODEL_NAME} results already generated..."
             else
-                python generate/generate_data_model_random.py --output ${FILENAME} --interval "0,${size}" --kind ${mode} --feature ${feature} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 40 --random 1 --custom ${CUSTOM_MIN_MAX_FILENAME}
+                python generate/generate_data_model_random_${data}.py --output ${FILENAME} --interval "0,${size}" --kind ${mode} --feature ${feature} --scenes "${scenes}" --nb_zones "${nb_zones}" --percent 1 --renderer "maxwell" --step 40 --random 1 --custom ${CUSTOM_MIN_MAX_FILENAME}
                 python train_model.py --data ${FILENAME} --output ${MODEL_NAME} --choice ${model}
 
                 python others/save_model_result_in_md_maxwell.py --interval "0,${size}" --model "saved_models/${MODEL_NAME}.joblib" --mode "${mode}" --feature ${feature}
