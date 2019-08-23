@@ -188,9 +188,9 @@ def main():
                     for rotation in rotations:
 
                         rotated_img_name = extracted_image_name +  'rot' + str(rotation) + '_' + current_image_postfix + cfg.scene_image_extension
-                        rotated_img_path = os.path.join(output_scene_path, rotated_img_name)
+                        rotated_img_path = os.path.join(folder_scene, rotated_img_name)
                         rotated_img = pil_extracted_img.rotate(rotation)
-                        rotated_img.save(os.path.join(rotated_img_path))
+                        rotated_img.save(rotated_img_path)
 
                         csv_line = folder_scene + ';' + str(final_threshold) + ';' + str(int(current_image_postfix)) + ';' + str(int(label_img)) + ';' + rotated_img_path + '\n'
 
@@ -199,7 +199,7 @@ def main():
 
                 else:
                     extracted_image_name += current_image_postfix + cfg.scene_image_extension
-                    extracted_image_path = os.path.join(output_scene_path, extracted_image_name)
+                    extracted_image_path = os.path.join(folder_scene, extracted_image_name)
                     
                     pil_extracted_img.save(extracted_image_path)
 
