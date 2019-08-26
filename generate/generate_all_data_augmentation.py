@@ -117,8 +117,8 @@ def generate_data_svd(data_type, mode, path):
 
             for val in data:
                 current_file.write(str(val) + ";")
-                
-            print(data_type + "_" + mode + "_" + scene_name + " - " + "{0:.2f}".format((index + 1) / number_of_images * 100.) + "%")
+
+            print(data_type + "_" + mode + " - " + "{0:.2f}".format((index + 1) / number_of_images * 100.) + "%")
             sys.stdout.write("\033[F")
 
             current_file.write('\n')
