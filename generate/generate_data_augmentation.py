@@ -130,6 +130,7 @@ def main():
                     points = [p_top_left, p_top_right, p_bottom_right, p_bottom_left]
 
                     p_zones_indices = []
+                    
                     # for each points get threshold information
                     for p in points:
                         x, y = p
@@ -188,28 +189,32 @@ def main():
                     for rotation in rotations:
 
                         rotated_img_name = extracted_image_name +  'rot' + str(rotation) + '_' + current_image_postfix + cfg.scene_image_extension
-                        rotated_img_path = os.path.join(folder_scene, rotated_img_name)
+                        rotated_img_path = os.path.join(output_scene_path, rotated_img_name)
+                        saved_rotated_img_path = os.path.join(folder_scene, rotated_img_name)
                         rotated_img = pil_extracted_img.rotate(rotation)
                         rotated_img.save(rotated_img_path)
 
-                        csv_line = folder_scene + ';' + str(final_threshold) + ';' + str(int(current_image_postfix)) + ';' + str(int(label_img)) + ';' + rotated_img_path + '\n'
+                        csv_line = folder_scene + ';' + str(final_threshold) + ';' + str(int(current_image_postfix)) + ';' + str(int(label_img)) + ';' + saved_rotated_img_path + '\n'
 
                         with open(output_dataset_filename_path, 'a') as f:
                             f.write(csv_line)
 
                 else:
                     extracted_image_name += current_image_postfix + cfg.scene_image_extension
-                    extracted_image_path = os.path.join(folder_scene, extracted_image_name)
+                    extracted_image_path = os.path.join(output_scene_path, extracted_image_name)
+                    saved_extracted_image_path = os.path.join(output_scene_path, extracted_image_name)
                     
                     pil_extracted_img.save(extracted_image_path)
 
-                    csv_line = folder_scene + ';' + str(final_threshold) + ';' + str(int(current_image_postfix)) + ';' + str(int(label_img)) + ';' + extracted_image_path + '\n'
+                    csv_line = folder_scene + ';' + str(final_threshold) + ';' + str(int(current_image_postfix)) + ';' + str(int(label_img)) + ';' + saved_extracted_image_path + '\n'
 
                     with open(output_dataset_filename_path, 'a') as f:
                         f.write(csv_line)
 
                 print(folder_scene + " - " + "{0:.2f}".format(((id_img * p_number + generation) + 1) / (p_number * number_scene_image) * 100.) + "%")
                 sys.stdout.write("\033[F")
+
+        print('\n', folder_scene, 'done...')
 
 
 if __name__== "__main__":
