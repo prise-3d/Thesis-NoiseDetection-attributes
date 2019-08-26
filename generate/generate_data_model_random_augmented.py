@@ -26,7 +26,6 @@ all_scenes_list         = cfg.scenes_names
 all_scenes_indices      = cfg.scenes_indices
 
 normalization_choices   = cfg.normalization_choices
-path                    = cfg.dataset_path
 zones                   = cfg.zones_indices
 seuil_expe_filename     = cfg.seuil_expe_filename
 
@@ -46,7 +45,7 @@ def construct_new_line(interval, line_data, choice, each, norm):
 
     label = line_data[2]
     features = line_data[begin+3:end+3]
-
+    
     # keep only if modulo result is 0 (keep only each wanted values)
     features = [float(m) for id, m in enumerate(features) if id % each == 0]
 
@@ -67,18 +66,13 @@ def construct_new_line(interval, line_data, choice, each, norm):
 
     return line
 
-def get_min_max_value_interval(_scenes_list, _interval, _feature):
+def get_min_max_value_interval(_path, _scenes_list, _interval, _feature):
 
     global min_value_interval, max_value_interval
 
-    scenes = os.listdir(path)
-
-    # remove min max file from scenes folder
-    scenes = [s for s in scenes if min_max_filename not in s]
-
     data_filename = _feature + "_svd" + generic_output_file_svd
 
-    data_file_path = os.path.join(path, data_filename)
+    data_file_path = os.path.join(_path, data_filename)
 
     # getting number of line and read randomly lines
     f = open(data_file_path)
@@ -91,7 +85,7 @@ def get_min_max_value_interval(_scenes_list, _interval, _feature):
 
         line_data = line.split(';')
 
-        features = line_data[begin+1:end+1]
+        features = line_data[begin+3:end+3]
         features = [float(m) for m in features]
 
         min_value = min(features)
@@ -104,7 +98,7 @@ def get_min_max_value_interval(_scenes_list, _interval, _feature):
             max_value_interval = max_value
 
 
-def generate_data_model(_scenes_list, _filename, _interval, _choice, _feature, _scenes, _nb_zones = 4, _percent = 1, _random=0, _step=1, _each=1, _custom = False):
+def generate_data_model(_path, _scenes_list, _filename, _interval, _choice, _feature, _scenes, _nb_zones = 4, _percent = 1, _random=0, _step=1, _each=1, _custom = False):
 
     output_train_filename = _filename + ".train"
     output_test_filename = _filename + ".test"
@@ -125,7 +119,7 @@ def generate_data_model(_scenes_list, _filename, _interval, _choice, _feature, _
     else:
         data_filename = _feature + "_" + _choice + generic_output_file_svd
 
-    data_file_path = os.path.join(data_filename)
+    data_file_path = os.path.join(_path, data_filename)
 
     # getting number of line and read randomly lines
     f = open(data_file_path)
@@ -148,7 +142,7 @@ def generate_data_model(_scenes_list, _filename, _interval, _choice, _feature, _
         image_index = int(data[1])
 
         if image_index % _step == 0:
-            line = construct_new_line(_interval, data, _choice, _each, _custom)
+            line = construct_new_line(_interval, data, _choice, int(_each), _custom)
 
             if scene_name in _scenes and percent <= _percent:
                 train_file_data.append(line)
@@ -178,6 +172,7 @@ def main():
     parser = argparse.ArgumentParser(description="Generate data for model using correlation matrix information from data")
 
     parser.add_argument('--output', type=str, help='output file name desired (.train and .test)')
+    parser.add_argument('--folder', type=str, help='folder path of data augmented database')
     parser.add_argument('--interval', type=str, help='Interval value to keep from svd', default='"0, 200"')
     parser.add_argument('--kind', type=str, help='Kind of normalization level wished', choices=normalization_choices)
     parser.add_argument('--feature', type=str, help='feature data choice', choices=features_choices)
@@ -192,11 +187,11 @@ def main():
     args = parser.parse_args()
 
     p_filename = args.output
+    p_folder   = args.folder
     p_interval = list(map(int, args.interval.split(',')))
     p_kind     = args.kind
     p_feature  = args.feature
     p_scenes   = args.scenes.split(',')
-    p_nb_zones = args.nb_zones
     p_random   = args.random
     p_percent  = args.percent
     p_step     = args.step
@@ -218,7 +213,7 @@ def main():
 
     # find min max value if necessary to renormalize data
     if p_custom:
-        get_min_max_value_interval(scenes_list, p_interval, p_feature)
+        get_min_max_value_interval(p_folder, scenes_list, p_interval, p_feature)
 
         # write new file to save
         if not os.path.exists(custom_min_max_folder):
@@ -231,7 +226,7 @@ def main():
             f.write(str(max_value_interval) + '\n')
 
     # create database using img folder (generate first time only)
-    generate_data_model(scenes_list, p_filename, p_interval, p_kind, p_feature, scenes_selected, p_nb_zones, p_percent, p_random, p_step, p_each, p_custom)
+    generate_data_model(p_folder, scenes_list, p_filename, p_interval, p_kind, p_feature, scenes_selected, p_percent, p_random, p_step, p_each, p_custom)
 
 if __name__== "__main__":
     main()
