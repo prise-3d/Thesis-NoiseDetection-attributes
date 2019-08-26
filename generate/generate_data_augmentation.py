@@ -130,6 +130,7 @@ def main():
                     points = [p_top_left, p_top_right, p_bottom_right, p_bottom_left]
 
                     p_zones_indices = []
+                    
                     # for each points get threshold information
                     for p in points:
                         x, y = p
@@ -212,6 +213,8 @@ def main():
 
                 print(folder_scene + " - " + "{0:.2f}".format(((id_img * p_number + generation) + 1) / (p_number * number_scene_image) * 100.) + "%")
                 sys.stdout.write("\033[F")
+
+        print('\n', folder_scene, 'done...')
 
 
 if __name__== "__main__":
