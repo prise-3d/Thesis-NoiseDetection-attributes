@@ -168,7 +168,6 @@ def main():
             print("------------------------")
 
             print("Model predictions are saved into %s" % map_filename)
-            time.sleep(10)
 
 
 if __name__== "__main__":
