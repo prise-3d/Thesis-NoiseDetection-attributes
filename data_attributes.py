@@ -658,6 +658,20 @@ def get_image_features(data_type, block):
             data.append(np.mean(plane_max_mean_list_5))
 
         data = np.array(data)
+
+    if data_type == 'convolutional_kernel_stats_svd':
+
+        l_img = transform.get_LAB_L(block)
+        normed_l_img = utils.normalize_2D_arr(l_img)
+
+        # bilateral with window of size (5, 5)
+        normed_diff = convolution.convolution2D(normed_l_img, kernels.bilateral_diff, (5, 5))
+
+        # getting sigma vector from SVD compression
+        s = compression.get_SVD_s(normed_diff)
+
+        data = s
+
         
     return data
 
