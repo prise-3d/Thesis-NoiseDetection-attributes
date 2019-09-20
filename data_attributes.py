@@ -524,7 +524,7 @@ def get_image_features(data_type, block):
             normed_l_img = utils.normalize_2D_arr(l_img)
 
             # bilateral with window of size (3, 3)
-            normed_diff = convolution.convolution2D(normed_l_img, kernels.bilateral_diff, (3, 3))
+            normed_diff = convolution.convolution2D(normed_l_img, kernels.min_bilateral_diff, (3, 3))
             std_diff = np.std(normed_diff)
             mean_diff = np.mean(normed_diff)
 
@@ -532,7 +532,7 @@ def get_image_features(data_type, block):
             diff_mean_list_3.append(mean_diff)
 
             # bilateral with window of size (5, 5)
-            normed_diff = convolution.convolution2D(normed_l_img, kernels.bilateral_diff, (5, 5))
+            normed_diff = convolution.convolution2D(normed_l_img, kernels.min_bilateral_diff, (5, 5))
             std_diff = np.std(normed_diff)
             mean_diff = np.mean(normed_diff)
 
@@ -665,7 +665,7 @@ def get_image_features(data_type, block):
         normed_l_img = utils.normalize_2D_arr(l_img)
 
         # bilateral with window of size (5, 5)
-        normed_diff = convolution.convolution2D(normed_l_img, kernels.bilateral_diff, (5, 5))
+        normed_diff = convolution.convolution2D(normed_l_img, kernels.min_bilateral_diff, (5, 5))
 
         # getting sigma vector from SVD compression
         s = compression.get_SVD_s(normed_diff)
