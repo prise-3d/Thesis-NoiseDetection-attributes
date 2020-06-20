@@ -1,6 +1,7 @@
 # main imports
 import sys, os, argparse
 import numpy as np
+import math
 
 # image processing imports
 from PIL import Image
@@ -151,6 +152,9 @@ def display_svd_values(p_scene, p_interval, p_indices, p_feature, p_mode, p_step
 
             for id, data in enumerate(svd_data):
 
+                # current_data = [ math.log10(d + 1.) for d in data ]
+                # print(current_data)
+
                 current_data = data
 
                 if not p_norm:
@@ -170,30 +174,32 @@ def display_svd_values(p_scene, p_interval, p_indices, p_feature, p_mode, p_step
             ax.set_facecolor('#FFFFFF')
             #fig.patch.set_facecolor('#F9F9F9')
 
-            ax.tick_params(labelsize=22)
+            ax.tick_params(labelsize=26)
             #plt.rc('xtick', labelsize=22)
             #plt.rc('ytick', labelsize=22)
 
             #plt.title(p_scene + ' scene interval information SVD['+ str(begin_data) +', '+ str(end_data) +'], from scenes indices [' + str(begin_index) + ', '+ str(end_index) + '], ' + p_feature + ' feature, ' + p_mode + ', with step of ' + str(p_step) + ', svd norm ' + str(p_norm), fontsize=24)
-            ax.set_ylabel('Component values', fontsize=28)
-            ax.set_xlabel('Vector features', fontsize=28)
+            ax.set_ylabel('Component values', fontsize=36)
+            ax.set_xlabel('Singular value component indices', fontsize=36)
 
             for id, data in enumerate(images_data):
 
-                p_label = p_scene + "_" + images_indices[id]
+                #p_label = p_scene + "_" + images_indices[id]
+                p_label = images_indices[id] + " samples"
 
                 if int(images_indices[id]) == int(threshold_image_zone):
-                    ax.plot(data, label=p_label + " (threshold mean)", lw=4, color='red')
+                    ax.plot(data, label=p_label + " (threshold mean)", lw=6, color='red')
                 else:
                     ax.plot(data, label=p_label)
 
-            plt.legend(bbox_to_anchor=(0.60, 0.98), loc=2, borderaxespad=0.2, fontsize=26)
+            plt.legend(bbox_to_anchor=(0.60, 0.98), loc=2, borderaxespad=0.2, fontsize=32)
 
             start_ylim, end_ylim = p_ylim
             ax.set_ylim(start_ylim, end_ylim)
 
             plot_name = p_scene + '_' + p_feature + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
-            plt.savefig(plot_name, facecolor=ax.get_facecolor())
+            plt.title('Tend of Singular values at different samples of Flat scene', fontsize=40)
+            plt.savefig(plot_name, transparent=True)
 
 def main():
 
@@ -206,7 +212,7 @@ def main():
     parser.add_argument('--mode', type=str, help='Kind of normalization level wished', choices=cfg.normalization_choices)
     parser.add_argument('--step', type=int, help='Each step samples to display', default=10)
     parser.add_argument('--norm', type=int, help='If values will be normalized or not', choices=[0, 1])
-    parser.add_argument('--ylim', type=str, help='ylim interval to use', default='"0, 1"')
+    parser.add_argument('--ylim', type=str, help='ylim interval to use', default='0,1')
 
     args = parser.parse_args()
 
