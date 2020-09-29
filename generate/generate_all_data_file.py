@@ -24,10 +24,7 @@ zone_folder             = cfg.zone_folder
 min_max_filename        = cfg.min_max_filename_extension
 
 # define all scenes values
-scenes_list             = cfg.scenes_names
-scenes_indexes          = cfg.scenes_indices
 choices                 = cfg.normalization_choices
-path                    = cfg.dataset_path
 zones                   = cfg.zones_indices
 seuil_expe_filename     = cfg.seuil_expe_filename
 
@@ -36,7 +33,7 @@ output_data_folder      = cfg.output_data_folder
 
 generic_output_file_svd = '_random.csv'
 
-def generate_data_svd(data_type, mode):
+def generate_data_feature(path, output, human_thresholds, data_type, mode):
     """
     @brief Method which generates all .csv files from scenes
     @param data_type,  feature choice
@@ -52,13 +49,22 @@ def generate_data_svd(data_type, mode):
     min_val_found = sys.maxsize
     max_val_found = 0
 
-    data_min_max_filename = os.path.join(path, data_type + min_max_filename)
+    output_path = os.path.join(cfg.output_data_generated, output)
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    data_min_max_filename = os.path.join(output_path, data_type + min_max_filename)
 
     # go ahead each scenes
-    for folder_scene in scenes:
+    for folder_scene in human_thresholds:
 
         print(folder_scene)
         scene_path = os.path.join(path, folder_scene)
+        output_scene_path = os.path.join(output_path, folder_scene)
+
+        if not os.path.exists(output_scene_path):
+            os.makedirs(output_scene_path)
 
         # getting output filename
         output_svd_filename = data_type + "_" + mode + generic_output_file_svd
@@ -77,7 +83,12 @@ def generate_data_svd(data_type, mode):
             zones_folder.append(current_zone)
 
             zone_path = os.path.join(scene_path, current_zone)
-            svd_file_path = os.path.join(zone_path, output_svd_filename)
+            output_zone_path = os.path.join(output_scene_path, current_zone)
+
+            if not os.path.exists(output_zone_path):
+                os.makedirs(output_zone_path)
+
+            svd_file_path = os.path.join(output_zone_path, output_svd_filename)
 
             # add writer into list
             svd_output_files.append(open(svd_file_path, 'w'))
@@ -165,26 +176,50 @@ def main():
     parser.add_argument('--feature', type=str, 
                                     help="feature choice in order to compute data (use 'all' if all features are needed)", required=True)
     parser.add_argument('--dataset', type=str, 
-                                    help="feature choice in order to compute data (use 'all' if all features are needed)")
+                                    help="dataset with all scenes", required=True)
+    parser.add_argument('--output', type=str, 
+                                    help="output where data files are saved", required=True)
+
+    parser.add_argument('--thresholds', type=str, help='file with scene list information and thresholds', required=True)
 
     args = parser.parse_args()
 
     p_feature = args.feature
+    p_dataset = args.dataset
+    p_output  = args.output
+    p_thresholds = args.thresholds
+
+    # 1. retrieve human_thresholds
+    human_thresholds = {}
+
+    # extract thresholds
+    with open(p_thresholds) as f:
+        thresholds_line = f.readlines()
+
+        for line in thresholds_line:
+            data = line.split(';')
+            del data[-1] # remove unused last element `\n`
+            current_scene = data[0]
+            thresholds_scene = data[1:]
+
+            # TODO : check if really necessary
+            if current_scene != '50_shades_of_grey':
+                human_thresholds[current_scene] = [ int(threshold) for threshold in  thresholds_scene ]
 
     # generate all or specific feature data
     if p_feature == 'all':
         for m in features_choices:
-            generate_data_svd(m, 'svd')
-            generate_data_svd(m, 'svdn')
-            generate_data_svd(m, 'svdne')
+            generate_data_feature(p_dataset, p_output, human_thresholds, m, 'svd')
+            generate_data_feature(p_dataset, p_output, human_thresholds, m, 'svdn')
+            generate_data_feature(p_dataset, p_output, human_thresholds, m, 'svdne')
     else:
 
         if p_feature not in features_choices:
             raise ValueError('Unknown feature choice : ', features_choices)
             
-        generate_data_svd(p_feature, 'svd')
-        generate_data_svd(p_feature, 'svdn')
-        generate_data_svd(p_feature, 'svdne')
+        generate_data_feature(p_dataset, p_output, human_thresholds, p_feature, 'svd')
+        generate_data_feature(p_dataset, p_output, human_thresholds, p_feature, 'svdn')
+        generate_data_feature(p_dataset, p_output, human_thresholds, p_feature, 'svdne')
 
 if __name__== "__main__":
     main()

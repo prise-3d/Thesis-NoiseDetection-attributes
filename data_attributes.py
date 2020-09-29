@@ -298,12 +298,12 @@ def get_image_features(data_type, block):
             
         sv_array = np.array(sv_vector)
         
-        _, len = sv_array.shape
+        _, length = sv_array.shape
         
         sv_std = []
         
         # normalize each SV vectors and compute standard deviation for each sub vectors
-        for i in range(len):
+        for i in range(length):
             sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
             sv_std.append(np.std(sv_array[:, i]))
         
@@ -340,12 +340,12 @@ def get_image_features(data_type, block):
             
         sv_array = np.array(sv_vector)
         
-        _, len = sv_array.shape
+        _, length = sv_array.shape
         
         sv_std = []
         
         # normalize each SV vectors and compute standard deviation for each sub vectors
-        for i in range(len):
+        for i in range(length):
             sv_array[:, i] = utils.normalize_arr(sv_array[:, i])
             sv_std.append(np.std(sv_array[:, i]))
         
@@ -672,6 +672,39 @@ def get_image_features(data_type, block):
 
         data = s
 
+    if data_type == 'svd_entropy':
+        l_img = transform.get_LAB_L(block)
+
+        blocks = segmentation.divide_in_blocks(l_img, (20, 20))
+
+        values = []
+        for b in blocks:
+            sv = compression.get_SVD_s(b)
+            values.append(utils.get_entropy(sv))
+        data = np.array(values)
+
+    if data_type == 'svd_entropy_20':
+        l_img = transform.get_LAB_L(block)
+
+        blocks = segmentation.divide_in_blocks(l_img, (20, 20))
+
+        values = []
+        for b in blocks:
+            sv = compression.get_SVD_s(b)
+            values.append(utils.get_entropy(sv))
+        data = np.array(values)
+
+    if data_type == 'svd_entropy_noise_20':
+        l_img = transform.get_LAB_L(block)
+
+        blocks = segmentation.divide_in_blocks(l_img, (20, 20))
+
+        values = []
+        for b in blocks:
+            sv = compression.get_SVD_s(b)
+            sv_size = len(sv)
+            values.append(utils.get_entropy(sv[int(sv_size / 4):]))
+        data = np.array(values)
         
     return data
 
