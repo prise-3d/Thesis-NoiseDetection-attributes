@@ -154,7 +154,7 @@ def display_svd_values(p_scene, p_thresholds, p_interval, p_indices, p_feature, 
 
 
     # display all data using matplotlib (configure plt)
-    fig, ax = plt.subplots(figsize=(30, 22))
+    fig, ax = plt.subplots(figsize=(30, 15))
     ax.set_facecolor('#FFFFFF')
     #fig.patch.set_facecolor('#F9F9F9')
 
@@ -182,7 +182,7 @@ def display_svd_values(p_scene, p_thresholds, p_interval, p_indices, p_feature, 
     ax.set_ylim(start_ylim, end_ylim)
 
     plot_name = scene_name + '_' + p_feature + '_' + str(p_step) + '_' + p_mode + '_' + str(p_norm) + '.png'
-    plt.title('Tend of Singular values at different samples of ' + p_label + ' scene', fontsize=40)
+    # plt.title('Tend of Singular values at different samples of ' + p_label + ' scene', fontsize=40)
     plt.savefig(plot_name, transparent=True)
 
 def main():
